@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ICANS Grad">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="manifest" href="manifest.json">
+<title>ICANS Grading &amp; Therapie</title>
+<style>
+:root{--blue:#1B3A5C;--mblue:#2E75B6;--lblue:#D6E4F0;--xlblue:#EAF1F8;--green:#2D6A4F;--lgreen:#D8F3DC;--gray:#333;--mgray:#666;--lgray:#f5f5f5;--red:#C0392B;--lred:#FDEDEC;--orange:#E67E22;--lorange:#FEF5E7;--yellow:#f39c12;--lyellow:#fef9e7;--okgreen:#27ae60;--lokgreen:#eafaf1;--border:#e0e0e0;--bg:#fafafa;--white:#fff;--radius:10px}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--gray);padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}
+.hdr{background:var(--blue);color:white;padding:14px 16px 10px;text-align:center;position:sticky;top:0;z-index:10}
+.hdr h1{font-size:17px;font-weight:600}
+.hdr p{font-size:11px;opacity:0.7;margin-top:2px}
+.ct{padding:12px 14px 120px}
+.stitle{font-size:12px;font-weight:600;color:var(--mblue);text-transform:uppercase;letter-spacing:0.5px;margin:16px 0 8px;padding:0 2px}
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:12px;margin:0 0 8px}
+.card label{font-size:12px;color:var(--mgray);display:block;margin:0 0 6px}
+.ice-grid{display:grid;grid-template-columns:1fr;gap:0}
+.ice-item{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--lgray)}
+.ice-item:last-child{border-bottom:none}
+.ice-item .ice-label{font-size:14px;flex:1}
+.ice-item .ice-sub{font-size:11px;color:var(--mgray);display:block}
+.ice-btn-group{display:flex;gap:4px}
+.ice-btn{width:40px;height:36px;border-radius:8px;border:1px solid var(--border);background:var(--white);font-size:15px;font-weight:600;color:var(--gray);cursor:pointer;transition:all 0.15s}
+.ice-btn.active{background:var(--mblue);color:white;border-color:var(--mblue)}
+.ice-total{display:flex;align-items:center;justify-content:center;gap:8px;padding:12px;background:var(--xlblue);border-radius:var(--radius);margin:8px 0 0}
+.ice-total .num{font-size:32px;font-weight:700;color:var(--blue)}
+.ice-total .lbl{font-size:13px;color:var(--mgray)}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--lgray)}
+.toggle-row:last-child{border-bottom:none}
+.toggle-row .tl{font-size:14px;flex:1}
+.toggle-row .tsub{font-size:11px;color:var(--mgray);display:block}
+.seg{display:flex;gap:0;border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.seg button{flex:1;padding:8px 4px;border:none;background:var(--white);font-size:12px;color:var(--gray);cursor:pointer;border-right:1px solid var(--border);transition:all 0.15s}
+.seg button:last-child{border-right:none}
+.seg button.active{background:var(--mblue);color:white}
+.grade-card{border-radius:var(--radius);padding:16px;margin:10px 0;border-left:5px solid;border-radius:0}
+.grade-card h2{font-size:20px;font-weight:700;margin:0 0 4px}
+.grade-card .gsub{font-size:13px;margin:0 0 8px}
+.grade-card.g0{background:var(--lokgreen);border-color:var(--okgreen);color:var(--green)}
+.grade-card.g1{background:var(--lokgreen);border-color:var(--okgreen)}
+.grade-card.g1 h2{color:var(--okgreen)}
+.grade-card.g2{background:var(--lyellow);border-color:var(--yellow)}
+.grade-card.g2 h2{color:var(--yellow)}
+.grade-card.g3{background:var(--lorange);border-color:var(--orange)}
+.grade-card.g3 h2{color:var(--orange)}
+.grade-card.g4{background:var(--lred);border-color:var(--red)}
+.grade-card.g4 h2{color:var(--red)}
+.grade-factors{font-size:12px;color:var(--mgray);margin:4px 0 0}
+.th-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin:8px 0}
+.th-card h3{font-size:14px;font-weight:600;color:var(--blue);margin:0 0 10px}
+.th-sec{margin:0 0 12px}
+.th-sec h4{font-size:12px;font-weight:600;margin:0 0 4px;padding-left:8px;border-radius:0}
+.th-sec h4.setting{color:var(--red);border-left:3px solid var(--red)}
+.th-sec h4.diag{color:var(--mblue);border-left:3px solid var(--mblue)}
+.th-sec h4.ther{color:var(--green);border-left:3px solid var(--green)}
+.th-sec h4.esc{color:var(--orange);border-left:3px solid var(--orange)}
+.th-sec p{font-size:13px;line-height:1.6;padding-left:11px;margin:0 0 2px}
+.th-sec .hi{font-weight:600;color:var(--red)}
+.th-sec .med{font-weight:600;color:var(--orange)}
+.th-sec .ok{font-weight:600;color:var(--okgreen)}
+.th-sec .drug{font-weight:600;color:var(--blue)}
+.crs-bar{display:flex;align-items:center;gap:8px;margin:4px 0}
+.crs-bar span{font-size:13px;color:var(--mgray)}
+select{width:100%;font-size:15px;padding:8px 10px;border:1px solid var(--border);border-radius:8px;background:var(--white);color:var(--gray);-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23999' fill='none' stroke-width='1.5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center}
+.disc{font-size:10px;color:var(--mgray);text-align:center;padding:20px 16px;line-height:1.5;border-top:1px solid var(--border);margin-top:20px}
+.quick-ref{background:var(--xlblue);border:1px solid var(--lblue);border-radius:var(--radius);padding:10px 12px;margin:8px 0;font-size:12px;color:var(--blue);line-height:1.6}
+</style>
+</head>
+<body>
+<div class="hdr">
+<h1>ICANS Grading &amp; Therapie</h1>
+<p>Dienstarzt-Entscheidungshilfe nach ASTCT / Onkopedia 2025</p>
+</div>
+<div class="ct">
+
+<!-- ===== ICE SCORE ===== -->
+<div class="stitle">ICE-Score erheben</div>
+<div class="card">
+<div class="ice-grid">
+
+<div class="ice-item">
+<div class="ice-label">Orientierung: Jahr<span class="ice-sub">Welches Jahr haben wir?</span></div>
+<div class="ice-btn-group"><button class="ice-btn" data-q="o1" data-v="0" onclick="setICE(this)">0</button><button class="ice-btn active" data-q="o1" data-v="1" onclick="setICE(this)">1</button></div>
+</div>
+<div class="ice-item">
+<div class="ice-label">Orientierung: Monat<span class="ice-sub">Welcher Monat ist es?</span></div>
+<div class="ice-btn-group"><button class="ice-btn" data-q="o2" data-v="0" onclick="setICE(this)">0</button><button class="ice-btn active" data-q="o2" data-v="1" onclick="setICE(this)">1</button></div>
+</div>
+<div class="ice-item">
+<div class="ice-label">Orientierung: Stadt<span class="ice-sub">In welcher Stadt sind wir?</span></div>
+<div class="ice-btn-group"><button class="ice-btn" data-q="o3" data-v="0" onclick="setICE(this)">0</button><button class="ice-btn active" data-q="o3" data-v="1" onclick="setICE(this)">1</button></div>
+</div>
+<div class="ice-item">
+<div class="ice-label">Orientierung: Krankenhaus<span class="ice-sub">In welchem Krankenhaus sind wir?</span></div>
+<div class="ice-btn-group"><button class="ice-btn" data-q="o4" data-v="0" onclick="setICE(this)">0</button><button class="ice-btn active" data-q="o4" data-v="1" onclick="setICE(this)">1</button></div>
+</div>
+<div class="ice-item">
+<div class="ice-label">Benennen: Gegenstand 1<span class="ice-sub">3 Gegenst&#228;nde zeigen, benennen lassen</span></div>
+<div class="ice-btn-group"><button class="ice-btn" data-q="n1" data-v="0" onclick="setICE(this)">0</button><button class="ice-btn active" data-q="n1" data-v="1" onclick="setICE(this)">1</button></div>
+</div>
+<div class="ice-item">
+<div class="ice-label">Benennen: Gegenstand 2</div>
+<div class="ice-btn-group"><button class="ice-btn" data-q="n2" data-v="0" onclick="setICE(this)">0</button><button class="ice-btn active" data-q="n2" data-v="1" onclick="setICE(this)">1</button></div>
+</div>
+<div class="ice-item">
+<div class="ice-label">Benennen: Gegenstand 3</div>
+<div class="ice-btn-group"><button class="ice-btn" data-q="n3" data-v="0" onclick="setICE(this)">0</button><button class="ice-btn active" data-q="n3" data-v="1" onclick="setICE(this)">1</button></div>
+</div>
+<div class="ice-item">
+<div class="ice-label">Schreiben<span class="ice-sub">Standardsatz schreiben lassen</span></div>
+<div class="ice-btn-group"><button class="ice-btn" data-q="w1" data-v="0" onclick="setICE(this)">0</button><button class="ice-btn active" data-q="w1" data-v="1" onclick="setICE(this)">1</button></div>
+</div>
+<div class="ice-item">
+<div class="ice-label">Konzentration<span class="ice-sub">Von 100 in 10er-Schritten r&#252;ckw&#228;rts</span></div>
+<div class="ice-btn-group"><button class="ice-btn" data-q="a1" data-v="0" onclick="setICE(this)">0</button><button class="ice-btn active" data-q="a1" data-v="1" onclick="setICE(this)">1</button></div>
+</div>
+<div class="ice-item">
+<div class="ice-label">Befolgen<span class="ice-sub">Geste ausf&#252;hren (z.B. 2 Finger zeigen)</span></div>
+<div class="ice-btn-group"><button class="ice-btn" data-q="f1" data-v="0" onclick="setICE(this)">0</button><button class="ice-btn active" data-q="f1" data-v="1" onclick="setICE(this)">1</button></div>
+</div>
+
+</div>
+<div class="ice-total"><div><span class="num" id="ice-score">10</span><span class="lbl"> / 10</span></div></div>
+</div>
+
+<!-- ===== KLINISCHE KRITERIEN ===== -->
+<div class="stitle">Klinische Kriterien (ASTCT)</div>
+
+<div class="card">
+<div class="toggle-row">
+<div class="tl">Bewusstseinslage<span class="tsub">H&#246;chste zutreffende Stufe w&#228;hlen</span></div>
+</div>
+<div class="seg" id="seg-consc">
+<button class="active" data-v="0" onclick="setSeg('consc',this)">Wach</button>
+<button data-v="1" onclick="setSeg('consc',this)">Ansprache</button>
+<button data-v="2" onclick="setSeg('consc',this)">Taktil</button>
+<button data-v="3" onclick="setSeg('consc',this)">Koma</button>
+</div>
+</div>
+
+<div class="card">
+<div class="toggle-row">
+<div class="tl">Epileptischer Anfall<span class="tsub">Aktuell oder in den letzten 24h</span></div>
+</div>
+<div class="seg" id="seg-seizure">
+<button class="active" data-v="0" onclick="setSeg('seizure',this)">Kein Anfall</button>
+<button data-v="1" onclick="setSeg('seizure',this)">Anfall, rasch sisitiert</button>
+<button data-v="2" onclick="setSeg('seizure',this)">Lebensbedrohlich / Status</button>
+</div>
+</div>
+
+<div class="card">
+<div class="toggle-row">
+<div class="tl">Motorisches Defizit<span class="tsub">Neu aufgetretene h&#246;hergradige Parese</span></div>
+</div>
+<div class="seg" id="seg-motor">
+<button class="active" data-v="0" onclick="setSeg('motor',this)">Kein Defizit</button>
+<button data-v="1" onclick="setSeg('motor',this)">Hemi-/Paraparese</button>
+</div>
+</div>
+
+<div class="card">
+<div class="toggle-row">
+<div class="tl">Hirn&#246;dem / ICP-Zeichen<span class="tsub">Bildgebung oder klinische Zeichen</span></div>
+</div>
+<div class="seg" id="seg-edema">
+<button class="active" data-v="0" onclick="setSeg('edema',this)">Kein &#214;dem</button>
+<button data-v="1" onclick="setSeg('edema',this)">Fokales &#214;dem</button>
+<button data-v="2" onclick="setSeg('edema',this)">Diffus / Cushing</button>
+</div>
+</div>
+
+<div class="card">
+<label>Begleitendes CRS</label>
+<select id="crs-grade" onchange="grade()">
+<option value="0">Kein CRS</option>
+<option value="1">CRS Grad 1 (Fieber, keine Hypotonie/Hypoxie)</option>
+<option value="2">CRS Grad 2 (Hypotonie ohne Vasopressor / O2 &#8804; 6 l)</option>
+<option value="3">CRS Grad 3 (1 Vasopressor / O2 > 6 l)</option>
+<option value="4">CRS Grad 4 (mehrere Vasopressoren / PAP)</option>
+</select>
+</div>
+
+<div class="card">
+<label>Patient nicht testbar (komatös, intubiert, stark sediert)</label>
+<div class="seg" id="seg-untestable">
+<button class="active" data-v="0" onclick="setSeg('untestable',this)">Testbar</button>
+<button data-v="1" onclick="setSeg('untestable',this)">Nicht testbar</button>
+</div>
+</div>
+
+<!-- ===== GRADING ERGEBNIS ===== -->
+<div class="stitle">ICANS-Grad (ASTCT)</div>
+<div id="grade-result"></div>
+
+<!-- ===== THERAPIE ===== -->
+<div class="stitle">Therapieempfehlung</div>
+<div class="th-card" id="therapy-content"></div>
+
+<!-- ===== QUICK REF ===== -->
+<div class="stitle">Kurzreferenz Dosierungen</div>
+<div class="quick-ref">
+<strong>Tocilizumab:</strong> 8 mg/kg KG i.v. &#252;ber 1 h (max. 800 mg), ggf. nach 8 h wdh. (max. 4 Gaben)<br>
+<strong>Dexamethason:</strong> 10 mg i.v. alle 6&#8211;12 h, Eskalation auf 20 mg alle 6 h bei Nichtansprechen<br>
+<strong>Methylprednisolon:</strong> 1 g/Tag i.v. (Grad 4) oder 1&#8211;2 g/24 h bei Hirn&#246;dem<br>
+<strong>Anakinra:</strong> > 200 mg/Tag s.c. oder i.v.<br>
+<strong>Levetiracetam:</strong> 500&#8211;1000 mg i.v./p.o. 2&#215; t&#228;glich (Krampfprophylaxe)<br>
+<strong>Cyclophosphamid:</strong> 1,5 g/m&#178; (bei refr. Grad 3&#8211;4 / Hirn&#246;dem)
+</div>
+
+<div class="disc">
+Klinische Entscheidungshilfe &#8211; ersetzt nicht die &#228;rztliche Beurteilung.<br>
+Quellen: ASTCT Consensus (Lee et al. 2019), Onkopedia 2025, V&#246;lker/M&#246;hn et al. 2026.<br>
+Nicht als Medizinprodukt validiert. Nur f&#252;r internen klinischen Gebrauch.<br>
+Version 1.0 &#8211; M&#228;rz 2026
+</div>
+</div>
+
+<script>
+var ice={o1:1,o2:1,o3:1,o4:1,n1:1,n2:1,n3:1,w1:1,a1:1,f1:1};
+var clin={consc:0,seizure:0,motor:0,edema:0,untestable:0};
+
+function setICE(btn){
+  var q=btn.dataset.q,v=+btn.dataset.v;
+  ice[q]=v;
+  btn.parentElement.querySelectorAll('.ice-btn').forEach(function(b){b.classList.remove('active')});
+  btn.classList.add('active');
+  grade();
+}
+function setSeg(key,btn){
+  clin[key]=+btn.dataset.v;
+  document.getElementById('seg-'+key).querySelectorAll('button').forEach(function(b){b.classList.remove('active')});
+  btn.classList.add('active');
+  grade();
+}
+
+function ms(cls,title,lines){
+  var h='<div class="th-sec"><h4 class="'+cls+'">'+title+'</h4>';
+  for(var i=0;i<lines.length;i++){if(lines[i])h+='<p>'+lines[i]+'</p>';}
+  return h+'</div>';
+}
+
+function grade(){
+  var total=0;for(var k in ice)total+=ice[k];
+  document.getElementById('ice-score').textContent=total;
+
+  var crs=+document.getElementById('crs-grade').value;
+
+  // ASTCT grading logic
+  var g=0;
+  var reasons=[];
+
+  if(clin.untestable===1){
+    g=4;reasons.push('Patient nicht testbar (Koma/Intubation)');
+  } else {
+    // ICE-based
+    if(total>=7&&total<=9){if(g<1)g=1;reasons.push('ICE '+total+' (7\u20139 = Grad 1)');}
+    else if(total>=3&&total<=6){if(g<2)g=2;reasons.push('ICE '+total+' (3\u20136 = Grad 2)');}
+    else if(total>=1&&total<=2){if(g<3)g=3;reasons.push('ICE '+total+' (0\u20132 = Grad 3)');}
+    else if(total===0){if(g<3)g=3;reasons.push('ICE 0 (Grad 3\u20134)');}
+
+    // Consciousness
+    if(clin.consc===1){if(g<2)g=2;reasons.push('Durch Ansprache erweckbar (Grad 2)');}
+    if(clin.consc===2){if(g<3)g=3;reasons.push('Nur durch taktilen Reiz erweckbar (Grad 3)');}
+    if(clin.consc===3){g=4;reasons.push('Koma / Stupor (Grad 4)');}
+
+    // Seizure
+    if(clin.seizure===1){if(g<3)g=3;reasons.push('Epileptischer Anfall mit Restitution (Grad 3)');}
+    if(clin.seizure===2){g=4;reasons.push('Status epilepticus / lebensbedrohlich (Grad 4)');}
+
+    // Motor
+    if(clin.motor===1){g=4;reasons.push('H\u00f6hergradiges motorisches Defizit (Grad 4)');}
+
+    // Edema
+    if(clin.edema===1){if(g<3)g=3;reasons.push('Fokales Hirn\u00f6dem (Grad 3)');}
+    if(clin.edema===2){g=4;reasons.push('Diffuses Hirn\u00f6dem / Cushing-Reflex (Grad 4)');}
+  }
+
+  if(total===10&&g===0&&clin.consc===0&&clin.seizure===0&&clin.motor===0&&clin.edema===0){
+    reasons=['Kein ICANS \u2013 ICE 10/10, keine klinischen Kriterien erf\u00fcllt'];
+  }
+
+  // Grade display
+  var gcls=['g0','g1','g2','g3','g4'][g];
+  var gname=['Kein ICANS','ICANS Grad 1','ICANS Grad 2','ICANS Grad 3','ICANS Grad 4'][g];
+  var gdesc=['Keine Neurotoxizit\u00e4t nachweisbar.','Leichte Neurotoxizit\u00e4t. Patient spontan erweckbar.','Moderate Neurotoxizit\u00e4t. Durch Ansprache erweckbar.','Schwere Neurotoxizit\u00e4t. Intensivstation erforderlich.','Lebensbedrohliche Neurotoxizit\u00e4t. Sofortmassnahmen.'][g];
+
+  document.getElementById('grade-result').innerHTML='<div class="grade-card '+gcls+'"><h2>'+gname+'</h2><p class="gsub">'+gdesc+'</p><p class="grade-factors">'+reasons.join('<br>')+'</p></div>';
+
+  // === THERAPY ===
+  var th='';
+  var hasCRS=crs>0;
+
+  if(g===0){
+    th+='<h3>Kein ICANS &#8211; Standardvorgehen</h3>';
+    th+=ms('ther','Monitoring',['ICE + BHISA mind. 1\u00d7 t\u00e4glich','Schriftprobe 1\u00d7 t\u00e4glich','Vitalzeichen 3\u00d7 t\u00e4glich']);
+    if(hasCRS) th+=ms('esc','Begleitendes CRS Grad '+crs,['<span class="med">CRS-Therapie gem\u00e4ss CRS-Algorithmus einleiten</span>','ICE/BHISA-Frequenz auf alle 8\u201312 h erh\u00f6hen','CRS ist st\u00e4rkster Pr\u00e4diktor f\u00fcr nachfolgendes ICANS (OR 18,9)']);
+    th+=ms('diag','Differentialdiagnostik',['ICANS ist eine Ausschlussdiagnose','Bei neuen neurol. Symptomen: Infektion, Stoffwechsel, Blutung, Isch\u00e4mie ausschliessen']);
+  }
+  else if(g===1){
+    th+='<h3>Therapie ICANS Grad 1</h3>';
+    th+=ms('setting','Setting',['Station\u00e4re \u00dcberwachung, ggf. \u00dcberwachungsstation erw\u00e4gen']);
+    th+=ms('diag','Diagnostik',['<span class="drug">ICE + BHISA alle 4 Stunden</span>','cMRT mit KM erw\u00e4gen (cCT falls MRT nicht zeitnah verf\u00fcgbar)','EEG erw\u00e4gen','Neurologisches Konsil erw\u00e4gen','Bei Persistenz > 24 h: Lumbalpunktion erw\u00e4gen']);
+    th+=ms('ther','Therapie',['Bei Dysphagie: Umstellung auf i.v.-Medikation','<span class="ok">Levetiracetam als Krampfprophylaxe erw\u00e4gen</span>','Thiamin-Substitution erw\u00e4gen',hasCRS?'<span class="drug">Bei begleitendem CRS: Tocilizumab 8 mg/kg i.v. (max. 800 mg) erw\u00e4gen</span>':'','<span class="med">Bei Persistenz > 24 h oder fr\u00fches Auftreten (< 72 h): Eskalation auf Grad-2-Protokoll</span>']);
+  }
+  else if(g===2){
+    th+='<h3>Therapie ICANS Grad 2</h3>';
+    th+=ms('setting','Setting',['<span class="med">\u00dcberwachungs- / Intensivstation erw\u00e4gen</span>']);
+    th+=ms('diag','Diagnostik',['<span class="drug">ICE + BHISA + GCS alle 4 Stunden</span>','<span class="hi">cMRT mit KM (falls noch nicht erfolgt)</span>','<span class="hi">EEG (falls noch nicht erfolgt)</span>','<span class="hi">Lumbalpunktion (wenn keine Kontraindikation)</span>','Aspirationsprophylaxe einleiten']);
+    th+=ms('ther','Medikament\u00f6se Therapie',['<span class="drug">Dexamethason 10 mg i.v. alle 6\u201312 h</span>, bis Symptomatik \u2264 Grad 1, dann stufenweise Reduktion','Bei fehlender Besserung: Dexamethason auf max. 20 mg i.v. alle 6 h','<span class="drug">Anakinra > 200 mg/Tag s.c. oder i.v. erw\u00e4gen</span> (insb. bei Risikofaktoren)','Bei fehlender Besserung: i.th. Dexamethason (z.B. 10 mg) erw\u00e4gen',hasCRS?'<span class="drug">Tocilizumab 8 mg/kg i.v. (max. 800 mg)</span> falls nicht bereits verabreicht':'']);
+    th+=ms('esc','Eskalation',['<span class="med">Falls refrakt\u00e4r: Eskalation auf Grad-3-Protokoll</span>']);
+  }
+  else if(g===3){
+    th+='<h3>Therapie ICANS Grad 3</h3>';
+    th+=ms('setting','Setting',['<span class="hi">Verlegung auf Intensivstation</span>']);
+    th+=ms('diag','Monitoring',['<span class="drug">ICE + BHISA + GCS alle 2\u20134 Stunden</span>','cMRT, EEG, LP falls noch nicht erfolgt']);
+    th+=ms('ther','Medikament\u00f6se Therapie',['<span class="drug">Dexamethason 10 mg i.v. alle 6\u201312 h</span>','Bei fehlender Besserung: 20 mg i.v. alle 6 h','<span class="drug">Anakinra > 200 mg/Tag s.c. oder i.v.</span> \u2013 fr\u00fchzeitig starten bei fehlender rascher Steroid-Response','i.th. Dexamethason (z.B. 10 mg) erw\u00e4gen',clin.seizure>=1?'<span class="hi">Antikonvulsive Therapie gem\u00e4ss DGN-Leitlinie Status epilepticus</span>':'',clin.edema>=1?'<span class="hi">Hirn\u00f6dem: Hyperventilation + hyperosmolare Therapie + Methylprednisolon 1\u20132 g/24 h</span>':'',clin.edema>=1?'<span class="hi">Cyclophosphamid 1,5 g/m\u00b2 erw\u00e4gen</span>':'']);
+    th+=ms('esc','Eskalation bei Nichtansprechen',['<span class="hi">Falls refrakt\u00e4r: Eskalation auf Grad-4-Protokoll</span>']);
+  }
+  else if(g===4){
+    th+='<h3>Therapie ICANS Grad 4 &#8211; Notfall</h3>';
+    th+=ms('setting','Setting',['<span class="hi">Intensivstation, ggf. Intubation</span>','<span class="hi">Kontinuierliches EEG-Monitoring erw\u00e4gen</span>']);
+    th+=ms('ther','Sofortmassnahmen',['<span class="hi">Methylprednisolon 1 g/Tag i.v. \u00fcber mind. 3 Tage</span>, dann stufenweise Reduktion','<span class="drug">Anakinra > 200 mg/Tag s.c. oder i.v.</span>','i.th. Dexamethason (z.B. 10 mg) erw\u00e4gen',clin.seizure>=2?'<span class="hi">Status epilepticus: Soforttherapie gem\u00e4ss DGN-Leitlinie (Benzodiazepin \u2192 Levetiracetam/Valproat \u2192 Narkose)</span>':'',clin.edema>=1?'<span class="hi">Hirn\u00f6dem: Hyperventilation + Mannitol/NaCl 3% + Methylprednisolon 1\u20132 g/24 h</span>':'',clin.motor===1?'<span class="hi">H\u00f6hergradige Parese: Bildgebung (Blutung/Isch\u00e4mie ausschliessen), Neuro-Konsil sofort</span>':'']);
+    th+=ms('esc','Bei Therapieversagen',['<span class="hi">Cyclophosphamid 1,5 g/m\u00b2 erw\u00e4gen</span>','Alternative Immunsuppressiva: Ruxolitinib, ggf. ATG','Emapalumab bei gleichzeitiger Hyperferritin\u00e4mie erw\u00e4gen']);
+  }
+
+  // Allgemeine Hinweise
+  th+=ms('diag','Immer beachten',['<span class="med">ICANS ist eine Ausschlussdiagnose!</span> Blutung, Isch\u00e4mie, Meningitis, Enzephalitis, Meningeosis, Stoffwechselst\u00f6rung, Sepsis ausschliessen','ZNS-wirksame Sedativa und krampfschwellensenkende Medikamente nur mit Vorsicht','Schriftprobe dokumentieren und mit Baseline vergleichen','Bei BCMA-Produkten (Cilta-cel, Ide-cel): An sp\u00e4te MNTs denken (Mikrographie, Tremor, Bradykinesie)']);
+
+  document.getElementById('therapy-content').innerHTML=th;
+}
+grade();
+
+if('serviceWorker' in navigator){navigator.serviceWorker.register('./sw.js');}
+</script>
+</body>
+</html>
