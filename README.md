@@ -1,2 +1,0 @@
-# ICANSapp
-ICANS APP
