@@ -89,6 +89,8 @@ em.src{font-size:10px;color:var(--mgray);font-style:normal;display:block;margin-
 /* PDF Button */
 .pdf-btn{display:block;width:100%;padding:14px;background:var(--blue);color:white;border:none;border-radius:var(--radius);font-size:15px;font-weight:600;cursor:pointer;margin:16px 0 8px;letter-spacing:0.3px}
 .pdf-btn:active{opacity:0.85}
+.add-meas-btn{display:block;width:100%;padding:15px;background:var(--okgreen);color:white;border:none;border-radius:var(--radius);font-size:16px;font-weight:700;cursor:pointer;margin-top:4px;letter-spacing:0.3px;box-shadow:0 4px 14px rgba(39,174,96,0.35);transition:background 0.15s,box-shadow 0.15s}
+.add-meas-btn:active{opacity:0.85;box-shadow:none}
 
 /* ── Patientenverlauf ── */
 .pt-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:11px 14px;margin:0 0 6px;cursor:pointer;transition:all 0.18s;display:flex;align-items:center;gap:12px}
@@ -114,6 +116,127 @@ em.src{font-size:10px;color:var(--mgray);font-style:normal;display:block;margin-
 <img class="banner" src="icons/banner.png" alt="ICANS Grading & Therapie">
 </div>
 <div class="ct">
+
+<!-- ===== MODUS-TOGGLE ===== -->
+<div id="mode-toggle-bar" style="display:flex;gap:0;margin-bottom:16px;border-radius:10px;overflow:hidden;border:2px solid var(--blue)">
+  <button id="btn-mode-dienst" onclick="setMode('dienst')"
+    style="flex:1;padding:11px 8px;background:var(--blue);color:white;border:none;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px">
+    Dienst-Modus
+  </button>
+  <button id="btn-mode-visiten" onclick="setMode('visiten')"
+    style="flex:1;padding:11px 8px;background:white;color:var(--blue);border:none;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px">
+    Visiten-Modus
+  </button>
+</div>
+
+<!-- ===== VISITE-MODUS ===== -->
+<div id="visiten-section" style="display:none">
+
+  <!-- Patientenliste Visite -->
+  <div class="stitle">Patienten</div>
+  <div id="vpt-list" style="display:grid;gap:8px;margin-bottom:10px"></div>
+  <div style="display:flex;gap:8px;margin-bottom:16px">
+    <input id="vpt-name-input" type="text" placeholder="Pseudonym / Kürzel" maxlength="30"
+      style="flex:1;padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px">
+    <button onclick="vptAdd()" style="padding:9px 16px;background:var(--blue);color:white;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer">
+      &#43; Patient
+    </button>
+  </div>
+
+  <!-- Aktiver Patient Visite -->
+  <div id="vpt-detail" style="display:none">
+
+    <!-- Kompakte Eingabe -->
+    <div class="card" style="border-left:4px solid var(--mblue);padding:14px">
+      <div style="font-size:13px;font-weight:700;color:var(--blue);margin-bottom:12px">
+        &#128203; Visite-Eintrag f&uuml;r: <span id="vpt-detail-name"></span>
+      </div>
+
+      <!-- ICE-Score Schnelleingabe -->
+      <div style="margin-bottom:12px">
+        <div style="font-size:11px;font-weight:600;color:var(--mgray);margin-bottom:6px">ICE-SCORE (0–10)</div>
+        <div style="display:grid;grid-template-columns:repeat(11,1fr);gap:3px" id="vice-btns"></div>
+        <div style="font-size:11px;color:var(--mgray);margin-top:4px">Ausgewählt: <strong id="vice-val">10</strong>/10</div>
+      </div>
+
+      <!-- CRS Kurzabfrage -->
+      <div style="margin-bottom:12px">
+        <div style="font-size:11px;font-weight:600;color:var(--mgray);margin-bottom:6px">CRS-KRITERIEN</div>
+        <div style="display:grid;gap:6px">
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 10px;background:var(--lcyan,#f0f7ff);border-radius:8px;border:1px solid var(--border)">
+            <span style="font-size:12px;color:var(--gray)">Fieber &ge; 38&deg;C</span>
+            <div style="display:flex;gap:6px">
+              <button id="vcrs-fever-yes" onclick="vSetCRS('fever',1)" style="padding:4px 12px;border-radius:6px;border:1px solid var(--border);background:white;font-size:12px;cursor:pointer">Ja</button>
+              <button id="vcrs-fever-no"  onclick="vSetCRS('fever',0)" style="padding:4px 12px;border-radius:6px;border:1px solid var(--mblue);background:var(--mblue);color:white;font-size:12px;cursor:pointer">Nein</button>
+            </div>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 10px;background:var(--lcyan,#f0f7ff);border-radius:8px;border:1px solid var(--border)">
+            <span style="font-size:12px;color:var(--gray)">Hypotonie</span>
+            <div style="display:flex;gap:6px">
+              <button id="vcrs-hypo-yes" onclick="vSetCRS('hypo',1)" style="padding:4px 12px;border-radius:6px;border:1px solid var(--border);background:white;font-size:12px;cursor:pointer">Ja</button>
+              <button id="vcrs-hypo-no"  onclick="vSetCRS('hypo',0)" style="padding:4px 12px;border-radius:6px;border:1px solid var(--mblue);background:var(--mblue);color:white;font-size:12px;cursor:pointer">Nein</button>
+            </div>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 10px;background:var(--lcyan,#f0f7ff);border-radius:8px;border:1px solid var(--border)">
+            <span style="font-size:12px;color:var(--gray)">Hypoxie / O&#8322;-Bedarf</span>
+            <div style="display:flex;gap:6px">
+              <button id="vcrs-hypox-yes" onclick="vSetCRS('hypox',1)" style="padding:4px 12px;border-radius:6px;border:1px solid var(--border);background:white;font-size:12px;cursor:pointer">Ja</button>
+              <button id="vcrs-hypox-no"  onclick="vSetCRS('hypox',0)" style="padding:4px 12px;border-radius:6px;border:1px solid var(--mblue);background:var(--mblue);color:white;font-size:12px;cursor:pointer">Nein</button>
+            </div>
+          </div>
+        </div>
+        <div id="vcrs-result" style="margin-top:8px;font-size:12px;font-weight:600;color:var(--okgreen)">&#9679; Kein CRS (kein Fieber)</div>
+      </div>
+
+      <!-- Tag post CAR-T -->
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px">
+        <span style="font-size:12px;color:var(--mgray);white-space:nowrap">Tag post CAR-T:</span>
+        <div class="seg seg-sm" id="seg-vpt-day" style="flex:1">
+          <button class="active" data-d="1">1</button><button data-d="2">2</button><button data-d="3">3</button>
+          <button data-d="4">4</button><button data-d="5">5</button><button data-d="6">6</button>
+          <button data-d="7">7</button><button data-d="8">8</button><button data-d="9">9</button>
+          <button data-d="10">10</button>
+        </div>
+      </div>
+
+      <!-- Speichern -->
+      <button onclick="vSaveMeasurement()" class="add-meas-btn">&#128190; Messung jetzt speichern</button>
+    </div>
+
+    <!-- Verlaufsgrafik Visite -->
+    <div class="chart-wrap" id="vpt-chart-wrap" style="display:none;margin-top:12px">
+      <div style="font-size:12px;font-weight:600;color:var(--mblue);margin-bottom:8px">Verlauf</div>
+      <canvas id="vpt-chart" height="180"></canvas>
+    </div>
+
+    <!-- Messtabelle Visite -->
+    <div id="vpt-meas-list" style="margin-top:12px"></div>
+
+    <!-- Export-Buttons -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px">
+      <button onclick="vExportPDF()" style="padding:10px;background:var(--blue);color:white;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer">
+        &#128438; Verlauf PDF
+      </button>
+      <button onclick="vExportKIS()" style="padding:10px;background:var(--mblue);color:white;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer">
+        &#128203; KIS-Text kopieren
+      </button>
+    </div>
+
+    <!-- KIS-Text Ausgabe -->
+    <div id="vkis-output" style="display:none;margin-top:10px">
+      <div style="font-size:11px;font-weight:600;color:var(--mgray);margin-bottom:4px">KIS-Eintrag (zum Kopieren):</div>
+      <textarea id="vkis-text" readonly rows="8"
+        style="width:100%;font-size:12px;font-family:monospace;padding:10px;border:1px solid var(--border);border-radius:8px;background:#f8f9fa;box-sizing:border-box;resize:vertical"></textarea>
+      <button onclick="vCopyKIS()" style="width:100%;margin-top:6px;padding:8px;background:var(--okgreen);color:white;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer">
+        &#128203; In Zwischenablage kopieren
+      </button>
+    </div>
+
+  </div><!-- /vpt-detail -->
+</div><!-- /visiten-section -->
+
+<!-- ===== DIENST-MODUS ===== -->
+<div id="dienst-section">
 
 <!-- ===== PRÄPARAT (OPTIONAL) ===== -->
 <div class="stitle">Präparat (optional)</div>
@@ -422,7 +545,7 @@ em.src{font-size:10px;color:var(--mgray);font-style:normal;display:block;margin-
         <button data-d="10">10</button>
       </div>
     </div>
-    <button class="add-meas-btn" onclick="ptSaveMeasurement()">&#10133; Messung speichern</button>
+    <button class="add-meas-btn" onclick="ptSaveMeasurement()">&#128190; Messung jetzt speichern</button>
   </div>
 
   <!-- Verlaufschart -->
@@ -534,6 +657,8 @@ em.src{font-size:10px;color:var(--mgray);font-style:normal;display:block;margin-
     Keine kommerziellen Zwecke. Keine Nutzung als Grundlage für automatisierte medizinische Entscheidungen.
   </div>
 </div>
+
+</div><!-- /dienst-section -->
 
 <div class="disc">
 Klinische Entscheidungshilfe &#8211; ersetzt nicht die &#228;rztliche Beurteilung.<br>
@@ -1217,7 +1342,7 @@ function generatePDF() {
 
   // ICANS
   fi(ICANS_BG[g]);st(ICANS_FG[g],0.8);doc.roundedRect(ML,y,bw,30,3,3,'FD');
-  fi(ICANS_FG[g]);doc.circle(ML+12,y+13,8,'F');
+  fi(ICANS_FG[g]);doc.ellipse(ML+12,y+13,8,8,'F');
   fo('bold',15,C.white);doc.text(String(g),ML+12,y+13,{align:'center',baseline:'middle'});
   fo('bold',9.5,ICANS_FG[g]);doc.text(IN[g],ML+24,y+10);
   fo('normal',7.5,C.gray);
@@ -1227,7 +1352,7 @@ function generatePDF() {
   // CRS
   var cx=ML+bw+4;
   fi(CRS_BG[crs]);st(CRS_FG[crs],0.8);doc.roundedRect(cx,y,bw,30,3,3,'FD');
-  fi(CRS_FG[crs]);doc.circle(cx+12,y+13,8,'F');
+  fi(CRS_FG[crs]);doc.ellipse(cx+12,y+13,8,8,'F');
   fo('bold',15,C.white);doc.text(String(crs),cx+12,y+13,{align:'center',baseline:'middle'});
   fo('bold',9.5,CRS_FG[crs]);doc.text(CN[crs],cx+24,y+10);
   fo('normal',7.5,C.gray);
@@ -1896,30 +2021,96 @@ function ptExportPDF() {
     y += rowH;
   });
 
-  // ── Grafik aus Canvas ──
-  y += 6;
-  var chartCanvas = document.getElementById('pt-chart');
-  if (chartCanvas && p.measurements.length >= 2) {
-    try {
-      var chartImg = chartCanvas.toDataURL('image/png');
-      var chartH = 80;
-      var chartW = CW;
-      if (y + chartH + 10 > PH - 16) {
-        fo('normal',6,C.mgray);
-        doc.text('Klinische Entscheidungshilfe – ersetzt nicht die ärztliche Beurteilung. Nur interner Gebrauch. Version 1.2 · Jan Jürß · MHH', ML, PH-6);
-        doc.addPage();
-        fi(C.blue); doc.rect(0,0,PW,10,'F');
-        fo('bold',9,C.white);
-        doc.text('CAR-T Monitoring – Verlaufsgrafik · '+p.name, ML, 7);
-        y = 16;
+  // ── Verlaufsgrafik nativ in jsPDF ──
+  if (sorted.length >= 2) {
+    y += 6;
+    var GH = 75; // Grafik-Höhe mm
+    var GW = CW;
+    if (y + GH + 18 > PH - 16) {
+      fo('normal',6,C.mgray);
+      doc.text('Klinische Entscheidungshilfe – ersetzt nicht die ärztliche Beurteilung. Nur interner Gebrauch.', ML, PH-6);
+      doc.addPage(); pageNum++;
+      fi(C.blue); doc.rect(0,0,PW,10,'F');
+      fo('bold',9,C.white); doc.text('CAR-T Monitoring – Verlaufsgrafik · '+p.name, ML, 7);
+      y = 16;
+    }
+    fo('bold',9,C.mblue); doc.text('Verlaufsgrafik', ML, y+5); y += 8;
+    var GX = ML, GY = y, GXE = ML+GW, GYE = y+GH;
+    // Hintergrund
+    fi([248,250,255]); st(C.lgray,0.3);
+    doc.rect(GX, GY, GW, GH, 'FD');
+    // Gitternetz Y
+    fo('normal',6.5,C.mgray);
+    for (var gi=0; gi<=5; gi++) {
+      var gy = GY + GH - (gi/5)*GH;
+      st(C.lgray,0.15); doc.line(GX, gy, GXE, gy);
+      doc.setTextColor(C.mgray[0],C.mgray[1],C.mgray[2]);
+      doc.text(String(gi*2), GX-5, gy+1.5, {align:'right'}); // ICE linke Achse 0,2,4,6,8,10
+    }
+    // Rechte Achse Grad 0-4
+    for (var gi2=0; gi2<=4; gi2++) {
+      var gy2 = GY + GH - (gi2/4)*GH;
+      doc.text(String(gi2), GXE+5, gy2+1.5); // Grad rechte Achse
+    }
+    // Achsenbeschriftung
+    fo('bold',7,[46,117,182]); doc.text('ICE-Score', GX-4, GY-2);
+    fo('bold',7,[230,126,34]); doc.text('Grad', GXE+2, GY-2);
+    // X-Achse Labels
+    var n = sorted.length;
+    var xStep = GW / (n > 1 ? n-1 : 1);
+    fo('normal',6,C.mgray);
+    sorted.forEach(function(m,xi) {
+      var px = GX + xi*xStep;
+      doc.setTextColor(C.mgray[0],C.mgray[1],C.mgray[2]);
+      doc.text('T'+m.day, px, GYE+4, {align:'center'});
+    });
+    // ICE-Linie (blau, linke Achse 0-10)
+    doc.setLineWidth(0.7); doc.setDrawColor(46,117,182);
+    for (var xi=0; xi<sorted.length; xi++) {
+      var px1 = GX + xi*xStep;
+      var py1 = GY + GH - (sorted[xi].ice/10)*GH;
+      if (xi>0) {
+        var px0 = GX + (xi-1)*xStep;
+        var py0 = GY + GH - (sorted[xi-1].ice/10)*GH;
+        doc.line(px0,py0,px1,py1);
       }
-      fo('bold',9,C.mblue);
-      doc.text('Verlaufsgrafik', ML, y+5); y+=8;
-      doc.addImage(chartImg,'PNG',ML,y,chartW,chartH);
-      y += chartH + 4;
-      fo('normal',7,C.mgray);
-      doc.text('Links: ICE-Score (0–10) · Rechts: ICANS- und CRS-Grad (0–4)', ML, y); y+=5;
-    } catch(e) {}
+      fi([46,117,182]); doc.ellipse(px1,py1,1.2,1.2,'F');
+    }
+    // ICANS-Linie (orange, rechte Achse 0-4)
+    doc.setLineWidth(0.7); doc.setDrawColor(230,126,34);
+    for (var xi=0; xi<sorted.length; xi++) {
+      var px1 = GX + xi*xStep;
+      var py1 = GY + GH - ((sorted[xi].icans||0)/4)*GH;
+      if (xi>0) {
+        var px0 = GX + (xi-1)*xStep;
+        var py0 = GY + GH - ((sorted[xi-1].icans||0)/4)*GH;
+        doc.line(px0,py0,px1,py1);
+      }
+      fi([230,126,34]); doc.ellipse(px1,py1,1.2,1.2,'F');
+    }
+    // CRS-Linie (rot gestrichelt, rechte Achse 0-4)
+    doc.setLineWidth(0.6); doc.setDrawColor(180,50,35);
+    doc.setLineDash([2,2]);
+    for (var xi=0; xi<sorted.length; xi++) {
+      var px1 = GX + xi*xStep;
+      var py1 = GY + GH - ((sorted[xi].crs||0)/4)*GH;
+      if (xi>0) {
+        var px0 = GX + (xi-1)*xStep;
+        var py0 = GY + GH - ((sorted[xi-1].crs||0)/4)*GH;
+        doc.line(px0,py0,px1,py1);
+      }
+      fi([180,50,35]); doc.ellipse(px1,py1,1.2,1.2,'F');
+    }
+    doc.setLineDash([]);
+    // Legende
+    y = GYE + 10;
+    fi([46,117,182]); doc.ellipse(ML+3,y,2,2,'F');
+    fo('normal',7,C.gray); doc.text('ICE-Score (0–10, linke Achse)', ML+7, y+1);
+    fi([230,126,34]); doc.ellipse(ML+65,y,2,2,'F');
+    doc.text('ICANS-Grad (0–4, rechte Achse)', ML+69, y+1);
+    fi([180,50,35]); doc.ellipse(ML+135,y,2,2,'F');
+    doc.text('CRS-Grad (0–4, gestrichelt)', ML+139, y+1);
+    y += 8;
   }
 
   // ── Statistik ──
@@ -2237,6 +2428,487 @@ function auditClear() {
   auditLog = [];
   auditSave();
   auditRender();
+}
+
+
+// ════════════════════════════════════════════════════════
+// MODUS-TOGGLE (Akut / Visite)
+// ════════════════════════════════════════════════════════
+var currentMode = 'dienst';
+
+function setMode(mode) {
+  currentMode = mode;
+  var dienst = document.getElementById('dienst-section');
+  var visite = document.getElementById('visiten-section');
+  var btnA   = document.getElementById('btn-mode-dienst');
+  var btnV   = document.getElementById('btn-mode-visiten');
+  if (mode === 'visiten') {
+    dienst.style.display = 'none';
+    visite.style.display = 'block';
+    btnV.style.background = 'var(--blue)';
+    btnV.style.color      = 'white';
+    btnA.style.background = 'white';
+    btnA.style.color      = 'var(--blue)';
+    vptRender();
+  } else {
+    dienst.style.display = 'block';
+    visite.style.display = 'none';
+    btnA.style.background = 'var(--blue)';
+    btnA.style.color      = 'white';
+    btnV.style.background = 'white';
+    btnV.style.color      = 'var(--blue)';
+  }
+}
+
+// ════════════════════════════════════════════════════════
+// VISITE – Daten (teilt localStorage mit ptData)
+// ════════════════════════════════════════════════════════
+var vActive = null;
+var vChart  = null;
+var vState  = { ice: 10, fever: 0, hypo: 0, hypox: 0, day: 1 };
+
+function vptLoad() {
+  try { ptData = JSON.parse(localStorage.getItem(PT_KEY) || '{}'); }
+  catch(e) { ptData = {}; }
+}
+
+function vptRender() {
+  vptLoad();
+  var ids = Object.keys(ptData);
+  var list = document.getElementById('vpt-list');
+  if (!list) return;
+  if (ids.length === 0) {
+    list.innerHTML = '<div style="font-size:12px;color:var(--mgray);padding:6px 2px">Noch keine Patienten angelegt.</div>';
+    document.getElementById('vpt-detail').style.display = 'none';
+    return;
+  }
+  var html = '';
+  var GRADE_COL = ['var(--okgreen)','var(--okgreen)','#9a7d0a','#b7600a','var(--red)'];
+  ids.forEach(function(id) {
+    var p = ptData[id];
+    var last = p.measurements && p.measurements.length > 0
+      ? p.measurements.slice().sort(function(a,b){ return a.ts<b.ts?1:-1; })[0]
+      : null;
+    var isActive = (id === vActive);
+    html += '<div onclick="vptSelect(&quot;'+id+'&quot;)" style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-radius:10px;border:1px solid '+(isActive?'var(--mblue)':'var(--border)')+';background:'+(isActive?'#edf3fb':'white')+';cursor:pointer;border-left:4px solid '+(isActive?'var(--mblue)':'var(--border)')+'">'
+            + '<div><div class="pt-name">'+p.name+'</div>'
+            + (last ? '<div class="pt-meta">Letzte Messung: T'+last.day+' · ICE '+last.ice+' · ICANS <span style="color:'+GRADE_COL[last.icans]+'">G'+last.icans+'</span> · CRS <span style="color:'+GRADE_COL[last.crs]+'">G'+last.crs+'</span></div>' : '<div class="pt-meta">Noch keine Messungen</div>')
+            + '</div>'
+            + '<div style="font-size:11px;color:var(--mgray)">'+p.measurements.length+' Mess.</div>'
+            + '</div>';
+  });
+  list.innerHTML = html;
+  if (vActive && ptData[vActive]) {
+    document.getElementById('vpt-detail').style.display = 'block';
+    vRenderDetail();
+  }
+}
+
+function vptAdd() {
+  var inp = document.getElementById('vpt-name-input');
+  var name = (inp.value || '').trim();
+  if (!name) { inp.focus(); return; }
+  vptLoad();
+  // Prüfen ob Name schon existiert
+  var exists = Object.values(ptData).some(function(p){ return p.name === name; });
+  if (exists) { alert('Patient "'+name+'" existiert bereits.'); return; }
+  var id = 'pt_' + Date.now();
+  ptData[id] = { name: name, measurements: [] };
+  ptSave();
+  inp.value = '';
+  vActive = id;
+  vptRender();
+}
+
+function vptSelect(id) {
+  vActive = id;
+  vptRender();
+  document.getElementById('vpt-detail').style.display = 'block';
+  vRenderDetail();
+  vInitICEButtons();
+  vResetCRS();
+}
+
+// ICE-Buttons initialisieren
+function vInitICEButtons() {
+  var wrap = document.getElementById('vice-btns');
+  if (!wrap || wrap.children.length > 0) return;
+  var html = '';
+  for (var i = 0; i <= 10; i++) {
+    var active = (i === vState.ice);
+    html += '<button data-ice="'+i+'" onclick="vSetICE('+i+')" style="padding:6px 0;border-radius:6px;border:1px solid '+(active?'var(--blue)':'var(--border)')+';background:'+(active?'var(--blue)':'white')+';color:'+(active?'white':'var(--gray)')+';font-size:12px;font-weight:'+(active?'700':'400')+';cursor:pointer">'+i+'</button>';
+  }
+  wrap.innerHTML = html;
+}
+
+function vSetICE(val) {
+  vState.ice = val;
+  document.getElementById('vice-val').textContent = val;
+  // Buttons aktualisieren
+  var btns = document.querySelectorAll('#vice-btns button');
+  btns.forEach(function(b) {
+    var v = parseInt(b.dataset.ice);
+    b.style.background = (v === val) ? 'var(--blue)' : 'white';
+    b.style.color      = (v === val) ? 'white' : 'var(--gray)';
+    b.style.border     = (v === val) ? '1px solid var(--blue)' : '1px solid var(--border)';
+    b.style.fontWeight = (v === val) ? '700' : '400';
+  });
+  vUpdateCRSResult();
+}
+
+function vSetCRS(field, val) {
+  vState[field] = val;
+  // Button-Styling
+  var yes = document.getElementById('vcrs-'+field+'-yes');
+  var no  = document.getElementById('vcrs-'+field+'-no');
+  if (yes && no) {
+    if (val === 1) {
+      yes.style.background = 'var(--red)'; yes.style.color = 'white'; yes.style.border = '1px solid var(--red)';
+      no.style.background  = 'white'; no.style.color = 'var(--gray)'; no.style.border = '1px solid var(--border)';
+    } else {
+      no.style.background  = 'var(--mblue)'; no.style.color = 'white'; no.style.border = '1px solid var(--mblue)';
+      yes.style.background = 'white'; yes.style.color = 'var(--gray)'; yes.style.border = '1px solid var(--border)';
+    }
+  }
+  vUpdateCRSResult();
+}
+
+function vResetCRS() {
+  vState.fever = 0; vState.hypo = 0; vState.hypox = 0;
+  ['fever','hypo','hypox'].forEach(function(f){ vSetCRS(f, 0); });
+}
+
+function vCalcCRS() {
+  if (!vState.fever) return 0;
+  if (vState.hypo && vState.hypox) return 3; // vereinfacht
+  if (vState.hypox) return 2;
+  if (vState.hypo) return 2;
+  return 1;
+}
+
+function vCalcICANS() {
+  var ice = vState.ice;
+  if (ice >= 7) return 1;
+  if (ice >= 3) return 2;
+  if (ice >= 1) return 3;
+  if (ice === 0) return 3;
+  return 0;
+}
+
+function vUpdateCRSResult() {
+  var res = document.getElementById('vcrs-result');
+  if (!res) return;
+  var crs = vCalcCRS();
+  var COLORS = ['var(--okgreen)','var(--okgreen)','var(--yellow)','var(--orange)','var(--red)'];
+  var LABELS = ['Kein CRS (kein Fieber)','CRS Grad 1 – Fieber ohne Organbeteiligung','CRS Grad 2 – Hypoxie oder Hypotonie','CRS Grad 3 – Vasopressor oder O₂ > 6 l/min','CRS Grad 4 – Lebensbedrohlich'];
+  res.style.color = COLORS[crs];
+  res.textContent = '⬤ ' + LABELS[crs];
+}
+
+// Tag-Auswahl im Visite-Segment
+document.addEventListener('DOMContentLoaded', function() {
+  var seg = document.getElementById('seg-vpt-day');
+  if (!seg) return;
+  seg.addEventListener('click', function(e) {
+    var btn = e.target.closest('button');
+    if (!btn || !btn.dataset.d) return;
+    vState.day = parseInt(btn.dataset.d);
+    seg.querySelectorAll('button').forEach(function(b){ b.classList.remove('active'); });
+    btn.classList.add('active');
+  });
+});
+
+function vRenderDetail() {
+  if (!vActive || !ptData[vActive]) return;
+  var p = ptData[vActive];
+  document.getElementById('vpt-detail-name').textContent = p.name;
+  vInitICEButtons();
+  vUpdateCRSResult();
+  vRenderChart(p.measurements);
+  vRenderMeasList(p.measurements);
+}
+
+function vSaveMeasurement() {
+  if (!vActive || !ptData[vActive]) return;
+  var icans = vCalcICANS();
+  var crs   = vCalcCRS();
+  var meas = {
+    id:    'm_' + Date.now(),
+    ts:    new Date().toISOString(),
+    day:   vState.day,
+    ice:   vState.ice,
+    icans: icans,
+    crs:   crs
+  };
+  ptData[vActive].measurements.push(meas);
+  ptSave();
+  auditAdd('Visite-Messung gespeichert',
+    'Patient: '+ptData[vActive].name+' · Tag '+meas.day+' · ICE='+meas.ice+' · ICANS G'+icans+' · CRS G'+crs);
+  vRenderDetail();
+  vptRender();
+  // Feedback
+  var btn = document.querySelector('#vpt-detail .add-meas-btn');
+  if (btn) {
+    var old = btn.textContent;
+    btn.textContent = '✓ Gespeichert';
+    btn.style.background = 'var(--okgreen)';
+    setTimeout(function(){ btn.textContent = old; btn.style.background = ''; }, 1500);
+  }
+}
+
+function vRenderMeasList(measurements) {
+  var wrap = document.getElementById('vpt-meas-list');
+  if (!wrap) return;
+  if (!measurements || measurements.length === 0) {
+    wrap.innerHTML = '<div style="font-size:12px;color:var(--mgray);padding:6px 2px">Noch keine Messungen.</div>';
+    return;
+  }
+  var sorted = measurements.slice().sort(function(a,b){
+    if(a.day!==b.day) return a.day-b.day;
+    return a.ts<b.ts?-1:1;
+  });
+  var GCOL = ['var(--okgreen)','var(--okgreen)','var(--yellow)','var(--orange)','var(--red)'];
+  var html = '<div style="font-size:12px;font-weight:600;color:var(--mblue);margin-bottom:4px">Messungen</div>';
+  html += '<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px">';
+  html += '<tr style="border-bottom:2px solid var(--border)">'
+        + '<th style="text-align:left;padding:4px 6px;color:var(--mgray)">Tag</th>'
+        + '<th style="text-align:left;padding:4px 6px;color:var(--mgray)">Zeit</th>'
+        + '<th style="text-align:center;padding:4px 6px;color:var(--mgray)">ICE</th>'
+        + '<th style="text-align:center;padding:4px 6px;color:var(--mgray)">ICANS</th>'
+        + '<th style="text-align:center;padding:4px 6px;color:var(--mgray)">CRS</th>'
+        + '<th></th></tr>';
+  sorted.forEach(function(m) {
+    html += '<tr style="border-bottom:1px solid var(--lgray)">'
+          + '<td style="padding:5px 6px;font-weight:600;color:var(--blue)">'+m.day+'</td>'
+          + '<td style="padding:5px 6px;color:var(--mgray)">'+ptFmtTime(m.ts)+'</td>'
+          + '<td style="padding:5px 6px;text-align:center;font-weight:700;color:var(--blue)">'+m.ice+'<span style="font-size:10px;color:var(--mgray)">/10</span></td>'
+          + '<td style="padding:5px 6px;text-align:center;font-weight:700;color:'+GCOL[m.icans]+'">'+m.icans+'</td>'
+          + '<td style="padding:5px 6px;text-align:center;font-weight:700;color:'+GCOL[m.crs]+'">'+m.crs+'</td>'
+          + '<td style="padding:5px 2px"><button class="del-btn" data-mid="'+m.id+'" onclick="vDeleteMeas(this.dataset.mid)" title="Löschen">&#10005;</button></td>'
+          + '</tr>';
+  });
+  html += '</table></div>';
+  wrap.innerHTML = html;
+}
+
+function vDeleteMeas(mid) {
+  if (!vActive || !ptData[vActive]) return;
+  ptData[vActive].measurements = ptData[vActive].measurements.filter(function(m){ return m.id !== mid; });
+  ptSave();
+  vRenderDetail();
+  vptRender();
+}
+
+function vRenderChart(measurements) {
+  var wrap = document.getElementById('vpt-chart-wrap');
+  if (!measurements || measurements.length < 2) {
+    wrap.style.display = 'none';
+    if (vChart) { vChart.destroy(); vChart = null; }
+    return;
+  }
+  wrap.style.display = 'block';
+  var sorted = measurements.slice().sort(function(a,b){ return a.ts<b.ts?-1:1; });
+  var labels   = sorted.map(function(m){ return 'T'+m.day+' '+ptFmtTime(m.ts); });
+  var iceVals  = sorted.map(function(m){ return m.ice; });
+  var icansVals= sorted.map(function(m){ return m.icans; });
+  var crsVals  = sorted.map(function(m){ return m.crs; });
+  if (vChart) { vChart.destroy(); vChart = null; }
+  var ctx = document.getElementById('vpt-chart').getContext('2d');
+  vChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [
+        { label:'ICE-Score', data:iceVals, borderColor:'#2E75B6', backgroundColor:'rgba(46,117,182,0.08)', borderWidth:2.5, pointRadius:5, pointBackgroundColor:'#2E75B6', tension:0.3, yAxisID:'yIce', fill:true },
+        { label:'ICANS-Grad', data:icansVals, borderColor:'#E67E22', backgroundColor:'rgba(230,126,34,0.08)', borderWidth:2.5, pointRadius:5, pointBackgroundColor:'#E67E22', tension:0.3, yAxisID:'yGrad', fill:false },
+        { label:'CRS-Grad', data:crsVals, borderColor:'#CC0000', backgroundColor:'rgba(204,0,0,0.06)', borderWidth:2.5, pointRadius:5, pointBackgroundColor:'#CC0000', tension:0.3, yAxisID:'yGrad', fill:false, borderDash:[5,3] }
+      ]
+    },
+    options: {
+      responsive:true, interaction:{mode:'index',intersect:false},
+      plugins:{ legend:{labels:{font:{size:11},boxWidth:18,padding:10}},
+        tooltip:{callbacks:{label:function(ctx){ return ctx.dataset.label==='ICE-Score' ? ' ICE: '+ctx.raw+'/10' : ' '+ctx.dataset.label+': Grad '+ctx.raw; }}} },
+      scales:{
+        x:{ticks:{font:{size:10},maxRotation:45},grid:{color:'rgba(0,0,0,0.05)'}},
+        yIce:{type:'linear',position:'left',min:0,max:10,title:{display:true,text:'ICE-Score',font:{size:10},color:'#2E75B6'},ticks:{font:{size:10},color:'#2E75B6',stepSize:2},grid:{color:'rgba(46,117,182,0.1)'}},
+        yGrad:{type:'linear',position:'right',min:0,max:4,title:{display:true,text:'Grad',font:{size:10},color:'#E67E22'},ticks:{font:{size:10},color:'#888',stepSize:1,callback:function(v){return Number.isInteger(v)?v:''}},grid:{drawOnChartArea:false}}
+      }
+    }
+  });
+}
+
+// ── Visite PDF-Export ─────────────────────────────────────
+function vExportPDF() {
+  if (!window.jspdf) { alert('PDF-Bibliothek nicht geladen.'); return; }
+  if (!vActive || !ptData[vActive]) { alert('Kein Patient ausgewählt.'); return; }
+  var p = ptData[vActive];
+  if (!p.measurements || p.measurements.length === 0) { alert('Keine Messungen vorhanden.'); return; }
+  var { jsPDF } = window.jspdf;
+  var doc = new jsPDF({ unit:'mm', format:'a4', orientation:'landscape' });
+  var PW=297, PH=210, ML=13, MR=13, MT=12, CW=271;
+  var C = { blue:[27,58,92], mblue:[46,117,182], gray:[51,51,51], mgray:[130,130,130],
+    lgray:[220,220,220], white:[255,255,255],
+    green:[39,174,96], yellow:[220,140,10], orange:[200,100,20], red:[180,50,35],
+    lgreen:[230,248,236], lyellow:[253,246,220], lorange:[253,240,220], lred:[252,232,230] };
+  function fi(col){doc.setFillColor(col[0],col[1],col[2]);}
+  function fo(style,sz,col){doc.setFont('helvetica',style||'normal');doc.setFontSize(sz||8.5);if(col)doc.setTextColor(col[0],col[1],col[2]);}
+  function st(col,lw){doc.setDrawColor(col[0],col[1],col[2]);doc.setLineWidth(lw||0.3);}
+  var now=new Date();
+  var ds=now.toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric'});
+  var ts=now.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});
+  var pageNum=1;
+  function addHeader(title) {
+    fi(C.blue); doc.rect(0,0,PW,14,'F');
+    fo('bold',13,C.white); doc.text(title,ML,9);
+    fo('normal',8,[180,210,240]); doc.text(ds+' '+ts+' Uhr',PW-MR,9,{align:'right'});
+    fo('normal',7.5,C.white); doc.text('Visite-Modus · CAR-T Monitoring · Klinik für Neurologie · MHH · Vertraulich',ML,12.5);
+  }
+  function addFooter() {
+    fo('normal',6,C.mgray);
+    doc.text('Klinische Entscheidungshilfe – Visite-Modus · Nicht als Medizinprodukt validiert · Nur interner Gebrauch · Version 2.0 · Jan Jürß · MHH',ML,PH-6);
+    fo('bold',6,C.mgray); doc.text('Seite '+pageNum,PW-MR,PH-6,{align:'right'});
+  }
+  addHeader('Visite-Verlauf · '+p.name);
+  var y = 20;
+  // Patient-Info
+  fi([240,246,255]); st(C.mblue,0.3); doc.roundedRect(ML,y,CW,10,2,2,'FD');
+  fo('bold',9,C.blue); doc.text('Patient (Pseudonym): '+p.name, ML+3, y+6.5);
+  fo('normal',8,C.mgray); doc.text('Messungen: '+p.measurements.length, PW-MR, y+6.5,{align:'right'});
+  y += 14;
+  // Tabelle
+  var sorted = p.measurements.slice().sort(function(a,b){ if(a.day!==b.day)return a.day-b.day; return a.ts<b.ts?-1:1; });
+  var GCOL = [C.green,C.green,C.yellow,C.orange,C.red];
+  var GBG  = [C.lgreen,C.lgreen,C.lyellow,C.lorange,C.lred];
+  fi(C.mblue); doc.rect(ML,y,CW,7,'F');
+  fo('bold',8,C.white);
+  doc.text('Tag',ML+2,y+5); doc.text('Zeit',ML+18,y+5); doc.text('ICE-Score',ML+40,y+5);
+  doc.text('ICANS-Grad',ML+80,y+5); doc.text('CRS-Grad',ML+120,y+5); doc.text('Zeitstempel',ML+160,y+5);
+  y += 7;
+  sorted.forEach(function(m,i) {
+    if(y>PH-20){ addFooter(); doc.addPage(); pageNum++; addHeader('Visite-Verlauf (Forts.) · '+p.name); y=20;
+      fi(C.mblue); doc.rect(ML,y,CW,7,'F'); fo('bold',8,C.white);
+      doc.text('Tag',ML+2,y+5); doc.text('Zeit',ML+18,y+5); doc.text('ICE-Score',ML+40,y+5);
+      doc.text('ICANS-Grad',ML+80,y+5); doc.text('CRS-Grad',ML+120,y+5); doc.text('Zeitstempel',ML+160,y+5); y+=7; }
+    var bg=(i%2===0)?C.white:[245,248,252];
+    fi(bg); doc.rect(ML,y,CW,8,'F');
+    fi(GBG[m.icans||0]); doc.rect(ML+78,y+0.5,36,7,'F');
+    fi(GBG[m.crs||0]); doc.rect(ML+118,y+0.5,36,7,'F');
+    fo('bold',8.5,C.blue); doc.text('T'+m.day,ML+2,y+5.5);
+    fo('normal',8,C.gray); doc.text(ptFmtTime(m.ts),ML+18,y+5.5);
+    fo('bold',9,C.mblue); doc.text(String(m.ice)+'/10',ML+40,y+5.5);
+    fo('bold',9,GCOL[m.icans||0]); doc.text('G'+(m.icans||0),ML+80,y+5.5);
+    fo('bold',9,GCOL[m.crs||0]); doc.text('G'+(m.crs||0),ML+120,y+5.5);
+    fo('normal',7,C.mgray); doc.text(m.ts||'',ML+160,y+5.5);
+    st(C.lgray,0.15); doc.line(ML,y+8,ML+CW,y+8);
+    y += 8;
+  });
+  // Grafik nativ
+  if (sorted.length >= 2) {
+    y += 6;
+    var GH2=70, GW2=CW, GX2=ML, GY2=y, GXE2=ML+CW, GYE2=y+GH2;
+    if(y+GH2+18>PH-16){ addFooter(); doc.addPage(); pageNum++; addHeader('Visite-Verlauf Grafik · '+p.name); y=20; GY2=y; GYE2=y+GH2; }
+    fo('bold',9,C.mblue); doc.text('Verlaufsgrafik',ML,y+5); y+=8; GY2=y; GYE2=y+GH2;
+    fi([248,250,255]); st(C.lgray,0.3); doc.rect(GX2,GY2,GW2,GH2,'FD');
+    fo('normal',6.5,C.mgray);
+    for(var gi=0;gi<=5;gi++){var gy=GY2+GH2-(gi/5)*GH2; st(C.lgray,0.15); doc.line(GX2,gy,GXE2,gy); doc.setTextColor(C.mgray[0],C.mgray[1],C.mgray[2]); doc.text(String(gi*2),GX2-5,gy+1.5,{align:'right'});}
+    for(var gi2=0;gi2<=4;gi2++){var gy2=GY2+GH2-(gi2/4)*GH2; doc.text(String(gi2),GXE2+5,gy2+1.5);}
+    fo('bold',7,[46,117,182]); doc.text('ICE',GX2-4,GY2-2);
+    fo('bold',7,[230,126,34]); doc.text('Grad',GXE2+2,GY2-2);
+    var n2=sorted.length, xS2=GW2/(n2>1?n2-1:1);
+    fo('normal',6,C.mgray);
+    sorted.forEach(function(m,xi){var px=GX2+xi*xS2; doc.setTextColor(C.mgray[0],C.mgray[1],C.mgray[2]); doc.text('T'+m.day,px,GYE2+4,{align:'center'});});
+    doc.setLineWidth(0.7); doc.setDrawColor(46,117,182);
+    for(var xi=0;xi<sorted.length;xi++){var px1=GX2+xi*xS2,py1=GY2+GH2-(sorted[xi].ice/10)*GH2; if(xi>0){var px0=GX2+(xi-1)*xS2,py0=GY2+GH2-(sorted[xi-1].ice/10)*GH2; doc.line(px0,py0,px1,py1);} fi([46,117,182]); doc.ellipse(px1,py1,1.2,1.2,'F');}
+    doc.setLineWidth(0.7); doc.setDrawColor(230,126,34);
+    for(var xi=0;xi<sorted.length;xi++){var px1=GX2+xi*xS2,py1=GY2+GH2-((sorted[xi].icans||0)/4)*GH2; if(xi>0){var px0=GX2+(xi-1)*xS2,py0=GY2+GH2-((sorted[xi-1].icans||0)/4)*GH2; doc.line(px0,py0,px1,py1);} fi([230,126,34]); doc.ellipse(px1,py1,1.2,1.2,'F');}
+    doc.setLineWidth(0.6); doc.setDrawColor(180,50,35); doc.setLineDash([2,2]);
+    for(var xi=0;xi<sorted.length;xi++){var px1=GX2+xi*xS2,py1=GY2+GH2-((sorted[xi].crs||0)/4)*GH2; if(xi>0){var px0=GX2+(xi-1)*xS2,py0=GY2+GH2-((sorted[xi-1].crs||0)/4)*GH2; doc.line(px0,py0,px1,py1);} fi([180,50,35]); doc.ellipse(px1,py1,1.2,1.2,'F');}
+    doc.setLineDash([]);
+    y = GYE2+10;
+    fi([46,117,182]); doc.ellipse(ML+3,y,2,2,'F'); fo('normal',7,C.gray); doc.text('ICE-Score (0-10)',ML+7,y+1);
+    fi([230,126,34]); doc.ellipse(ML+55,y,2,2,'F'); doc.text('ICANS-Grad',ML+59,y+1);
+    fi([180,50,35]); doc.ellipse(ML+95,y,2,2,'F'); doc.text('CRS-Grad (gestrichelt)',ML+99,y+1);
+    y+=8;
+  }
+  addFooter();
+  doc.save('Visite_'+p.name.replace(/[^a-zA-Z0-9_äöüÄÖÜß]/g,'_')+'_'+ds.replace(/\./g,'-')+'.pdf');
+}
+
+// ── KIS-Text Export ───────────────────────────────────────
+function vExportKIS() {
+  if (!vActive || !ptData[vActive]) return;
+  var p = ptData[vActive];
+  var now = new Date();
+  var ds = now.toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric'});
+  var ts = now.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});
+
+  // Letzte Messung ermitteln
+  var sorted = (p.measurements||[]).slice().sort(function(a,b){ return a.ts<b.ts?1:-1; });
+  var last = sorted[0] || null;
+
+  // ICANS-Grad → Empfehlung
+  var icansRec = [
+    'Keine spezifische Therapie. Klinische Beobachtung. Nächste ICE-Erhebung: morgen (täglich).',
+    'Dexamethason 10 mg i.v. erwägen. Antikonvulsive Prophylaxe prüfen. Nächste ICE-Erhebung: täglich.',
+    'Dexamethason 10 mg i.v. alle 6 h. Antikonvulsiva. Neurologisches Konsil. Nächste ICE-Erhebung: 6–12-stündlich.',
+    'Dexamethason 10 mg i.v. alle 6 h + intensivmedizinische Übernahme erwägen. ICE-Monitoring engmaschig (4-stündlich).',
+    'Sofortmaßnahmen: ICU, Methylprednisolon 1 g/d i.v., Neurologie/ICU-Konsil. Kontinuierliches Monitoring.'
+  ];
+  var crsRec = [
+    '',
+    'CRS Grad 1: Symptomatische Therapie (Antipyretika). Engmaschiges Monitoring.',
+    'CRS Grad 2: Tocilizumab 8 mg/kg i.v. erwägen. Engmaschiges Monitoring (alle 4–6 h).',
+    'CRS Grad 3: Tocilizumab + Dexamethason. Intensivstation.',
+    'CRS Grad 4: Tocilizumab + hochdosierte Steroide + ICU. Sofortmaßnahmen.'
+  ];
+
+  var icansG = last ? (last.icans||0) : 0;
+  var crsG   = last ? (last.crs||0) : 0;
+  var iceVal = last ? last.ice : '-';
+
+    var nl = '\n';
+  var txt = '=== CAR-T VISITE-DOKUMENTATION ===' + nl;
+  txt += 'Datum/Uhrzeit: ' + ds + ' ' + ts + ' Uhr' + nl;
+  txt += 'Patient (Pseudonym): ' + p.name + nl;
+  txt += nl;
+  txt += '--- NEUROTOXIZITAET (ICANS) ---' + nl;
+  txt += 'ICE-Score: ' + iceVal + '/10' + nl;
+  txt += 'ICANS-Grad (ASTCT): ' + icansG + nl;
+  txt += 'Empfehlung ICANS: ' + (icansRec[icansG]||'') + nl;
+  txt += nl;
+  txt += '--- CRS ---' + nl;
+  txt += 'CRS-Grad (Onkopedia): ' + crsG + nl;
+  if (crsG > 0) txt += 'Empfehlung CRS: ' + (crsRec[crsG]||'') + nl;
+  txt += nl;  // Verlauf (letzte 5)
+  if (sorted.length > 1) {
+    txt += '--- VERLAUF (letzte '+ Math.min(sorted.length,5)+' Messungen) ---' + nl;
+    sorted.slice(0, 5).forEach(function(m) {
+      txt += 'T'+m.day+' '+ptFmtTime(m.ts)+' - ICE '+m.ice+'/10 - ICANS G'+m.icans+' - CRS G'+m.crs + nl;
+    });
+    txt += nl;
+  }
+  txt += '--- HINWEIS ---' + nl;
+  txt += 'Klinische Entscheidungshilfe (ICANS Grading App v2.0, Klinik fuer Neurologie MHH).' + nl;
+  txt += 'Ersetzt nicht die aerztliche Beurteilung. Nicht als Medizinprodukt validiert.' + nl;
+  txt += 'Quellen: ASTCT Consensus (Lee et al. 2019), Onkopedia 2025, Voelker/Moehn et al. 2026.' + nl;
+
+  var out = document.getElementById('vkis-output');
+  var ta  = document.getElementById('vkis-text');
+  ta.value = txt;
+  out.style.display = 'block';
+  out.scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+
+function vCopyKIS() {
+  var ta = document.getElementById('vkis-text');
+  ta.select();
+  try {
+    navigator.clipboard.writeText(ta.value).then(function(){
+      var btn = document.querySelector('#vkis-output button');
+      if(btn){ var old=btn.textContent; btn.textContent='✓ Kopiert!'; btn.style.background='var(--blue)';
+        setTimeout(function(){ btn.textContent=old; btn.style.background='var(--okgreen)'; },2000); }
+    }).catch(function(){ document.execCommand('copy'); });
+  } catch(e) { document.execCommand('copy'); }
 }
 
 // ── Init Patientenverlauf ─────────────────────────────────
