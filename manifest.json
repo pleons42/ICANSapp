@@ -1,14 +1,1 @@
-{
-  "name": "ICANS Grading & Therapie",
-  "short_name": "ICANS Grad",
-  "description": "ICANS-Grading und Therapieempfehlung fuer den Dienstarzt",
-  "start_url": "./index.html",
-  "display": "standalone",
-  "orientation": "portrait",
-  "background_color": "#ffffff",
-  "theme_color": "#1B3A5C",
-  "icons": [
-    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" }
-  ]
-}
+{"name":"ICANS Grading & Therapie","short_name":"ICANS Grad","start_url":"./index.html","display":"standalone","background_color":"#1C1C1E","theme_color":"#1C1C1E","lang":"de","icons":[{"src":"icons/icon-192.png","sizes":"192x192","type":"image/png","purpose":"any maskable"},{"src":"icons/icon-512.png","sizes":"512x512","type":"image/png","purpose":"any maskable"}]}

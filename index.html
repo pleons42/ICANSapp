@@ -13,7 +13,8 @@
 :root{--blue:#1B3A5C;--mblue:#2E75B6;--lblue:#D6E4F0;--xlblue:#EAF1F8;--green:#2D6A4F;--lgreen:#D8F3DC;--gray:#333;--mgray:#666;--lgray:#f5f5f5;--red:#C0392B;--lred:#FDEDEC;--orange:#E67E22;--lorange:#FEF5E7;--yellow:#f39c12;--lyellow:#fef9e7;--okgreen:#27ae60;--lokgreen:#eafaf1;--border:#e0e0e0;--bg:#fafafa;--white:#fff;--radius:10px}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--gray);padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}
-.hdr{background:var(--blue);color:white;padding:14px 16px 10px;text-align:center;position:sticky;top:0;z-index:10}
+.hdr{background:#1C1C1E;color:white;padding:0;position:sticky;top:0;z-index:10;overflow:hidden;display:flex;align-items:center}
+.hdr img.banner{width:auto;height:56px;display:block}
 .hdr h1{font-size:17px;font-weight:600}
 .hdr p{font-size:11px;opacity:0.7;margin-top:2px}
 .ct{padding:12px 14px 120px}
@@ -26,11 +27,19 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .ice-item .ice-label{font-size:14px;flex:1}
 .ice-item .ice-sub{font-size:11px;color:var(--mgray);display:block}
 .ice-btn-group{display:flex;gap:4px}
-.ice-btn{width:40px;height:36px;border-radius:8px;border:1px solid var(--border);background:var(--white);font-size:15px;font-weight:600;color:var(--gray);cursor:pointer;transition:all 0.15s}
+.ice-btn{min-width:40px;height:36px;padding:0 8px;border-radius:8px;border:1px solid var(--border);background:var(--white);font-size:13px;font-weight:600;color:var(--gray);cursor:pointer;transition:all 0.15s}
 .ice-btn.active{background:var(--mblue);color:white;border-color:var(--mblue)}
 .ice-total{display:flex;align-items:center;justify-content:center;gap:8px;padding:12px;background:var(--xlblue);border-radius:var(--radius);margin:8px 0 0}
 .ice-total .num{font-size:32px;font-weight:700;color:var(--blue)}
 .ice-total .lbl{font-size:13px;color:var(--mgray)}
+/* CRS result bar */
+.crs-total{display:flex;align-items:center;gap:12px;padding:12px;border-radius:var(--radius);margin:8px 0 0;transition:background 0.2s}
+.crs-total .crs-num{font-size:32px;font-weight:700}
+.crs-total .crs-info{flex:1}
+.crs-total .crs-name{font-size:14px;font-weight:700}
+.crs-total .crs-reason{font-size:11px;color:var(--mgray);margin-top:2px}
+/* linked CRS display */
+.crs-linked{border-radius:var(--radius);padding:10px 12px;margin:0;font-size:13px;font-weight:600;transition:all 0.2s}
 .toggle-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--lgray)}
 .toggle-row:last-child{border-bottom:none}
 .toggle-row .tl{font-size:14px;flex:1}
@@ -65,19 +74,56 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .th-sec .med{font-weight:600;color:var(--orange)}
 .th-sec .ok{font-weight:600;color:var(--okgreen)}
 .th-sec .drug{font-weight:600;color:var(--blue)}
-.crs-bar{display:flex;align-items:center;gap:8px;margin:4px 0}
-.crs-bar span{font-size:13px;color:var(--mgray)}
-select{width:100%;font-size:15px;padding:8px 10px;border:1px solid var(--border);border-radius:8px;background:var(--white);color:var(--gray);-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23999' fill='none' stroke-width='1.5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center}
 .disc{font-size:10px;color:var(--mgray);text-align:center;padding:20px 16px;line-height:1.5;border-top:1px solid var(--border);margin-top:20px}
 .quick-ref{background:var(--xlblue);border:1px solid var(--lblue);border-radius:var(--radius);padding:10px 12px;margin:8px 0;font-size:12px;color:var(--blue);line-height:1.6}
+.dim{opacity:0.35;pointer-events:none}
+
+/* Präparat-Selector */
+.product-btn{flex:1;padding:8px 4px;border:1px solid var(--border);border-radius:8px;background:var(--white);font-size:11px;color:var(--gray);cursor:pointer;transition:all 0.15s;text-align:center;line-height:1.3}
+.product-btn.active{background:var(--blue);color:white;border-color:var(--blue)}
+/* Reset Button */
+.reset-btn{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:11px;background:var(--lgray);color:var(--mgray);border:1px solid var(--border);border-radius:var(--radius);font-size:13px;font-weight:600;cursor:pointer;margin:8px 0;transition:all 0.15s}
+.reset-btn:active{background:var(--border)}
+/* Timer */
+.timer-card{background:var(--xlblue);border:1px solid var(--lblue);border-radius:var(--radius);padding:12px;margin:8px 0}
+.timer-display{font-size:36px;font-weight:700;color:var(--blue);text-align:center;letter-spacing:2px;font-variant-numeric:tabular-nums}
+.timer-label{font-size:11px;color:var(--mgray);text-align:center;margin-bottom:8px}
+.timer-btn-row{display:flex;gap:8px;margin-top:10px}
+.timer-btn{flex:1;padding:9px;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer}
+.timer-btn.start{background:var(--okgreen);color:white}
+.timer-btn.stop{background:var(--orange);color:white}
+.timer-btn.reset-t{background:var(--lgray);color:var(--mgray);border:1px solid var(--border)}
+.timer-alert{background:var(--lred);border:1px solid var(--red);border-radius:8px;padding:10px;text-align:center;font-weight:600;color:var(--red);font-size:13px;display:none;margin-top:8px}
+
+/* PDF Button */
+.pdf-btn{display:block;width:100%;padding:14px;background:var(--blue);color:white;border:none;border-radius:var(--radius);font-size:15px;font-weight:600;cursor:pointer;margin:16px 0 8px;letter-spacing:0.3px}
+.pdf-btn:active{opacity:0.85}
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 </head>
 <body>
 <div class="hdr">
-<h1>ICANS Grading &amp; Therapie</h1>
-<p>Dienstarzt-Entscheidungshilfe nach ASTCT / Onkopedia 2025</p>
+<img class="banner" src="icons/banner.png" alt="ICANS Grading & Therapie">
 </div>
 <div class="ct">
+
+<!-- ===== PRÄPARAT (OPTIONAL) ===== -->
+<div class="stitle">Präparat (optional)</div>
+<div class="card">
+<label style="font-size:12px;color:var(--mgray);margin-bottom:8px;display:block">
+  CAR-T-Produkt wählen für produktspezifische Risikohinweise (optional – allgemeine Empfehlungen funktionieren auch ohne Auswahl)
+</label>
+<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px" id="product-btns">
+  <button class="product-btn active" data-prod="general" onclick="setProduct(this)">Kein Produkt / Allgemein</button>
+  <button class="product-btn" data-prod="axicel" onclick="setProduct(this)">Axicabtagene<br>ciloleucel</button>
+  <button class="product-btn" data-prod="kymriah" onclick="setProduct(this)">Tisagenlecleucel<br>(Kymriah)</button>
+  <button class="product-btn" data-prod="ciltacel" onclick="setProduct(this)">Ciltacabtagene<br>ciloleucel</button>
+  <button class="product-btn" data-prod="idecel" onclick="setProduct(this)">Idecabtagene<br>vicleucel</button>
+  <button class="product-btn" data-prod="lisocabtagene" onclick="setProduct(this)">Lisocabtagene<br>maraleucel</button>
+</div>
+<div id="product-hint" style="font-size:12px;line-height:1.6;color:var(--gray);padding:8px;background:var(--xlblue);border-radius:8px;display:none"></div>
+</div>
 
 <!-- ===== ICE SCORE ===== -->
 <div class="stitle">ICE-Score erheben</div>
@@ -129,6 +175,58 @@ select{width:100%;font-size:15px;padding:8px 10px;border:1px solid var(--border)
 <div class="ice-total"><div><span class="num" id="ice-score">10</span><span class="lbl"> / 10</span></div></div>
 </div>
 
+<!-- ===== CRS GRADING ===== -->
+<div class="stitle">CRS-Grad einsch&#228;tzen (Onkopedia 2025)</div>
+<div class="card">
+<div class="ice-grid">
+
+<div class="ice-item">
+<div class="ice-label">Fieber
+  <span class="ice-sub">&#8805; 38,0 &#176;C, nicht anderweitig erkl&#228;rbar</span>
+</div>
+<div class="ice-btn-group">
+  <button class="ice-btn" data-crs="fever" data-v="0" onclick="setCRS(this)">Nein</button>
+  <button class="ice-btn active" data-crs="fever" data-v="1" onclick="setCRS(this)">Ja</button>
+</div>
+</div>
+
+<div class="ice-item" id="crs-htn-row">
+<div class="ice-label">Hypotonie
+  <span class="ice-sub">Blutdruckabfall, klinisch relevant</span>
+</div>
+<div class="ice-btn-group">
+  <button class="ice-btn active" data-crs="htn" data-v="0" onclick="setCRS(this)">Keine</button>
+  <button class="ice-btn" data-crs="htn" data-v="1" onclick="setCRS(this)">Ohne VP*</button>
+  <button class="ice-btn" data-crs="htn" data-v="2" onclick="setCRS(this)">1 VP*</button>
+  <button class="ice-btn" data-crs="htn" data-v="3" onclick="setCRS(this)">&gt;1 VP*</button>
+</div>
+</div>
+
+<div class="ice-item" id="crs-o2-row">
+<div class="ice-label">Hypoxie / O&#8322;-Bedarf
+  <span class="ice-sub">SpO&#8322; &lt; 94&#8239;% bzw. zus&#228;tzlicher O&#8322; n&#246;tig</span>
+</div>
+<div class="ice-btn-group">
+  <button class="ice-btn active" data-crs="o2" data-v="0" onclick="setCRS(this)">Kein</button>
+  <button class="ice-btn" data-crs="o2" data-v="1" onclick="setCRS(this)">&#8804;&#8239;6&#8239;l</button>
+  <button class="ice-btn" data-crs="o2" data-v="2" onclick="setCRS(this)">&gt;&#8239;6&#8239;l</button>
+  <button class="ice-btn" data-crs="o2" data-v="3" onclick="setCRS(this)">PAP/Beatm.</button>
+</div>
+</div>
+
+</div>
+
+<!-- CRS result bar -->
+<div class="crs-total" id="crs-result-bar">
+  <div class="crs-num" id="crs-num">0</div>
+  <div class="crs-info">
+    <div class="crs-name" id="crs-name">Kein CRS</div>
+    <div class="crs-reason" id="crs-reason">Kein Fieber &#8211; CRS ausgeschlossen</div>
+  </div>
+</div>
+</div>
+<p style="font-size:11px;color:var(--mgray);padding:6px 2px 0">* VP = Vasopressor (z.B. Noradrenalin, Vasopressin)</p>
+
 <!-- ===== KLINISCHE KRITERIEN ===== -->
 <div class="stitle">Klinische Kriterien (ASTCT)</div>
 
@@ -150,7 +248,7 @@ select{width:100%;font-size:15px;padding:8px 10px;border:1px solid var(--border)
 </div>
 <div class="seg" id="seg-seizure">
 <button class="active" data-v="0" onclick="setSeg('seizure',this)">Kein Anfall</button>
-<button data-v="1" onclick="setSeg('seizure',this)">Anfall, rasch sisitiert</button>
+<button data-v="1" onclick="setSeg('seizure',this)">Anfall, rasch sistiert</button>
 <button data-v="2" onclick="setSeg('seizure',this)">Lebensbedrohlich / Status</button>
 </div>
 </div>
@@ -176,15 +274,13 @@ select{width:100%;font-size:15px;padding:8px 10px;border:1px solid var(--border)
 </div>
 </div>
 
-<div class="card">
-<label>Begleitendes CRS</label>
-<select id="crs-grade" onchange="grade()">
-<option value="0">Kein CRS</option>
-<option value="1">CRS Grad 1 (Fieber, keine Hypotonie/Hypoxie)</option>
-<option value="2">CRS Grad 2 (Hypotonie ohne Vasopressor / O2 &#8804; 6 l)</option>
-<option value="3">CRS Grad 3 (1 Vasopressor / O2 > 6 l)</option>
-<option value="4">CRS Grad 4 (mehrere Vasopressoren / PAP)</option>
-</select>
+<!-- Begleitendes CRS – auto-linked, read-only -->
+<div class="card" style="background:var(--xlblue);border-color:var(--lblue)">
+<label style="color:var(--mblue);font-weight:600;margin-bottom:4px">
+  Begleitendes CRS
+  <span style="font-weight:400;color:var(--mgray)"> &#8211; automatisch aus CRS-Einsch&#228;tzung oben</span>
+</label>
+<div id="crs-linked" class="crs-linked"></div>
 </div>
 
 <div class="card">
@@ -196,148 +292,1637 @@ select{width:100%;font-size:15px;padding:8px 10px;border:1px solid var(--border)
 </div>
 
 <!-- ===== GRADING ERGEBNIS ===== -->
-<div class="stitle">ICANS-Grad (ASTCT)</div>
-<div id="grade-result"></div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 0 0">
+  <div>
+    <div class="stitle" style="margin-top:16px">ICANS-Grad (ASTCT)</div>
+    <div id="grade-result"></div>
+  </div>
+  <div>
+    <div class="stitle" style="margin-top:16px">CRS-Grad (Onkopedia)</div>
+    <div id="crs-grade-result"></div>
+  </div>
+</div>
 
 <!-- ===== THERAPIE ===== -->
 <div class="stitle">Therapieempfehlung</div>
 <div class="th-card" id="therapy-content"></div>
 
+
+<!-- ===== TIMER ===== -->
+<div class="stitle">Monitoring-Timer (optional)</div>
+<div class="timer-card">
+<div class="timer-label" id="timer-label">Nächste Messung in:</div>
+<div class="timer-display" id="timer-display">04:00:00</div>
+<div id="timer-alert" class="timer-alert">&#9888; Zeit abgelaufen – Messung fällig!</div>
+<div style="display:flex;gap:6px;margin:10px 0 6px;flex-wrap:wrap">
+  <span style="font-size:11px;color:var(--mgray);align-self:center">Intervall:</span>
+  <button onclick="timerSetInterval(1*3600)" style="padding:5px 10px;border:1px solid var(--border);border-radius:6px;background:var(--white);font-size:11px;cursor:pointer">1 h</button>
+  <button onclick="timerSetInterval(2*3600)" style="padding:5px 10px;border:1px solid var(--border);border-radius:6px;background:var(--white);font-size:11px;cursor:pointer">2 h</button>
+  <button onclick="timerSetInterval(4*3600)" style="padding:5px 10px;border:1px solid var(--border);border-radius:6px;background:var(--white);font-size:11px;cursor:pointer">4 h</button>
+  <button onclick="timerSetInterval(6*3600)" style="padding:5px 10px;border:1px solid var(--border);border-radius:6px;background:var(--white);font-size:11px;cursor:pointer">6 h</button>
+  <button onclick="timerSetInterval(8*3600)" style="padding:5px 10px;border:1px solid var(--border);border-radius:6px;background:var(--white);font-size:11px;cursor:pointer">8 h</button>
+  <button onclick="timerSetInterval(12*3600)" style="padding:5px 10px;border:1px solid var(--border);border-radius:6px;background:var(--white);font-size:11px;cursor:pointer">12 h</button>
+</div>
+<div class="timer-btn-row">
+  <button id="timer-start-btn" class="timer-btn start" onclick="timerStartStop()">&#9654; Start</button>
+  <button class="timer-btn reset-t" onclick="timerReset()">&#8635; Zurücksetzen</button>
+</div>
+</div>
+
+
+<!-- ===== RESET ===== -->
+<button class="reset-btn" onclick="resetAll()">&#8635; Alle Eingaben zurücksetzen</button>
+
+<!-- ===== PDF EXPORT ===== -->
+<div class="stitle">Dokumentation</div>
+<button class="pdf-btn" onclick="generatePDF()">&#128438; PDF f&#252;r Patientenakte erzeugen</button>
+
 <!-- ===== QUICK REF ===== -->
 <div class="stitle">Kurzreferenz Dosierungen</div>
-<div class="quick-ref">
-<strong>Tocilizumab:</strong> 8 mg/kg KG i.v. &#252;ber 1 h (max. 800 mg), ggf. nach 8 h wdh. (max. 4 Gaben)<br>
-<strong>Dexamethason:</strong> 10 mg i.v. alle 6&#8211;12 h, Eskalation auf 20 mg alle 6 h bei Nichtansprechen<br>
-<strong>Methylprednisolon:</strong> 1 g/Tag i.v. (Grad 4) oder 1&#8211;2 g/24 h bei Hirn&#246;dem<br>
-<strong>Anakinra:</strong> > 200 mg/Tag s.c. oder i.v.<br>
-<strong>Levetiracetam:</strong> 500&#8211;1000 mg i.v./p.o. 2&#215; t&#228;glich (Krampfprophylaxe)<br>
-<strong>Cyclophosphamid:</strong> 1,5 g/m&#178; (bei refr. Grad 3&#8211;4 / Hirn&#246;dem)
+
+<!-- GFR Eingabe -->
+<div class="card" style="background:var(--xlblue);border-color:var(--lblue);margin-bottom:4px">
+<label style="color:var(--mblue);font-weight:600;font-size:12px;margin-bottom:6px;display:block">
+  Nierenfunktion / GFR eingeben f&#252;r dosisadaptierte Hinweise
+</label>
+<div style="display:flex;align-items:center;gap:10px">
+  <input type="number" id="gfr-input" min="0" max="150" placeholder="z.B. 45"
+    oninput="updateGFR()"
+    style="width:90px;font-size:16px;font-weight:700;padding:8px 10px;border:2px solid var(--mblue);border-radius:8px;text-align:center;color:var(--blue)">
+  <span style="font-size:13px;color:var(--mgray)">ml/min/1,73&#8239;m&#178; (eGFR / CKD-EPI)</span>
+  <button onclick="document.getElementById('gfr-input').value='';updateGFR()"
+    style="font-size:11px;padding:4px 8px;border:1px solid var(--border);border-radius:6px;background:var(--white);color:var(--mgray);cursor:pointer">
+    l&#246;schen
+  </button>
+</div>
+<div id="gfr-stage" style="margin-top:8px;font-size:12px;font-weight:600"></div>
+</div>
+
+<!-- Dosierungstabelle -->
+<div id="quick-ref-content"></div>
+
+<!-- ===== KONTAKT ===== -->
+<div class="stitle">Wichtige Telefonnummern (MHH intern)</div>
+<div class="card" style="background:#FFF8E7;border-color:#F39C12">
+<div style="font-size:13px;font-weight:700;color:#1B3A5C;margin-bottom:8px;border-bottom:1px solid #F39C12;padding-bottom:6px">
+  &#128222; Umgehende Kontaktaufnahme
+</div>
+<div style="display:grid;gap:6px">
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #FCE8C3">
+    <span style="font-size:13px;color:#333"><strong>CAR-T Hintergrund</strong></span>
+    <a href="tel:017615328834" style="font-size:14px;font-weight:700;color:#C0392B;text-decoration:none">01761-532-<strong>8834</strong></a>
+  </div>
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #FCE8C3">
+    <span style="font-size:13px;color:#333">RS Station 13 (IMC)</span>
+    <a href="tel:017137" style="font-size:14px;font-weight:700;color:#C0392B;text-decoration:none"><strong>17-1137</strong></a>
+  </div>
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #FCE8C3">
+    <span style="font-size:13px;color:#333">RS Station 14 (ITS)</span>
+    <a href="tel:017623" style="font-size:14px;font-weight:700;color:#C0392B;text-decoration:none"><strong>7623</strong></a>
+  </div>
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #FCE8C3">
+    <span style="font-size:13px;color:#333">RS Neurologie (Mo&#8211;Fr 8&#8211;17 Uhr)</span>
+    <a href="tel:017615324870" style="font-size:14px;font-weight:700;color:#C0392B;text-decoration:none">01761-532-<strong>4870</strong></a>
+  </div>
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0">
+    <span style="font-size:13px;color:#333">1. Dienst Neurologie</span>
+    <a href="tel:177055" style="font-size:14px;font-weight:700;color:#C0392B;text-decoration:none"><strong>17-7055</strong></a>
+  </div>
+</div>
+</div>
+
+
+<!-- ===== PATIENTENVERLAUF ===== -->
+<div class="stitle">Patientenverlauf (CAR-T Monitoring)</div>
+
+<!-- Patientenauswahl -->
+<div id="pt-list"></div>
+
+<div style="display:flex;gap:8px;margin:0 0 8px">
+  <input type="text" class="pt-input" id="pt-new-name" placeholder="Pseudonym (z.B. P-001)" style="margin:0;flex:1">
+  <button onclick="ptAdd()" style="padding:9px 14px;background:var(--blue);color:white;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap">+ Patient</button>
+</div>
+
+<!-- Aktiver Patient -->
+<div id="pt-detail" style="display:none">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin:8px 0 4px">
+    <span id="pt-detail-name" style="font-size:15px;font-weight:700;color:var(--blue)"></span>
+    <button onclick="ptDelete()" style="background:none;border:none;color:var(--mgray);font-size:12px;cursor:pointer;text-decoration:underline">Patient l&#246;schen</button>
+  </div>
+
+  <!-- Messung hinzuf&#252;gen -->
+  <div class="card" style="background:var(--lokgreen);border-color:#a9dfbf">
+    <div style="font-size:12px;font-weight:600;color:var(--green);margin-bottom:8px">Aktuelle Scores &#252;bernehmen</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:10px">
+      <div style="text-align:center">
+        <div style="font-size:10px;color:var(--mgray)">ICE-Score</div>
+        <div id="pt-preview-ice" style="font-size:22px;font-weight:700;color:var(--blue)">10</div>
+      </div>
+      <div style="text-align:center">
+        <div style="font-size:10px;color:var(--mgray)">ICANS-Grad</div>
+        <div id="pt-preview-icans" style="font-size:22px;font-weight:700;color:var(--okgreen)">0</div>
+      </div>
+      <div style="text-align:center">
+        <div style="font-size:10px;color:var(--mgray)">CRS-Grad</div>
+        <div id="pt-preview-crs" style="font-size:22px;font-weight:700;color:var(--okgreen)">0</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
+      <span style="font-size:12px;color:var(--mgray);white-space:nowrap">Tag post CAR-T:</span>
+      <div class="seg seg-sm" id="seg-pt-day" style="flex:1">
+        <button class="active" data-d="1">1</button><button data-d="2">2</button><button data-d="3">3</button>
+        <button data-d="4">4</button><button data-d="5">5</button><button data-d="6">6</button>
+        <button data-d="7">7</button><button data-d="8">8</button><button data-d="9">9</button>
+        <button data-d="10">10</button>
+      </div>
+    </div>
+    <button class="add-meas-btn" onclick="ptSaveMeasurement()">&#10133; Messung speichern</button>
+  </div>
+
+  <!-- Verlaufschart -->
+  <div class="chart-wrap" id="pt-chart-wrap" style="display:none">
+    <div style="font-size:12px;font-weight:600;color:var(--mblue);margin-bottom:8px">Verlauf</div>
+    <canvas id="pt-chart" height="180"></canvas>
+  </div>
+
+  <!-- Messungen Liste -->
+  <div id="pt-meas-list"></div>
 </div>
 
 <div class="disc">
 Klinische Entscheidungshilfe &#8211; ersetzt nicht die &#228;rztliche Beurteilung.<br>
 Quellen: ASTCT Consensus (Lee et al. 2019), Onkopedia 2025, V&#246;lker/M&#246;hn et al. 2026.<br>
 Nicht als Medizinprodukt validiert. Nur f&#252;r internen klinischen Gebrauch.<br>
-Version 1.0 &#8211; M&#228;rz 2026
+Version 1.2 &#8211; M&#228;rz 2026<br>
+Autor: Jan J&#252;r&#223;, Klinik f&#252;r Neurologie mit klinischer Neurophysiologie, Medizinische Hochschule Hannover
 </div>
 </div>
 
 <script>
-var ice={o1:1,o2:1,o3:1,o4:1,n1:1,n2:1,n3:1,w1:1,a1:1,f1:1};
-var clin={consc:0,seizure:0,motor:0,edema:0,untestable:0};
+// ── State ──────────────────────────────────────────────
+// -- GFR / Kurzreferenz ------------------------------------------
+function updateGFR() {
+  var val = document.getElementById('gfr-input').value;
+  var gfr = val === '' ? null : parseFloat(val);
 
-function setICE(btn){
-  var q=btn.dataset.q,v=+btn.dataset.v;
-  ice[q]=v;
-  btn.parentElement.querySelectorAll('.ice-btn').forEach(function(b){b.classList.remove('active')});
+  // GFR-Stadium anzeigen
+  var stageEl = document.getElementById('gfr-stage');
+  if (gfr === null) {
+    stageEl.textContent = '';
+    stageEl.style.color = '';
+  } else {
+    var stage, col;
+    if (gfr >= 90)      { stage = 'G1 - Normal (>= 90)';      col = '#27ae60'; }
+    else if (gfr >= 60) { stage = 'G2 - Leicht reduziert (60-89)'; col = '#2E75B6'; }
+    else if (gfr >= 45) { stage = 'G3a - Leicht bis moderat (45-59)'; col = '#f39c12'; }
+    else if (gfr >= 30) { stage = 'G3b - Moderat bis schwer (30-44)'; col = '#E67E22'; }
+    else if (gfr >= 15) { stage = 'G4 - Schwer (15-29)';        col = '#C0392B'; }
+    else                { stage = 'G5 - Nierenversagen (< 15)'; col = '#8B0000'; }
+    stageEl.textContent = 'CKD-Stadium: ' + stage;
+    stageEl.style.color = col;
+  }
+
+  renderQuickRef(gfr);
+}
+
+function gfrNote(gfr, notes) {
+  // notes: array of [gfr_threshold, text] from high to low
+  if (gfr === null) return '';
+  for (var i = 0; i < notes.length; i++) {
+    if (gfr < notes[i][0]) return notes[i][1];
+  }
+  return '';
+}
+
+function renderQuickRef(gfr) {
+  var warn = '<span style="color:#C0392B;font-weight:600">';
+  var info = '<span style="color:#E67E22;font-weight:600">';
+  var ok   = '<span style="color:#27ae60;font-weight:600">';
+  var end  = '</span>';
+
+  function row(name, std, renal) {
+    var note = (gfr !== null && renal) ? renal(gfr) : '';
+    return '<div style="padding:7px 0;border-bottom:1px solid var(--lblue)">'
+      + '<strong>' + name + ':</strong> ' + std
+      + (note ? '<br><span style="font-size:11px;margin-left:2px">' + note + '</span>' : '')
+      + '</div>';
+  }
+
+  var html = '<div style="background:var(--white);border:1px solid var(--border);border-radius:var(--radius);'
+    + 'padding:10px 12px;margin:0 0 8px;font-size:12px;color:var(--blue);line-height:1.7">';
+
+  // ── Tocilizumab ────────────────────────────────────────
+  html += row('Tocilizumab',
+    '8 mg/kg KG i.v. &uuml;ber 1 h (max. 800 mg), ggf. nach 8 h wdh. (max. 4 Gaben)',
+    function(g) {
+      if (g < 30) return warn + '&#9888; GFR < 30: Keine offizielle Kontraindikation, aber engmaschige Nierenfunktionskontrolle. Keine Dosisanpassung laut Fachinformation erforderlich.' + end;
+      return '';
+    });
+
+  // ── Dexamethason ──────────────────────────────────────
+  html += row('Dexamethason',
+    '10 mg i.v. alle 6&ndash;12 h, Eskalation auf 20 mg alle 6 h bei Nichtansprechen',
+    function(g) {
+      if (g < 15) return info + '&#9432; GFR < 15 / Dialyse: Keine Dosisanpassung n&ouml;tig, jedoch auf Hyperglyk&auml;mie und Fl&uuml;ssigkeitsretention achten.' + end;
+      return '';
+    });
+
+  // ── Methylprednisolon ─────────────────────────────────
+  html += row('Methylprednisolon',
+    '1 g/Tag i.v. (Grad 4) oder 1&ndash;2 g/24 h bei Hirn&ouml;dem',
+    function(g) {
+      if (g < 15) return info + '&#9432; GFR < 15: Keine Dosisanpassung erforderlich. Cave: Na-Retention, Hyperglyk&auml;mie.' + end;
+      return '';
+    });
+
+  // ── Anakinra ──────────────────────────────────────────
+  html += row('Anakinra',
+    '&gt; 200 mg/Tag s.c. oder i.v.',
+    function(g) {
+      if (g < 30) return warn + '&#9888; GFR < 30: Laut Fachinformation Dosisreduktion auf jeden 2. Tag empfohlen (100 mg alle 48 h). Bei GFR < 15 oder Dialyse: 100 mg alle 48&ndash;72 h, strenge Nutzen-Risiko-Abw&auml;gung.' + end;
+      if (g < 60) return info + '&#9432; GFR 30&ndash;59: Monitoring auf Akkumulation, ggf. Dosisintervall verl&auml;ngern.' + end;
+      return '';
+    });
+
+  // ── Levetiracetam ─────────────────────────────────────
+  html += row('Levetiracetam',
+    '500&ndash;1000 mg i.v./p.o. 2&times; t&auml;glich (Krampfprophylaxe)',
+    function(g) {
+      if (g < 30) return warn + '&#9888; GFR < 30: Max. 500 mg alle 12 h (50% der Normaldosis). Bei GFR < 15 oder Dialyse: 250&ndash;500 mg alle 12 h, nach Dialyse Supplementation 250&ndash;500 mg.' + end;
+      if (g < 50) return info + '&#9432; GFR 30&ndash;49: Max. 750 mg alle 12 h (75% der Normaldosis).' + end;
+      if (g < 80) return ok + 'GFR 50&ndash;79: Max. 1000 mg alle 12 h.' + end;
+      return '';
+    });
+
+  // ── Lacosamid ─────────────────────────────────────────
+  html += row('Lacosamid',
+    '100&ndash;200 mg i.v./p.o. 2&times; t&auml;glich (Krampfprophylaxe, 2. Wahl)',
+    function(g) {
+      if (g < 30) return warn + '&#9888; GFR < 30: Max. 250 mg/Tag (Tagesdosis). Bei schwerer Niereninsuffizienz und Dialysepflicht: Max. 250 mg/Tag, nach Dialyse Supplementation von bis zu 50% der Tagesdosis.' + end;
+      if (g < 50) return info + '&#9432; GFR 30&ndash;49: Max. 300 mg/Tag. Engmaschiges Monitoring.' + end;
+      return '';
+    });
+
+  // ── Cyclophosphamid ───────────────────────────────────
+  html += row('Cyclophosphamid',
+    '1,5 g/m&sup2; (bei refr. Grad 3&ndash;4 / Hirn&ouml;dem)',
+    function(g) {
+      if (g < 10) return warn + '&#9888; GFR < 10: Kontraindiziert laut Fachinformation.' + end;
+      if (g < 30) return warn + '&#9888; GFR < 30: Dosisreduktion auf 75% empfohlen. Engmaschige H&auml;matotoxizit&auml;tskontrolle. R&uuml;cksprache mit Onkologie.' + end;
+      if (g < 45) return info + '&#9432; GFR 30&ndash;44: Dosisreduktion auf 75&ndash;80% erw&auml;gen. Keine renale Akumulation, aber toxische Metaboliten.' + end;
+      return '';
+    });
+
+  html += '</div>';
+
+  if (gfr !== null) {
+    html += '<div style="font-size:10px;color:var(--mgray);padding:4px 2px;line-height:1.5">'
+      + '&#9432; Hinweise basieren auf Fachinformationen (Stand 2024) und KDIGO-Leitlinien. '
+      + 'Dosierungen im Einzelfall mit Pharmakologie / klinischer Pharmazie r&uuml;cksprechen. '
+      + 'Kein Ersatz f&uuml;r individuelle klinische Beurteilung.</div>';
+  }
+
+  document.getElementById('quick-ref-content').innerHTML = html;
+}
+
+var ice = {o1:1,o2:1,o3:1,o4:1,n1:1,n2:1,n3:1,w1:1,a1:1,f1:1};
+var clin = {consc:0,seizure:0,motor:0,edema:0,untestable:0};
+var crs_state = {fever:1, htn:0, o2:0};  // fever default Ja
+
+// CRS grade labels
+var CRS_NAMES  = ['Kein CRS','CRS Grad 1','CRS Grad 2','CRS Grad 3','CRS Grad 4'];
+var CRS_LONG   = [
+  'Kein CRS \u2013 kein Fieber',
+  'CRS Grad\u00a01 \u2013 Fieber, keine Hypotonie / Hypoxie',
+  'CRS Grad\u00a02 \u2013 Hypotonie ohne Vasopressor oder O\u2082\u00a0\u2264\u00a06\u00a0l/min',
+  'CRS Grad\u00a03 \u2013 1\u00a0Vasopressor oder O\u2082\u00a0>\u00a06\u00a0l/min\u00a0/\u00a0NIV',
+  'CRS Grad\u00a04 \u2013 mehrere Vasopressoren oder invasive Beatmung\u00a0/\u00a0ECMO'
+];
+var CRS_REASONS = [
+  'Kein Fieber \u2013 CRS ausgeschlossen',
+  'Fieber vorhanden, keine Hypotonie und keine Hypoxie',
+  'Fieber + Hypotonie (ohne Vasopressor) oder O\u2082-Bedarf \u2264\u00a06\u00a0l/min',
+  'Fieber + 1\u00a0Vasopressor oder O\u2082-Bedarf >\u00a06\u00a0l/min\u00a0/\u00a0NIV',
+  'Fieber + mehrere Vasopressoren oder invasive Beatmung\u00a0/\u00a0ECMO'
+];
+var CRS_BG    = ['var(--lokgreen)','var(--lokgreen)','var(--lyellow)','var(--lorange)','var(--lred)'];
+var CRS_COLOR = ['var(--okgreen)','var(--okgreen)','var(--yellow)','var(--orange)','var(--red)'];
+
+// ── CRS calculation ────────────────────────────────────
+function calcCRS() {
+  if (!crs_state.fever) return 0;
+  var h = crs_state.htn, x = crs_state.o2;
+  // Grad 4: >1 VP oder PAP/Beatmung
+  if (h === 3 || x === 3) return 4;
+  // Grad 3: 1 VP oder O2 > 6 l/min
+  if (h === 2 || x === 2) return 3;
+  // Grad 2: Hypotonie ohne VP oder O2 ≤ 6 l/min
+  if (h === 1 || x === 1) return 2;
+  // Grad 1: Fieber, keine Hypotonie, keine Hypoxie
+  return 1;
+}
+
+// ── CRS button handler ─────────────────────────────────
+function setCRS(btn) {
+  var key = btn.dataset.crs;
+  var val = +btn.dataset.v;
+  crs_state[key] = val;
+  // update active style within this btn-group
+  btn.parentElement.querySelectorAll('.ice-btn').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+  updateCRS();
+}
+
+// ── Update CRS display & sync linked field ─────────────
+function updateCRS() {
+  var g = calcCRS();
+  var fever = crs_state.fever;
+
+  // dim Hypotonie + O2 rows when no fever
+  document.getElementById('crs-htn-row').classList.toggle('dim', !fever);
+  document.getElementById('crs-o2-row').classList.toggle('dim', !fever);
+
+  // result bar
+  var bar = document.getElementById('crs-result-bar');
+  bar.style.background = fever ? CRS_BG[g] : CRS_BG[0];
+  document.getElementById('crs-num').textContent = g;
+  document.getElementById('crs-num').style.color  = fever ? CRS_COLOR[g] : CRS_COLOR[0];
+  document.getElementById('crs-name').textContent   = fever ? CRS_NAMES[g]   : CRS_NAMES[0];
+  document.getElementById('crs-name').style.color   = fever ? CRS_COLOR[g]   : CRS_COLOR[0];
+  document.getElementById('crs-reason').textContent = fever ? CRS_REASONS[g] : CRS_REASONS[0];
+
+  // linked read-only field
+  var linked = document.getElementById('crs-linked');
+  linked.textContent = fever ? CRS_LONG[g] : CRS_LONG[0];
+  linked.style.background = fever ? CRS_BG[g] : CRS_BG[0];
+  linked.style.color = fever ? CRS_COLOR[g] : CRS_COLOR[0];
+  linked.style.borderLeft = '4px solid ' + (fever ? CRS_COLOR[g] : CRS_COLOR[0]);
+
+  renderCRSGradeCard(fever ? g : 0);
+  grade();
+}
+
+function renderCRSGradeCard(g) {
+  var gcls  = ['g0','g1','g2','g3','g4'][g];
+  var gname = ['Kein CRS','CRS Grad 1','CRS Grad 2','CRS Grad 3','CRS Grad 4'][g];
+  var gdesc = [
+    'Kein Fieber – CRS ausgeschlossen.',
+    'Fieber ohne Hypotonie und ohne Hypoxie.',
+    'Hypotonie (ohne Vasopressor) oder O₂ ≤ 6 l/min.',
+    '1 Vasopressor oder O₂ > 6 l/min / NIV.',
+    'Mehrere Vasopressoren oder invasive Beatmung / ECMO.'
+  ][g];
+  var reasons = [
+    '',
+    'Fieber vorhanden',
+    'Fieber + Hypotonie oder Hypoxie ≤ 6 l/min',
+    'Fieber + 1 Vasopressor oder O₂ > 6 l',
+    'Fieber + mehrere Vasopressoren oder Beatmung'
+  ][g];
+  document.getElementById('crs-grade-result').innerHTML =
+    '<div class="grade-card ' + gcls + '"><h2>' + gname + '</h2>'
+    + '<p class="gsub">' + gdesc + '</p>'
+    + '<p class="grade-factors">' + reasons + '</p></div>';
+}
+
+// ── ICE & clinical seg handlers ────────────────────────
+function setICE(btn) {
+  var q = btn.dataset.q, v = +btn.dataset.v;
+  ice[q] = v;
+  btn.parentElement.querySelectorAll('.ice-btn').forEach(function(b){ b.classList.remove('active'); });
   btn.classList.add('active');
   grade();
 }
-function setSeg(key,btn){
-  clin[key]=+btn.dataset.v;
-  document.getElementById('seg-'+key).querySelectorAll('button').forEach(function(b){b.classList.remove('active')});
+
+function setSeg(key, btn) {
+  clin[key] = +btn.dataset.v;
+  document.getElementById('seg-'+key).querySelectorAll('button').forEach(function(b){ b.classList.remove('active'); });
   btn.classList.add('active');
   grade();
 }
 
-function ms(cls,title,lines){
-  var h='<div class="th-sec"><h4 class="'+cls+'">'+title+'</h4>';
-  for(var i=0;i<lines.length;i++){if(lines[i])h+='<p>'+lines[i]+'</p>';}
+// ── Helper: therapy section ────────────────────────────
+function ms(cls, title, lines) {
+  var h = '<div class="th-sec"><h4 class="'+cls+'">'+title+'</h4>';
+  for (var i=0; i<lines.length; i++) { if (lines[i]) h += '<p>'+lines[i]+'</p>'; }
   return h+'</div>';
 }
 
-function grade(){
-  var total=0;for(var k in ice)total+=ice[k];
-  document.getElementById('ice-score').textContent=total;
+// ── Main grade + therapy function ──────────────────────
+function grade() {
+  // ICE total
+  var total = 0;
+  for (var k in ice) total += ice[k];
+  document.getElementById('ice-score').textContent = total;
 
-  var crs=+document.getElementById('crs-grade').value;
+  // Current CRS grade (from CRS block)
+  var crs = calcCRS();
+  if (!crs_state.fever) crs = 0;
 
   // ASTCT grading logic
-  var g=0;
-  var reasons=[];
+  var g = 0;
+  var reasons = [];
 
-  if(clin.untestable===1){
-    g=4;reasons.push('Patient nicht testbar (Koma/Intubation)');
+  if (clin.untestable === 1) {
+    g = 4; reasons.push('Patient nicht testbar (Koma/Intubation)');
   } else {
     // ICE-based
-    if(total>=7&&total<=9){if(g<1)g=1;reasons.push('ICE '+total+' (7\u20139 = Grad 1)');}
-    else if(total>=3&&total<=6){if(g<2)g=2;reasons.push('ICE '+total+' (3\u20136 = Grad 2)');}
-    else if(total>=1&&total<=2){if(g<3)g=3;reasons.push('ICE '+total+' (0\u20132 = Grad 3)');}
-    else if(total===0){if(g<3)g=3;reasons.push('ICE 0 (Grad 3\u20134)');}
+    if      (total >= 7 && total <= 9) { if (g<1) g=1; reasons.push('ICE '+total+' (7\u20139\u00a0=\u00a0Grad\u00a01)'); }
+    else if (total >= 3 && total <= 6) { if (g<2) g=2; reasons.push('ICE '+total+' (3\u20136\u00a0=\u00a0Grad\u00a02)'); }
+    else if (total >= 1 && total <= 2) { if (g<3) g=3; reasons.push('ICE '+total+' (1\u20132\u00a0=\u00a0Grad\u00a03)'); }
+    else if (total === 0)              { if (g<3) g=3; reasons.push('ICE\u00a00 (Grad\u00a03\u20134)'); }
 
     // Consciousness
-    if(clin.consc===1){if(g<2)g=2;reasons.push('Durch Ansprache erweckbar (Grad 2)');}
-    if(clin.consc===2){if(g<3)g=3;reasons.push('Nur durch taktilen Reiz erweckbar (Grad 3)');}
-    if(clin.consc===3){g=4;reasons.push('Koma / Stupor (Grad 4)');}
+    if (clin.consc===1) { if (g<2) g=2; reasons.push('Durch Ansprache erweckbar (Grad\u00a02)'); }
+    if (clin.consc===2) { if (g<3) g=3; reasons.push('Nur durch taktilen Reiz erweckbar (Grad\u00a03)'); }
+    if (clin.consc===3) { g=4;          reasons.push('Koma / Stupor (Grad\u00a04)'); }
 
     // Seizure
-    if(clin.seizure===1){if(g<3)g=3;reasons.push('Epileptischer Anfall mit Restitution (Grad 3)');}
-    if(clin.seizure===2){g=4;reasons.push('Status epilepticus / lebensbedrohlich (Grad 4)');}
+    if (clin.seizure===1) { if (g<3) g=3; reasons.push('Epileptischer Anfall mit Restitution (Grad\u00a03)'); }
+    if (clin.seizure===2) { g=4;          reasons.push('Status epilepticus / lebensbedrohlich (Grad\u00a04)'); }
 
     // Motor
-    if(clin.motor===1){g=4;reasons.push('H\u00f6hergradiges motorisches Defizit (Grad 4)');}
+    if (clin.motor===1) { g=4; reasons.push('H\u00f6hergradiges motorisches Defizit (Grad\u00a04)'); }
 
     // Edema
-    if(clin.edema===1){if(g<3)g=3;reasons.push('Fokales Hirn\u00f6dem (Grad 3)');}
-    if(clin.edema===2){g=4;reasons.push('Diffuses Hirn\u00f6dem / Cushing-Reflex (Grad 4)');}
+    if (clin.edema===1) { if (g<3) g=3; reasons.push('Fokales Hirn\u00f6dem (Grad\u00a03)'); }
+    if (clin.edema===2) { g=4;          reasons.push('Diffuses Hirn\u00f6dem / Cushing-Reflex (Grad\u00a04)'); }
   }
 
-  if(total===10&&g===0&&clin.consc===0&&clin.seizure===0&&clin.motor===0&&clin.edema===0){
-    reasons=['Kein ICANS \u2013 ICE 10/10, keine klinischen Kriterien erf\u00fcllt'];
+  if (total===10 && g===0 && clin.consc===0 && clin.seizure===0 && clin.motor===0 && clin.edema===0) {
+    reasons = ['Kein ICANS \u2013 ICE 10/10, keine klinischen Kriterien erf\u00fcllt'];
   }
 
   // Grade display
-  var gcls=['g0','g1','g2','g3','g4'][g];
-  var gname=['Kein ICANS','ICANS Grad 1','ICANS Grad 2','ICANS Grad 3','ICANS Grad 4'][g];
-  var gdesc=['Keine Neurotoxizit\u00e4t nachweisbar.','Leichte Neurotoxizit\u00e4t. Patient spontan erweckbar.','Moderate Neurotoxizit\u00e4t. Durch Ansprache erweckbar.','Schwere Neurotoxizit\u00e4t. Intensivstation erforderlich.','Lebensbedrohliche Neurotoxizit\u00e4t. Sofortmassnahmen.'][g];
+  var gcls  = ['g0','g1','g2','g3','g4'][g];
+  var gname = ['Kein ICANS','ICANS Grad 1','ICANS Grad 2','ICANS Grad 3','ICANS Grad 4'][g];
+  var gdesc = [
+    'Keine Neurotoxizit\u00e4t nachweisbar.',
+    'Leichte Neurotoxizit\u00e4t. Patient spontan erweckbar.',
+    'Moderate Neurotoxizit\u00e4t. Durch Ansprache erweckbar.',
+    'Schwere Neurotoxizit\u00e4t. Intensivstation erforderlich.',
+    'Lebensbedrohliche Neurotoxizit\u00e4t. Sofortma\u00dfnahmen.'
+  ][g];
 
-  document.getElementById('grade-result').innerHTML='<div class="grade-card '+gcls+'"><h2>'+gname+'</h2><p class="gsub">'+gdesc+'</p><p class="grade-factors">'+reasons.join('<br>')+'</p></div>';
+  document.getElementById('grade-result').innerHTML =
+    '<div class="grade-card '+gcls+'"><h2>'+gname+'</h2><p class="gsub">'+gdesc+'</p>'
+    +'<p class="grade-factors">'+reasons.join('<br>')+'</p></div>';
 
-  // === THERAPY ===
-  var th='';
-  var hasCRS=crs>0;
+  // ── Therapy ────────────────────────────────────────────
+  var th = '';
+  var hasCRS = crs > 0;
 
-  if(g===0){
-    th+='<h3>Kein ICANS &#8211; Standardvorgehen</h3>';
-    th+=ms('ther','Monitoring',['ICE + BHISA mind. 1\u00d7 t\u00e4glich','Schriftprobe 1\u00d7 t\u00e4glich','Vitalzeichen 3\u00d7 t\u00e4glich']);
-    if(hasCRS) th+=ms('esc','Begleitendes CRS Grad '+crs,['<span class="med">CRS-Therapie gem\u00e4ss CRS-Algorithmus einleiten</span>','ICE/BHISA-Frequenz auf alle 8\u201312 h erh\u00f6hen','CRS ist st\u00e4rkster Pr\u00e4diktor f\u00fcr nachfolgendes ICANS (OR 18,9)']);
-    th+=ms('diag','Differentialdiagnostik',['ICANS ist eine Ausschlussdiagnose','Bei neuen neurol. Symptomen: Infektion, Stoffwechsel, Blutung, Isch\u00e4mie ausschliessen']);
+  // Produkt-Hinweis oben in Therapie
+  var prodInfo = (typeof PRODUCT_INFO !== 'undefined') ? PRODUCT_INFO[currentProduct||'general'] : null;
+  if (prodInfo && prodInfo.hint) {
+    th += '<div style="background:var(--xlblue);border:1px solid var(--lblue);border-radius:8px;padding:10px 12px;margin:0 0 10px;font-size:12px;line-height:1.6;color:var(--blue)">'
+        + '<span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--mblue)">Produktspezifisch: </span>'
+        + prodInfo.hint + '</div>';
   }
-  else if(g===1){
-    th+='<h3>Therapie ICANS Grad 1</h3>';
-    th+=ms('setting','Setting',['Station\u00e4re \u00dcberwachung, ggf. \u00dcberwachungsstation erw\u00e4gen']);
-    th+=ms('diag','Diagnostik',['<span class="drug">ICE + BHISA alle 4 Stunden</span>','cMRT mit KM erw\u00e4gen (cCT falls MRT nicht zeitnah verf\u00fcgbar)','EEG erw\u00e4gen','Neurologisches Konsil erw\u00e4gen','Bei Persistenz > 24 h: Lumbalpunktion erw\u00e4gen']);
-    th+=ms('ther','Therapie',['Bei Dysphagie: Umstellung auf i.v.-Medikation','<span class="ok">Levetiracetam als Krampfprophylaxe erw\u00e4gen</span>','Thiamin-Substitution erw\u00e4gen',hasCRS?'<span class="drug">Bei begleitendem CRS: Tocilizumab 8 mg/kg i.v. (max. 800 mg) erw\u00e4gen</span>':'','<span class="med">Bei Persistenz > 24 h oder fr\u00fches Auftreten (< 72 h): Eskalation auf Grad-2-Protokoll</span>']);
+  var crsLabel = hasCRS ? CRS_NAMES[crs] : '';
+
+  // ── CRS-Therapie-Block (immer angezeigt wenn CRS > 0) ──
+  function crsTherapy() {
+    if (!hasCRS) return '';
+    var ct = '<div style="margin:12px 0 4px;border-top:2px dashed var(--lblue);padding-top:12px">';
+    ct += '<h3 style="color:var(--mblue);font-size:14px;margin:0 0 10px">&#9881; CRS-Therapie (' + crsLabel + ')</h3>';
+
+    if (crs === 1) {
+      // CRS Grad 1: Fieber, kein Vasopressor, keine Hypoxie
+      ct += ms('setting','Setting CRS Grad\u00a01',[
+        'Station\u00e4re \u00dcberwachung, Vitalzeichen-Monitoring alle 4\u00a0h',
+        'Engmaschige Kontrolle auf Progression zu Grad\u00a02'
+      ]);
+      ct += ms('ther','Medikament\u00f6se Therapie',[
+        '<span class="drug">Antipyretika: Paracetamol 1\u00a0g p.o./i.v. bei Fieber \u2265\u00a038,5\u00a0\u00b0C</span>',
+        'Adequate Hydrierung sicherstellen (mind. 2\u00a0l/Tag, ggf. i.v.-Fl\u00fcssigkeit)',
+        '<span class="ok">Tocilizumab 8\u00a0mg/kg i.v. (max. 800\u00a0mg) bei ausbleibender Besserung nach 24\u00a0h oder rascher Progression erw\u00e4gen</span>',
+        'Kortikosteroide bei CRS Grad\u00a01 in der Regel nicht indiziert'
+      ]);
+      ct += ms('diag','Monitoring',[
+        'Blutbild, CRP, Ferritin, Fibrinogen, IL-6 (falls verf\u00fcgbar) t\u00e4glich',
+        'Blutdruck, Puls, SpO\u2082, Temperatur alle 4\u00a0h',
+        'Bei Progression: sofortige Eskalation auf Grad-2-Protokoll'
+      ]);
+    }
+    else if (crs === 2) {
+      // CRS Grad 2: Hypotonie ohne VP oder O2 ≤ 6 l
+      ct += ms('setting','Setting CRS Grad\u00a02',[
+        '<span class="med">\u00dcberwachungsstation oder Intensivstation erw\u00e4gen</span>',
+        'Kontinuierliches Monitoring: RR, Puls, SpO\u2082, Temperatur'
+      ]);
+      ct += ms('ther','Medikament\u00f6se Therapie',[
+        '<span class="hi">Tocilizumab 8\u00a0mg/kg i.v. \u00fcber 1\u00a0h (max. 800\u00a0mg) \u2013 sofort</span>',
+        'Wiederholung nach 8\u00a0h m\u00f6glich wenn keine Besserung (max. 4 Gaben gesamt)',
+        '<span class="drug">I.v.-Volumenersatz bei Hypotonie: NaCl 0,9\u00a0% oder balancierte Kristalloide 500\u00a0ml Bolus</span>',
+        'O\u2082-Supplementation: Ziel SpO\u2082 \u2265\u00a094\u00a0%',
+        '<span class="drug">Dexamethason 10\u00a0mg i.v. alle 6\u201312\u00a0h</span> bei ausbleibender Besserung nach Tocilizumab oder gleichzeitigem ICANS \u2265\u00a0Grad\u00a02',
+        'Antipyretika: Paracetamol 1\u00a0g i.v.'
+      ]);
+      ct += ms('diag','Monitoring',[
+        'Blutbild, CRP, Ferritin, Fibrinogen, LDH, Kreatinin, Leberwerte t\u00e4glich',
+        'Laktat bei Hypotonie, Blutgas bei Hypoxie',
+        'Bei Progression zu Grad\u00a03: sofortige Eskalation'
+      ]);
+    }
+    else if (crs === 3) {
+      // CRS Grad 3: 1 Vasopressor oder O2 > 6 l/min
+      ct += ms('setting','Setting CRS Grad\u00a03',[
+        '<span class="hi">Intensivstation \u2013 sofortige Verlegung</span>',
+        'Intensivmedizinisches Monitoring inkl. invasiver RR-Messung erw\u00e4gen'
+      ]);
+      ct += ms('ther','Medikament\u00f6se Therapie',[
+        '<span class="hi">Tocilizumab 8\u00a0mg/kg i.v. (max. 800\u00a0mg) \u2013 sofort, Wiederholung nach 8\u00a0h wenn keine Besserung</span>',
+        '<span class="hi">Dexamethason 10\u2013 20\u00a0mg i.v. alle 6\u00a0h \u2013 parallel zu Tocilizumab</span>',
+        '<span class="drug">Vasopressor: Noradrenalin nach intensivmedizinischem Schema (Ziel MAP \u2265\u00a065\u00a0mmHg)</span>',
+        'O\u2082-Therapie: High-flow-Sauerstoff oder NIV je nach klinischem Bild',
+        '<span class="drug">Anakinra 100\u2013200\u00a0mg/Tag s.c. oder i.v. erw\u00e4gen</span> bei refrakт\u00e4rem Verlauf oder Zeichen einer Hyperinflammation',
+        'Siltuximab 11\u00a0mg/kg i.v. als Alternative zu Tocilizumab erw\u00e4gen (falls nicht bereits verabreicht)',
+        'Adequate Hydrierung, Laktat-Kontrolle'
+      ]);
+      ct += ms('diag','Monitoring',[
+        'Blutbild, Gerinnung (Fibrinogen!), CRP, Ferritin, Troponin, BNP, Kreatinin mind. 2\u00d7 t\u00e4glich',
+        'Echokardiographie bei kardialer Beteiligung erw\u00e4gen',
+        'Bei Progression zu Grad\u00a04: sofortige Eskalation'
+      ]);
+    }
+    else if (crs === 4) {
+      // CRS Grad 4: mehrere Vasopressoren / Beatmung / ECMO
+      ct += ms('setting','Setting CRS Grad\u00a04 \u2013 Notfall',[
+        '<span class="hi">Intensivstation, ggf. Intubation und invasive Beatmung</span>',
+        '<span class="hi">ECMO-Indikation pr\u00fcfen bei refrakт\u00e4rem kardiogenem Schock</span>'
+      ]);
+      ct += ms('ther','Sofortma\u00dfnahmen',[
+        '<span class="hi">Tocilizumab 8\u00a0mg/kg i.v. (max. 800\u00a0mg) \u2013 sofort</span>',
+        '<span class="hi">Methylprednisolon 1\u00a0g/Tag i.v. (alternativ: Dexamethason 20\u00a0mg alle 6\u00a0h)</span>',
+        '<span class="drug">Mehrere Vasopressoren nach intensivmedizinischem Schema</span>',
+        '<span class="drug">Anakinra > 200\u00a0mg/Tag i.v. \u2013 fr\u00fchzeitig</span>',
+        'Emapalumab bei gleichzeitiger schwerer Hyperferritin\u00e4mie / HLH-Bild erw\u00e4gen',
+        'Ruxolitinib als Rescue-Option bei refrakт\u00e4rem Verlauf erw\u00e4gen',
+        'H\u00e4modynamisches Management: Volumen, Vasopressoren, ggf. Kortikosteroide nach Schockprotokoll'
+      ]);
+      ct += ms('diag','Intensiv-Monitoring',[
+        'Kontinuierliches h\u00e4modynamisches Monitoring',
+        'Echokardiographie (CRS-Kardiomyopathie ausschlie\u00dfen)',
+        'Ferritin, Fibrinogen, d-Dimere, Troponin, BNP engmaschig',
+        'Blutgas, Laktat, Nierenfunktion mind. alle 6\u00a0h'
+      ]);
+    }
+    ct += '</div>';
+    return ct;
   }
-  else if(g===2){
-    th+='<h3>Therapie ICANS Grad 2</h3>';
-    th+=ms('setting','Setting',['<span class="med">\u00dcberwachungs- / Intensivstation erw\u00e4gen</span>']);
-    th+=ms('diag','Diagnostik',['<span class="drug">ICE + BHISA + GCS alle 4 Stunden</span>','<span class="hi">cMRT mit KM (falls noch nicht erfolgt)</span>','<span class="hi">EEG (falls noch nicht erfolgt)</span>','<span class="hi">Lumbalpunktion (wenn keine Kontraindikation)</span>','Aspirationsprophylaxe einleiten']);
-    th+=ms('ther','Medikament\u00f6se Therapie',['<span class="drug">Dexamethason 10 mg i.v. alle 6\u201312 h</span>, bis Symptomatik \u2264 Grad 1, dann stufenweise Reduktion','Bei fehlender Besserung: Dexamethason auf max. 20 mg i.v. alle 6 h','<span class="drug">Anakinra > 200 mg/Tag s.c. oder i.v. erw\u00e4gen</span> (insb. bei Risikofaktoren)','Bei fehlender Besserung: i.th. Dexamethason (z.B. 10 mg) erw\u00e4gen',hasCRS?'<span class="drug">Tocilizumab 8 mg/kg i.v. (max. 800 mg)</span> falls nicht bereits verabreicht':'']);
-    th+=ms('esc','Eskalation',['<span class="med">Falls refrakt\u00e4r: Eskalation auf Grad-3-Protokoll</span>']);
+
+  if (g === 0) {
+    th += '<h3>Kein ICANS \u2013 Standardvorgehen</h3>';
+    th += ms('ther','Monitoring',['ICE + BHISA mind. 1\u00d7 t\u00e4glich','Schriftprobe 1\u00d7 t\u00e4glich','Vitalzeichen 3\u00d7 t\u00e4glich']);
+    if (hasCRS)
+      th += ms('esc','Hinweis: Begleitendes '+crsLabel,[
+        '<span class="med">CRS erh\u00f6ht ICANS-Risiko erheblich (OR 18,9) \u2013 Monitoring intensivieren</span>',
+        'ICE/BHISA-Frequenz auf alle 8\u201312\u00a0h erh\u00f6hen',
+        'CRS-Therapie gem\u00e4ss untenstehenden Empfehlungen einleiten'
+      ]);
+    th += ms('diag','Differentialdiagnostik',[
+      'ICANS ist eine Ausschlussdiagnose',
+      'Bei neuen neurol. Symptomen: Infektion, Stoffwechsel, Blutung, Isch\u00e4mie ausschlie\u00dfen'
+    ]);
+    th += crsTherapy();
   }
-  else if(g===3){
-    th+='<h3>Therapie ICANS Grad 3</h3>';
-    th+=ms('setting','Setting',['<span class="hi">Verlegung auf Intensivstation</span>']);
-    th+=ms('diag','Monitoring',['<span class="drug">ICE + BHISA + GCS alle 2\u20134 Stunden</span>','cMRT, EEG, LP falls noch nicht erfolgt']);
-    th+=ms('ther','Medikament\u00f6se Therapie',['<span class="drug">Dexamethason 10 mg i.v. alle 6\u201312 h</span>','Bei fehlender Besserung: 20 mg i.v. alle 6 h','<span class="drug">Anakinra > 200 mg/Tag s.c. oder i.v.</span> \u2013 fr\u00fchzeitig starten bei fehlender rascher Steroid-Response','i.th. Dexamethason (z.B. 10 mg) erw\u00e4gen',clin.seizure>=1?'<span class="hi">Antikonvulsive Therapie gem\u00e4ss DGN-Leitlinie Status epilepticus</span>':'',clin.edema>=1?'<span class="hi">Hirn\u00f6dem: Hyperventilation + hyperosmolare Therapie + Methylprednisolon 1\u20132 g/24 h</span>':'',clin.edema>=1?'<span class="hi">Cyclophosphamid 1,5 g/m\u00b2 erw\u00e4gen</span>':'']);
-    th+=ms('esc','Eskalation bei Nichtansprechen',['<span class="hi">Falls refrakt\u00e4r: Eskalation auf Grad-4-Protokoll</span>']);
+  else if (g === 1) {
+    th += '<h3>Therapie ICANS Grad 1</h3>';
+    th += ms('setting','Setting',['Station\u00e4re \u00dcberwachung, ggf. \u00dcberwachungsstation erw\u00e4gen']);
+    th += ms('diag','Diagnostik',[
+      '<span class="drug">ICE + BHISA alle 4 Stunden</span>',
+      'cMRT mit KM erw\u00e4gen (cCT falls MRT nicht zeitnah verf\u00fcgbar)',
+      'EEG erw\u00e4gen','Neurologisches Konsil erw\u00e4gen',
+      'Bei Persistenz > 24\u00a0h: Lumbalpunktion erw\u00e4gen'
+    ]);
+    th += ms('ther','Therapie ICANS',[
+      'Bei Dysphagie: Umstellung auf i.v.-Medikation',
+      '<span class="ok">Levetiracetam als Krampfprophylaxe erw\u00e4gen</span>',
+      'Thiamin-Substitution erw\u00e4gen',
+      hasCRS ? '<span class="drug">Bei begleitendem '+crsLabel+': Tocilizumab 8\u00a0mg/kg i.v. (max. 800\u00a0mg) erw\u00e4gen</span>' : '',
+      '<span class="med">Bei Persistenz > 24\u00a0h oder fr\u00fches Auftreten (< 72\u00a0h): Eskalation auf Grad-2-Protokoll</span>'
+    ]);
+    th += crsTherapy();
   }
-  else if(g===4){
-    th+='<h3>Therapie ICANS Grad 4 &#8211; Notfall</h3>';
-    th+=ms('setting','Setting',['<span class="hi">Intensivstation, ggf. Intubation</span>','<span class="hi">Kontinuierliches EEG-Monitoring erw\u00e4gen</span>']);
-    th+=ms('ther','Sofortmassnahmen',['<span class="hi">Methylprednisolon 1 g/Tag i.v. \u00fcber mind. 3 Tage</span>, dann stufenweise Reduktion','<span class="drug">Anakinra > 200 mg/Tag s.c. oder i.v.</span>','i.th. Dexamethason (z.B. 10 mg) erw\u00e4gen',clin.seizure>=2?'<span class="hi">Status epilepticus: Soforttherapie gem\u00e4ss DGN-Leitlinie (Benzodiazepin \u2192 Levetiracetam/Valproat \u2192 Narkose)</span>':'',clin.edema>=1?'<span class="hi">Hirn\u00f6dem: Hyperventilation + Mannitol/NaCl 3% + Methylprednisolon 1\u20132 g/24 h</span>':'',clin.motor===1?'<span class="hi">H\u00f6hergradige Parese: Bildgebung (Blutung/Isch\u00e4mie ausschliessen), Neuro-Konsil sofort</span>':'']);
-    th+=ms('esc','Bei Therapieversagen',['<span class="hi">Cyclophosphamid 1,5 g/m\u00b2 erw\u00e4gen</span>','Alternative Immunsuppressiva: Ruxolitinib, ggf. ATG','Emapalumab bei gleichzeitiger Hyperferritin\u00e4mie erw\u00e4gen']);
+  else if (g === 2) {
+    th += '<h3>Therapie ICANS Grad 2</h3>';
+    th += ms('setting','Setting',['<span class="med">\u00dcberwachungs-\u00a0/\u00a0Intensivstation erw\u00e4gen</span>']);
+    th += ms('diag','Diagnostik',[
+      '<span class="drug">ICE + BHISA + GCS alle 4 Stunden</span>',
+      '<span class="hi">cMRT mit KM (falls noch nicht erfolgt)</span>',
+      '<span class="hi">EEG (falls noch nicht erfolgt)</span>',
+      '<span class="hi">Lumbalpunktion (wenn keine Kontraindikation)</span>',
+      'Aspirationsprophylaxe einleiten'
+    ]);
+    th += ms('ther','Therapie ICANS',[
+      '<span class="drug">Dexamethason 10\u00a0mg i.v. alle 6\u201312\u00a0h</span>, bis Symptomatik \u2264 Grad\u00a01, dann stufenweise Reduktion',
+      'Bei fehlender Besserung: Dexamethason auf max. 20\u00a0mg i.v. alle 6\u00a0h',
+      '<span class="drug">Anakinra > 200\u00a0mg/Tag s.c. oder i.v. erw\u00e4gen</span> (insb. bei Risikofaktoren)',
+      'Bei fehlender Besserung: i.th. Dexamethason (z.B. 10\u00a0mg) erw\u00e4gen',
+      hasCRS ? '<span class="drug">Tocilizumab 8\u00a0mg/kg i.v. (max. 800\u00a0mg)</span> falls nicht bereits verabreicht ('+crsLabel+')' : ''
+    ]);
+    th += ms('esc','Eskalation ICANS',['<span class="med">Falls refrak\u00e4r: Eskalation auf Grad-3-Protokoll</span>']);
+    th += crsTherapy();
+  }
+  else if (g === 3) {
+    th += '<h3>Therapie ICANS Grad 3</h3>';
+    th += ms('setting','Setting',['<span class="hi">Verlegung auf Intensivstation</span>']);
+    th += ms('diag','Monitoring',[
+      '<span class="drug">ICE + BHISA + GCS alle 2\u20134 Stunden</span>',
+      'cMRT, EEG, LP falls noch nicht erfolgt'
+    ]);
+    th += ms('ther','Therapie ICANS',[
+      '<span class="drug">Dexamethason 10\u00a0mg i.v. alle 6\u201312\u00a0h</span>',
+      'Bei fehlender Besserung: 20\u00a0mg i.v. alle 6\u00a0h',
+      '<span class="drug">Anakinra > 200\u00a0mg/Tag s.c. oder i.v.</span> \u2013 fr\u00fchzeitig starten bei fehlender rascher Steroid-Response',
+      'i.th. Dexamethason (z.B. 10\u00a0mg) erw\u00e4gen',
+      clin.seizure>=1 ? '<span class="hi">Antikonvulsive Therapie gem\u00e4ss DGN-Leitlinie Status epilepticus</span>' : '',
+      clin.edema>=1   ? '<span class="hi">Hirn\u00f6dem: Hyperventilation + hyperosmolare Therapie + Methylprednisolon 1\u20132\u00a0g/24\u00a0h</span>' : '',
+      clin.edema>=1   ? '<span class="hi">Cyclophosphamid 1,5\u00a0g/m\u00b2 erw\u00e4gen</span>' : ''
+    ]);
+    th += ms('esc','Eskalation ICANS',['<span class="hi">Falls refrak\u00e4r: Eskalation auf Grad-4-Protokoll</span>']);
+    th += crsTherapy();
+  }
+  else if (g === 4) {
+    th += '<h3>Therapie ICANS Grad 4 \u2013 Notfall</h3>';
+    th += ms('setting','Setting',[
+      '<span class="hi">Intensivstation, ggf. Intubation</span>',
+      '<span class="hi">Kontinuierliches EEG-Monitoring erw\u00e4gen</span>'
+    ]);
+    th += ms('ther','Therapie ICANS',[
+      '<span class="hi">Methylprednisolon 1\u00a0g/Tag i.v. \u00fcber mind. 3 Tage</span>, dann stufenweise Reduktion',
+      '<span class="drug">Anakinra > 200\u00a0mg/Tag s.c. oder i.v.</span>',
+      'i.th. Dexamethason (z.B. 10\u00a0mg) erw\u00e4gen',
+      clin.seizure>=2 ? '<span class="hi">Status epilepticus: Soforttherapie gem\u00e4ss DGN-Leitlinie (Benzodiazepin \u2192 Levetiracetam/Valproat \u2192 Narkose)</span>' : '',
+      clin.edema>=1   ? '<span class="hi">Hirn\u00f6dem: Hyperventilation + Mannitol/NaCl\u00a03\u00a0% + Methylprednisolon 1\u20132\u00a0g/24\u00a0h</span>' : '',
+      clin.motor===1  ? '<span class="hi">H\u00f6hergradige Parese: Bildgebung (Blutung/Isch\u00e4mie ausschlie\u00dfen), Neuro-Konsil sofort</span>' : ''
+    ]);
+    th += ms('esc','Bei Therapieversagen ICANS',[
+      '<span class="hi">Cyclophosphamid 1,5\u00a0g/m\u00b2 erw\u00e4gen</span>',
+      'Alternative Immunsuppressiva: Ruxolitinib, ggf. ATG',
+      'Emapalumab bei gleichzeitiger Hyperferritin\u00e4mie erw\u00e4gen'
+    ]);
+    th += crsTherapy();
   }
 
   // Allgemeine Hinweise
-  th+=ms('diag','Immer beachten',['<span class="med">ICANS ist eine Ausschlussdiagnose!</span> Blutung, Isch\u00e4mie, Meningitis, Enzephalitis, Meningeosis, Stoffwechselst\u00f6rung, Sepsis ausschliessen','ZNS-wirksame Sedativa und krampfschwellensenkende Medikamente nur mit Vorsicht','Schriftprobe dokumentieren und mit Baseline vergleichen','Bei BCMA-Produkten (Cilta-cel, Ide-cel): An sp\u00e4te MNTs denken (Mikrographie, Tremor, Bradykinesie)']);
+  th += ms('diag','Immer beachten',[
+    '<span class="med">ICANS ist eine Ausschlussdiagnose!</span> Blutung, Isch\u00e4mie, Meningitis, Enzephalitis, Meningeosis, Stoffwechselst\u00f6rung, Sepsis ausschlie\u00dfen',
+    'ZNS-wirksame Sedativa und krampfschwellensenkende Medikamente nur mit Vorsicht',
+    'Schriftprobe dokumentieren und mit Baseline vergleichen',
+    'Bei BCMA-Produkten (Cilta-cel, Ide-cel): An sp\u00e4te MNTs denken (Mikrographie, Tremor, Bradykinesie)'
+  ]);
 
-  document.getElementById('therapy-content').innerHTML=th;
+  document.getElementById('therapy-content').innerHTML = th;
+  if (typeof ptUpdatePreview === 'function') ptUpdatePreview();
 }
-grade();
 
-if('serviceWorker' in navigator){navigator.serviceWorker.register('./sw.js');}
+// ── PDF Generation ─────────────────────────────────────
+function generatePDF() {
+  if (!window.jspdf) { alert('PDF-Bibliothek noch nicht geladen. Bitte kurz warten.'); return; }
+  var { jsPDF } = window.jspdf;
+  var doc = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
+
+  // Farben
+  var C = {
+    blue:[27,58,92], mblue:[46,117,182], green:[39,174,96], dgreen:[30,130,70],
+    yellow:[220,140,10], orange:[200,100,20], red:[180,50,35],
+    gray:[51,51,51], mgray:[130,130,130], lgray:[220,220,220],
+    white:[255,255,255],
+    lgreen:[230,248,236], lyellow:[253,246,220], lorange:[253,240,220], lred:[252,232,230],
+    purple:[80,30,140], lpurple:[243,237,255],
+    amber:[255,248,220],
+  };
+  var ICANS_FG = [C.dgreen,C.dgreen,C.yellow,C.orange,C.red];
+  var ICANS_BG = [C.lgreen,C.lgreen,C.lyellow,C.lorange,C.lred];
+  var CRS_FG   = [C.dgreen,C.dgreen,C.yellow,C.orange,C.red];
+  var CRS_BG   = [C.lgreen,C.lgreen,C.lyellow,C.lorange,C.lred];
+
+  // Layout
+  var PW=210, PH=297, ML=13, MR=13, CW=184, FH=11, MAX_Y=PH-FH-3;
+  var y=0, pageNum=1;
+
+  // Zustand
+  var total=0; for(var k in ice) total+=ice[k];
+  var crs=calcCRS(); if(!crs_state.fever) crs=0;
+  var g=0;
+  if(clin.untestable===1){g=4;}
+  else{
+    if(total>=7&&total<=9)g=Math.max(g,1);
+    else if(total>=3&&total<=6)g=Math.max(g,2);
+    else if(total>=1&&total<=2)g=Math.max(g,3);
+    else if(total===0)g=Math.max(g,3);
+    if(clin.consc===1)g=Math.max(g,2); if(clin.consc===2)g=Math.max(g,3); if(clin.consc===3)g=4;
+    if(clin.seizure===1)g=Math.max(g,3); if(clin.seizure===2)g=4;
+    if(clin.motor===1)g=4;
+    if(clin.edema===1)g=Math.max(g,3); if(clin.edema===2)g=4;
+  }
+
+  var IN = ['Kein ICANS','ICANS Grad 1','ICANS Grad 2','ICANS Grad 3','ICANS Grad 4'];
+  var ID = ['Keine Neurotoxizität nachweisbar.','Leichte Neurotoxizität. Patient spontan erweckbar.','Moderate Neurotoxizität. Durch Ansprache erweckbar.','Schwere Neurotoxizität. Intensivstation erforderlich.','Lebensbedrohliche Neurotoxizität. Sofortmaßnahmen.'];
+  var CN = ['Kein CRS','CRS Grad 1','CRS Grad 2','CRS Grad 3','CRS Grad 4'];
+  var CD = ['Kein Fieber - CRS ausgeschlossen.','Fieber ohne Hypotonie und ohne Hypoxie.','Hypotonie (ohne Vasopressor) oder O2 <= 6 l/min.','1 Vasopressor oder O2 > 6 l/min / NIV.','Mehrere Vasopressoren oder invasive Beatmung / ECMO.'];
+
+  var now=new Date();
+  var ds=now.toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric'});
+  var ts=now.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});
+
+  // Helfer
+  function fi(col){doc.setFillColor(col[0],col[1],col[2]);}
+  function st(col,lw){doc.setDrawColor(col[0],col[1],col[2]);doc.setLineWidth(lw||0.25);}
+  function fo(style,sz,col){doc.setFont('helvetica',style||'normal');doc.setFontSize(sz||8.5);if(col)doc.setTextColor(col[0],col[1],col[2]);}
+
+  // Seitenumbruch - gibt true wenn neue Seite angelegt
+  function ns(h){
+    if(y+h>MAX_Y){
+      addFt();
+      doc.addPage(); pageNum++;
+      fi([28,28,30]);doc.rect(0,0,PW,8,'F');
+      fo('bold',7.5,C.white);
+      doc.text('ICANS / CRS Bewertungsbogen - Fortsetzung',ML,5.5);
+      fo('bold',7.5,[204,0,0]);
+      doc.text(ds+' '+ts,PW-MR,5.5,{align:'right'});
+      y=13;
+    }
+  }
+
+  // Sektionskopf - farbiger Balken, kompakt
+  function sh(title,bg){
+    ns(8);
+    fi(bg||C.mblue);doc.rect(ML,y,CW,6,'F');
+    fo('bold',8.5,C.white);
+    doc.text(title,ML+2.5,y+4.3);
+    y+=7.5;
+  }
+
+  // Unter-Überschrift
+  function uh(title,col){
+    ns(5.5);
+    fo('bold',8,col||C.mblue);
+    doc.text(title,ML+1,y+3.5);
+    y+=5;
+  }
+
+  // Bullet-Zeile mit Wrap (kompakter Abstand)
+  function bu(text,indent,bold,col){
+    if(!text)return;
+    var ix=ML+2+(indent||0);
+    var tw=CW-4-(indent||0);
+    fo(bold?'bold':'normal',8,col||C.gray);
+    var pre=(indent>0)?'- ':'';
+    var lines=doc.splitTextToSize(pre+text,tw);
+    ns(lines.length*4.3+0.5);
+    doc.text(lines,ix,y+3.2);
+    y+=lines.length*4.3+0.8;
+  }
+
+  function sp(h){y+=h||2.5;}
+
+  // Footer
+  function addFt(){
+    fi(C.lgray);doc.rect(0,PH-FH,PW,FH,'F');
+    fo('normal',6,C.mgray);
+    doc.text('Klinische Entscheidungshilfe - ersetzt nicht die ärztliche Beurteilung. Nicht als Medizinprodukt validiert. Nur für internen klinischen Gebrauch.',ML,PH-FH+3.8);
+    doc.text('Version 1.2 · Jan Jürß · Klinik für Neurologie · MHH     * VP = Vasopressor (z.B. Noradrenalin)',ML,PH-FH+7.5);
+    fo('bold',6.5,C.mgray);
+    doc.text('Seite '+pageNum,PW-MR,PH-FH+5.5,{align:'right'});
+  }
+
+  // === SEITE 1 HEADER – Banner ============================
+  var BANNER_B64 = 'data:image/png;base64,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';
+  // Banner auf volle Seitenbreite, Höhe proportional beschnitten
+  // Banner proportional: 1200x300px → 210mm x 52.5mm
+  doc.addImage(BANNER_B64,'PNG',0,0,PW,52.5);
+  // Datum rechts oben, ins Banner eingeblendet
+  fo('bold',10,[255,255,255]);
+  doc.text(ds+'  '+ts+' Uhr',PW-MR,10,{align:'right'});
+  y=57;
+
+  // === PATIENTENETIKETT ==================================
+  fi([250,250,250]);st(C.mgray,0.4);
+  doc.setLineDash([2,2]);doc.roundedRect(ML,y,CW,25,3,3,'FD');doc.setLineDash([]);
+  fo('bold',7.5,C.mgray);doc.text('-  Patientenetikett hier aufkleben  -',PW/2,y+5,{align:'center'});
+  var flds=[['Name / Vorname:',28,y+11],['Geb.-Datum:',20,y+17],['Fall-Nr. / Aufnahme-Nr.:',40,y+23]];
+  flds.forEach(function(f){
+    fo('normal',7,C.mgray);doc.text(f[0],ML+4,f[2]);
+    st([210,210,210],0.2);doc.line(ML+f[1],f[2]+0.8,ML+CW-4,f[2]+0.8);
+  });
+  y+=28;
+
+  // === AMPEL-BOXEN ========================================
+  ns(32);
+  var bw=(CW-4)/2;
+
+  // ICANS
+  fi(ICANS_BG[g]);st(ICANS_FG[g],0.8);doc.roundedRect(ML,y,bw,30,3,3,'FD');
+  fi(ICANS_FG[g]);doc.circle(ML+12,y+13,8,'F');
+  fo('bold',15,C.white);doc.text(String(g),ML+12,y+13,{align:'center',baseline:'middle'});
+  fo('bold',9.5,ICANS_FG[g]);doc.text(IN[g],ML+24,y+10);
+  fo('normal',7.5,C.gray);
+  var il=doc.splitTextToSize(ID[g],bw-26);doc.text(il,ML+24,y+15.5);
+  fo('normal',6.5,C.mgray);doc.text('ICE-Score: '+total+' / 10',ML+4,y+27.5);
+
+  // CRS
+  var cx=ML+bw+4;
+  fi(CRS_BG[crs]);st(CRS_FG[crs],0.8);doc.roundedRect(cx,y,bw,30,3,3,'FD');
+  fi(CRS_FG[crs]);doc.circle(cx+12,y+13,8,'F');
+  fo('bold',15,C.white);doc.text(String(crs),cx+12,y+13,{align:'center',baseline:'middle'});
+  fo('bold',9.5,CRS_FG[crs]);doc.text(CN[crs],cx+24,y+10);
+  fo('normal',7.5,C.gray);
+  var cl=doc.splitTextToSize(CD[crs],bw-26);doc.text(cl,cx+24,y+15.5);
+  fo('normal',6.5,C.mgray);
+  var fi2=crs_state.fever?'Fieber: Ja':'Fieber: Nein';
+  var ht=['Keine','Ohne VP*','1 VP*','>1 VP*'][crs_state.htn];
+  var o2=['Kein','<=6l','>6l','Beatm.'][crs_state.o2];
+  doc.text(fi2+' | Hyp.: '+ht+' | O2: '+o2,cx+4,y+27.5);
+  y+=33;
+
+  // === ICE-SCORE DETAILS ==================================
+  sh('ICE-Score - Einzelergebnisse',C.mblue);
+  var II=[['Orientierung: Jahr',ice.o1],['Orientierung: Monat',ice.o2],['Orientierung: Stadt',ice.o3],
+    ['Orientierung: Krankenhaus',ice.o4],['Benennen: Gegenstand 1',ice.n1],['Benennen: Gegenstand 2',ice.n2],
+    ['Benennen: Gegenstand 3',ice.n3],['Schreiben (Standardsatz)',ice.w1],
+    ['Konzentration (100er-Schritte)',ice.a1],['Befolgen (Geste)',ice.f1]];
+  var cw2=CW/2;
+  for(var i=0;i<II.length;i++){
+    var col=i%2,xi=ML+col*cw2;
+    if(col===0)ns(5.5);
+    var ok=II[i][1]===1;
+    fi(ok?[232,250,238]:[252,233,232]);doc.rect(xi+0.5,y-0.5,cw2-1,5,'F');
+    fo('normal',8,C.gray);doc.text(II[i][0],xi+3,y+3.2);
+    fo('bold',8.5,ok?C.dgreen:C.red);doc.text(ok?'OK 1':'-- 0',xi+cw2-12,y+3.2);
+    if(col===1)y+=5.5;
+  }
+  if(II.length%2!==0)y+=5.5;
+  sp(1);
+
+  // ICE-Summenzeile
+  ns(7.5);
+  fi(ICANS_BG[g]);st(ICANS_FG[g],0.4);doc.roundedRect(ML,y,CW,7,2,2,'FD');
+  fo('bold',8.5,ICANS_FG[g]);doc.text('ICE-Gesamtscore: '+total+' / 10  ->  '+IN[g],ML+3,y+4.8);
+  var ref=['ICE 10=kein ICANS','ICE 7-9=Grad 1','ICE 3-6=Grad 2','ICE 1-2=Grad 3','ICE 0=Grad 3-4'][g];
+  fo('normal',7,C.mgray);doc.text(ref,ML+CW-2,y+4.8,{align:'right'});
+  y+=9; sp(0.5);
+
+  // === KLINISCHE KRITERIEN ================================
+  sh('Klinische Kriterien (ASTCT)',C.mblue);
+  var CR=[
+    ['Bewusstseinslage',['Wach / orientiert','Nur durch Ansprache erweckbar','Nur durch Taktilreiz erweckbar','Koma / Stupor'][clin.consc],clin.consc>0],
+    ['Epileptischer Anfall',['Kein Anfall','Anfall, rasch sistiert','Status epilepticus / lebensbedrohlich'][clin.seizure],clin.seizure>0],
+    ['Motorisches Defizit',['Kein Defizit','Hemi-/Paraparese'][clin.motor],clin.motor>0],
+    ['Hirnödem / ICP',['Kein Ödem','Fokales Ödem (Grad 3)','Diffuses Ödem / Cushing (Grad 4)'][clin.edema],clin.edema>0],
+    ['Nicht testbar',['Nein','Ja - komatoeus/intubiert'][clin.untestable],clin.untestable>0],
+  ];
+  CR.forEach(function(r){
+    ns(5.5);
+    fi(r[2]?[255,244,225]:[244,250,255]);doc.rect(ML+0.5,y-0.5,CW-1,5,'F');
+    fo('bold',8,C.gray);doc.text(r[0]+':',ML+3,y+3.2);
+    fo('normal',8,r[2]?C.orange:C.dgreen);doc.text(r[1],ML+52,y+3.2);
+    y+=5.5;
+  });
+  sp(1.5);
+
+  // === ÄRZTLICHES PROCEDERE - ICANS =======================
+  sh('Ärztliches Procedere - '+IN[g],[90,40,5]);
+
+  var IS=['Stationäre Überwachung - ICE+BHISA 1x/Tag, Schriftprobe, Vitalzeichen 3x/Tag',
+    'Stationäre Überwachung, ggf. Überwachungsstation erwägen',
+    'Überwachungs- / Intensivstation erwägen',
+    'Intensivstation - sofortige Verlegung',
+    'Intensivstation - ggf. Intubation, kontinuierliches EEG-Monitoring'];
+  var IDG=[
+    ['ICANS ist Ausschlussdiagnose - Infektion, Blutung, Ischämie ausschließen'],
+    ['ICE + BHISA alle 4 h','cMRT mit KM erwägen (ggf. cCT)','EEG erwägen','Neurologisches Konsil erwägen','Bei Persistenz > 24 h: Lumbalpunktion erwägen'],
+    ['ICE + BHISA + GCS alle 4 h','cMRT mit KM (falls noch nicht erfolgt)','EEG (falls noch nicht erfolgt)','Lumbalpunktion (wenn keine Kontraindikation)','Aspirationsprophylaxe einleiten'],
+    ['ICE + BHISA + GCS alle 2-4 h','cMRT, EEG, LP falls noch nicht erfolgt'],
+    ['Kontinuierliches EEG-Monitoring','cMRT, ggf. LP']];
+  var ITH=[
+    [],
+    ['Bei Dysphagie: Umstellung auf i.v.-Medikation',
+     'Levetiracetam als Krampfprophylaxe erwägen','Thiamin-Substitution erwägen',
+     crs>0?'Bei begleitendem CRS: Tocilizumab 8 mg/kg i.v. (max. 800 mg) erwägen':'',
+     'Bei Persistenz > 24 h oder frühem Auftreten (< 72 h): Eskalation auf Grad-2-Protokoll'],
+    ['Dexamethason 10 mg i.v. alle 6-12 h (bis <= Grad 1, dann Reduktion)',
+     'Bei fehlendem Ansprechen: Dexamethason bis 20 mg i.v. alle 6 h',
+     'Anakinra > 200 mg/Tag s.c. oder i.v. erwägen',
+     'i.th. Dexamethason (z.B. 10 mg) bei fehlendem Ansprechen erwägen',
+     crs>0?'Tocilizumab 8 mg/kg i.v. (max. 800 mg) falls nicht bereits verabreicht':''],
+    ['Dexamethason 10 mg i.v. alle 6-12 h, ggf. bis 20 mg alle 6 h',
+     'Anakinra > 200 mg/Tag s.c. oder i.v. - frühzeitig starten',
+     'i.th. Dexamethason (z.B. 10 mg) erwägen',
+     clin.seizure>=1?'Antikonvulsiva gem. DGN-Leitlinie Status epilepticus':'',
+     clin.edema>=1?'Hirnödem: Hyperventilation + hyperosmolare Therapie + Methylprednisolon 1-2 g/24 h':'',
+     clin.edema>=1?'Cyclophosphamid 1,5 g/m2 erwägen':'',
+     'Bei Nichtansprechen: Eskalation auf Grad-4-Protokoll'],
+    ['Methylprednisolon 1 g/Tag i.v. über mind. 3 Tage, dann Reduktion',
+     'Anakinra > 200 mg/Tag s.c. oder i.v.',
+     'i.th. Dexamethason (z.B. 10 mg) erwägen',
+     clin.seizure>=2?'Status epilepticus: Benzodiazepin -> Levetiracetam/Valproat -> Narkose':'',
+     clin.edema>=1?'Hirnödem: Hyperventilation + Mannitol/NaCl 3 % + Methylprednisolon 1-2 g/24 h':'',
+     clin.motor===1?'Höhergradige Parese: Bildgebung, Neuro-Konsil sofort':'',
+     'Bei Versagen: Cyclophosphamid, Ruxolitinib, ATG, Emapalumab erwägen']];
+
+  uh('Setting / Überwachung',C.red); bu(IS[g]);sp();
+  if(IDG[g].length){uh('Diagnostik / Monitoring',C.mblue); IDG[g].forEach(function(t){bu(t,4);}); sp();}
+  if(ITH[g].length){uh('Medikamentöse Therapie (ICANS)',C.dgreen); ITH[g].forEach(function(t){bu(t,4);}); sp();}
+
+  // === ÄRZTLICHES PROCEDERE - CRS (nur wenn CRS > 0) ======
+  if(crs>0){
+    sh('Ärztliches Procedere - '+CN[crs],[90,40,5]);
+    var CS=['',
+      'Stationäre Überwachung, Vitalzeichen alle 4 h, engmaschige Verlaufskontrolle',
+      'Überwachungs- oder Intensivstation, kontinuierliches Monitoring (RR, SpO2, Temp.)',
+      'Intensivstation - sofortige Verlegung, invasive Messung (art. RR, ZVK) erwägen',
+      'Intensivstation - Intubation, ggf. ECMO-Indikation prüfen'];
+    var CT=[[],
+      ['Antipyretika: Paracetamol 1 g p.o./i.v. bei Fieber >= 38,5 °C',
+       'Ausreichende Hydrierung (mind. 2 l/Tag oral oder i.v.)',
+       'Tocilizumab 8 mg/kg i.v. (max. 800 mg) bei Persistenz > 24 h oder rascher Progression erwägen',
+       'Kortikosteroide bei CRS Grad 1 in der Regel nicht indiziert'],
+      ['TOCILIZUMAB 8 mg/kg i.v. über 1 h (max. 800 mg) - SOFORT',
+       'Wiederholung nach 8 h möglich (max. 4 Gaben gesamt)',
+       'I.v.-Volumenersatz: NaCl 0,9 % oder Kristalloide 500 ml Bolus bei Hypotonie',
+       'O2-Supplementation: Ziel SpO2 >= 94 %',
+       'Dexamethason 10 mg i.v. alle 6-12 h bei fehlendem Ansprechen auf Tocilizumab'],
+      ['TOCILIZUMAB 8 mg/kg i.v. (max. 800 mg) - SOFORT, Wdh. nach 8 h',
+       'DEXAMETHASON 10-20 mg i.v. alle 6 h - parallel zu Tocilizumab',
+       'Noradrenalin nach intensivmed. Schema (Ziel MAP >= 65 mmHg)',
+       'O2-Therapie: High-flow oder NIV je nach klinischem Bild',
+       'Anakinra 100-200 mg/Tag s.c. oder i.v. bei refrak. Verlauf erwägen'],
+      ['TOCILIZUMAB 8 mg/kg i.v. (max. 800 mg) - SOFORT',
+       'METHYLPREDNISOLON 1 g/Tag i.v. (alternativ: Dexamethason 20 mg alle 6 h)',
+       'Mehrere Vasopressoren nach intensivmed. Schema',
+       'Anakinra > 200 mg/Tag i.v. - frühzeitig',
+       'Emapalumab bei schwerer Hyperferritinämie / HLH-Bild erwägen']];
+    var CM=[[],
+      ['Blutbild, CRP, Ferritin, Fibrinogen täglich','Vitalzeichen alle 4 h','Bei Progression: Eskalation auf Grad-2-Protokoll'],
+      ['Blutbild, CRP, Ferritin, Fibrinogen, LDH, Kreatinin täglich','Laktat bei Hypotonie, BGA bei Hypoxie','Bei Progression zu Grad 3: sofortige Eskalation'],
+      ['Blutbild, Gerinnung, CRP, Ferritin, Troponin, BNP, Krea. 2x/Tag','Echo bei kardialer Beteiligung erwägen','Bei Progression zu Grad 4: sofortige Eskalation'],
+      ['Kontinuierliches hämodynamisches Monitoring','Echo (CRS-Kardiomyopathie ausschließen)','Ferritin, Fibrinogen, d-Dimere, Troponin, BNP alle 6 h','Blutgas, Laktat, Nierenfunktion mind. alle 6 h']];
+
+    uh('Setting',C.red); bu(CS[crs]); sp();
+    uh('Medikamentöse Therapie (CRS)',C.dgreen); CT[crs].forEach(function(t){bu(t,4);}); sp();
+    uh('Monitoring (CRS)',C.mblue); CM[crs].forEach(function(t){bu(t,4);}); sp();
+  }
+
+  // === PFLEGE-PROCEDERE ===================================
+  ns(9);
+  fi(C.lpurple);st([120,60,180],0.5);doc.roundedRect(ML,y,CW,6.5,2,2,'FD');
+  fo('bold',9.5,C.purple);doc.text('Pflege-Procedere',ML+2.5,y+4.5);
+  y+=8.5;
+
+  var mf=['1x täglich (ICE+BHISA, Schriftprobe, Vitalzeichen 3x/Tag)',
+    'alle 4 Stunden (ICE+BHISA, Vitalzeichen)',
+    'alle 4 Stunden (ICE+BHISA+GCS, Vitalzeichen)',
+    'alle 2-4 Stunden (ICE+BHISA+GCS, Vitalzeichen)',
+    'stündlich oder kontinuierlich (GCS, Vitalzeichen)'][g];
+
+  uh('Überwachungsintervalle',C.purple);
+  bu('Monitoring-Frequenz: '+mf,4,true);
+  if(g>=1)bu('Aspirationsprophylaxe beachten (ICANS Grad >= 1)',4);
+  if(g>=2)bu('Schriftprobe bei jeder Messung dokumentieren und mit Baseline vergleichen',4);
+  sp();
+
+  uh('Alarmzeichen - sofort Arzt informieren bei:',C.purple);
+  ['Neuem Verwirrtheitszustand oder Verschlechterung der Orientierung',
+   'Nicht unterbrechbarem epileptischem Anfall',
+   'Neu aufgetretener Schwäche / Lähmung einer Extremität',
+   'Bewusstlosigkeit oder Koma',
+   'Fieber >= 38,0 °C (neu oder erneut)',
+   'Blutdruckabfall (syst. < 90 mmHg) oder neu benötigter O2-Gabe',
+   'Verschlechterung der Schriftprobe oder der Orientierung'
+  ].forEach(function(a){bu(a,4,false,C.red);});
+  sp();
+
+  uh('Vitalparameter-Zielwerte',C.purple);
+  ['SpO2 >= 94 % (unter O2-Supplementation)',
+   'Systolischer Blutdruck >= 90 mmHg',
+   'Herzfrequenz 50-100 / min',
+   'Temperatur < 38,0 °C (ggf. Paracetamol nach AO)',
+   'Flüssigkeitsbilanz dokumentieren (Einfuhr / Ausfuhr)'].forEach(function(v){bu(v,4);});
+  sp();
+
+  uh('Pflegerische Maßnahmen',C.purple);
+  var nm=['Sturzprophylaxe: Bettgitter hochstellen, Klingel in Reichweite, ggf. Niedrigbett',
+    'Aspirationsprophylaxe: Oberkörperhochlagerung 30°, bei Schlückstörung Diätassistenz',
+    'Mundpflege alle 4 h','Schriftprobe vor jeder Messung dokumentieren',
+    'Ggf. Kontinenzversorgung bei verminderter Mobilität / Bewusstsein',
+    'Delir-Prävention: Tagesstruktur, Uhren/Kalender sichtbar platzieren',
+    'Medikamente: Umstellung auf i.v. bei Schlückstörung (Arzt informieren)'];
+  if(g>=3){nm.push('Intensivpflege: Lagerungsplan, Dekubitusprophylaxe alle 2 h');
+    nm.push('Lückenlose Dokumentation aller Veränderungen im Pflegebericht');}
+  nm.forEach(function(m){bu(m,4);}); sp();
+
+  if(crs>0){
+    uh('Zusätz bei begleitendem '+CN[crs],C.purple);
+    var cn=[[],
+      ['Temperatur alle 4 h messen, Antipyretika nach AO geben',
+       'Trinkmenge/Infusion dokumentieren (>= 2 l/Tag Ziel)',
+       'Bei Fieberpersistenz oder Blutdruckabfall: sofort Arzt informieren'],
+      ['Venösen Zugang sicherstellen (ggf. großlumig)',
+       'Blutdruck alle 1-2 h messen, Schockzeichen erkennen',
+       'SpO2 kontinuierlich messen, O2-Gabe bereithalten',
+       'Urinausscheidung stündlich bilanzieren bei Hypotonie',
+       'Nach Tocilizumab: 60 min auf allergische Reaktionen überwachen'],
+      ['Invasives Monitoring sicherstellen (art. Zugang, ZVK)',
+       'Vasopressor-Perfusor nach Anordnung laufend überwachen',
+       'Beatmungsüberwachung (falls NIV)','Stündl. Flüssigkeitsbilanz'],
+      ['Intensivpflege: Beatmung, ECMO-Monitoring nach Protokoll',
+       'Alle Zugänge und Perfusoren stündlich kontrollieren',
+       'Hämodynamische Parameter kontinuierlich überwachen']];
+    cn[crs].forEach(function(m){bu(m,4);}); sp();
+  }
+
+  // === UNTERSCHRIFT + CHECKLISTE ==========================
+  ns(28);
+  st(C.lgray,0.3);doc.line(ML,y,ML+CW,y); y+=4;
+  var sw=(CW-8)/3;
+  ['Arzt/Ärztin (Unterschrift)','Stempel','Pflege (Kürzel)'].forEach(function(lb,si){
+    var sx=ML+si*(sw+4);
+    fi([250,250,250]);st([200,200,200],0.3);doc.roundedRect(sx,y,sw,20,2,2,'FD');
+    fo('normal',7,C.mgray);doc.text(lb,sx+2,y+18);
+  });
+  y+=23; ns(30);
+  fo('bold',8.5,C.blue);doc.text('Weiterleitungen / Maßnahmen veranlasst:',ML,y); y+=5;
+  ['Neurologisches Konsil angefordert','ICU-Verlegung veranlasst',
+   'Onko-Diensthabende/r informiert','Pflege informiert und übergeben',
+   'Dokument in Patientenakte abgeheftet'].forEach(function(ch){
+    ns(5.5);
+    st(C.blue,0.4);doc.rect(ML+2,y-3.5,3.5,3.5);
+    fo('normal',8,C.gray);doc.text(ch,ML+7,y); y+=5.5;
+  });
+
+  // === FOOTER ALLE SEITEN =================================
+  var tp=doc.internal.getNumberOfPages();
+  for(var p=1;p<=tp;p++){
+    doc.setPage(p);
+    fi(C.lgray);doc.rect(0,PH-FH,PW,FH,'F');
+    fo('normal',6,C.mgray);
+    doc.text('Klinische Entscheidungshilfe - ersetzt nicht die ärztliche Beurteilung. Nicht als Medizinprodukt validiert. Nur für internen klinischen Gebrauch.',ML,PH-FH+3.8);
+    doc.text('Version 1.2 · Jan Jürß · Klinik für Neurologie mit klinischer Neurophysiologie · MHH     * VP = Vasopressor (z.B. Noradrenalin)',ML,PH-FH+7.5);
+    fo('bold',6.5,C.mgray);
+    doc.text('Seite '+p+' / '+tp,PW-MR,PH-FH+5.5,{align:'right'});
+  }
+
+  var fname='ICANS_CRS_'+ds.replace(/\./g,'-')+'_'+ts.replace(':','')+'.pdf';
+  doc.save(fname);
+}
+
+// ════════════════════════════════════════════════════════
+// PRÄPARAT-SELEKTOR
+// ════════════════════════════════════════════════════════
+var currentProduct = 'general';
+
+var PRODUCT_INFO = {
+  general: {
+    name: 'Allgemeine Empfehlungen',
+    icans_risk: '',
+    crs_risk: '',
+    hint: ''
+  },
+  axicel: {
+    name: 'Axicabtagene ciloleucel (Yescarta)',
+    icans_risk: 'hoch',
+    crs_risk: 'hoch',
+    hint: '<strong>Axicabtagene ciloleucel (Yescarta):</strong> Hohes CRS- und ICANS-Risiko (ICANS ~30%, Gr.3+ ~10%). Median Auftreten CRS Tag 2, ICANS Tag 4–5. Engmaschiges Monitoring besonders in den ersten 7 Tagen empfohlen. Cave: Frühe Neurotoxizität möglich.'
+  },
+  kymriah: {
+    name: 'Tisagenlecleucel (Kymriah)',
+    icans_risk: 'mittel',
+    crs_risk: 'mittel',
+    hint: '<strong>Tisagenlecleucel (Kymriah):</strong> Moderates CRS-Risiko, vergleichsweise niedrigeres ICANS-Risiko (ICANS ~20%). Median Auftreten CRS Tag 3. Meist milder Verlauf, aber schwere Verläufe möglich.'
+  },
+  ciltacel: {
+    name: 'Ciltacabtagene ciloleucel (Carvykti)',
+    icans_risk: 'mittel-hoch',
+    crs_risk: 'mittel',
+    hint: '<strong>Ciltacabtagene ciloleucel (Carvykti):</strong> Besondere Aufmerksamkeit auf <em>späte neurologische Toxizitäten (MNT)</em>: Bewegungsstörungen, Tremor, Mikrographie, Bradykinesie – oft erst Wochen nach Infusion. ICANS klassisch zusätzlich möglich. Längeres Monitoring (bis 28 Tage) empfohlen.'
+  },
+  idecel: {
+    name: 'Idecabtagene vicleucel (Abecma)',
+    icans_risk: 'mittel',
+    crs_risk: 'mittel',
+    hint: '<strong>Idecabtagene vicleucel (Abecma):</strong> Moderates Toxizitätsprofil. CRS typisch Tag 1–4. ICANS seltener als bei CD19-Produkten. Standard-Monitoring über 10 Tage.'
+  },
+  lisocabtagene: {
+    name: 'Lisocabtagene maraleucel (Breyanzi)',
+    icans_risk: 'mittel',
+    crs_risk: 'gering-mittel',
+    hint: '<strong>Lisocabtagene maraleucel (Breyanzi):</strong> Günstigeres Sicherheitsprofil im Vergleich. Niedrigstes CRS-Risiko der zugelassenen CD19-Produkte, ICANS aber weiterhin möglich. Monitoring-Standard: 7–10 Tage.'
+  }
+};
+
+function setProduct(btn) {
+  document.querySelectorAll('.product-btn').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+  currentProduct = btn.dataset.prod;
+  var info = PRODUCT_INFO[currentProduct];
+  var hint = document.getElementById('product-hint');
+  if (info.hint) {
+    hint.innerHTML = info.hint;
+    hint.style.display = 'block';
+  } else {
+    hint.style.display = 'none';
+  }
+  grade(); // Therapieempfehlung aktualisieren (Produkt wird dort eingeblendet)
+}
+
+// ════════════════════════════════════════════════════════
+// RESET
+// ════════════════════════════════════════════════════════
+function resetAll() {
+  if (!confirm('Alle Eingaben zurücksetzen?')) return;
+
+  // ICE-Score
+  for (var k in ice) ice[k] = 1;
+  document.querySelectorAll('.ice-btn').forEach(function(b){
+    b.classList.remove('active');
+    if (b.dataset.v === '1') b.classList.add('active');
+  });
+
+  // Klinische Kriterien
+  for (var key in clin) clin[key] = 0;
+  ['consc','seizure','motor','edema','untestable'].forEach(function(seg){
+    var el = document.getElementById('seg-'+seg);
+    if (!el) return;
+    el.querySelectorAll('button').forEach(function(b){ b.classList.remove('active'); });
+    el.querySelector('button[data-v="0"]').classList.add('active');
+  });
+
+  // CRS
+  crs_state.fever = 1; crs_state.htn = 0; crs_state.o2 = 0;
+  // Fever: Ja aktiv setzen
+  var feverBtns = document.querySelectorAll('[data-crs="fever"]');
+  feverBtns.forEach(function(b){ b.classList.remove('active'); if(b.dataset.v==='1') b.classList.add('active'); });
+  var htnBtns = document.querySelectorAll('[data-crs="htn"]');
+  htnBtns.forEach(function(b){ b.classList.remove('active'); if(b.dataset.v==='0') b.classList.add('active'); });
+  var o2Btns = document.querySelectorAll('[data-crs="o2"]');
+  o2Btns.forEach(function(b){ b.classList.remove('active'); if(b.dataset.v==='0') b.classList.add('active'); });
+
+  // Produkt
+  currentProduct = 'general';
+  document.querySelectorAll('.product-btn').forEach(function(b){
+    b.classList.remove('active');
+    if(b.dataset.prod==='general') b.classList.add('active');
+  });
+  document.getElementById('product-hint').style.display = 'none';
+
+  updateCRS();
+
+  // Visuelles Feedback
+  var btn = document.querySelector('.reset-btn');
+  var orig = btn.innerHTML;
+  btn.innerHTML = '&#10003; Zurückgesetzt';
+  btn.style.background = 'var(--lokgreen)';
+  btn.style.color = 'var(--green)';
+  setTimeout(function(){ btn.innerHTML = orig; btn.style.background = ''; btn.style.color = ''; }, 1500);
+}
+
+// ════════════════════════════════════════════════════════
+// TIMER
+// ════════════════════════════════════════════════════════
+var timerInterval  = null;
+var timerSeconds   = 4 * 3600;  // Default 4h
+var timerRemaining = 4 * 3600;
+var timerRunning   = false;
+
+function timerSetInterval(secs) {
+  timerStop();
+  timerSeconds   = secs;
+  timerRemaining = secs;
+  timerUpdateDisplay();
+  document.getElementById('timer-alert').style.display = 'none';
+}
+
+function timerStartStop() {
+  if (timerRunning) {
+    timerStop();
+  } else {
+    timerStart();
+  }
+}
+
+function timerStart() {
+  if (timerRemaining <= 0) timerRemaining = timerSeconds;
+  timerRunning = true;
+  document.getElementById('timer-start-btn').textContent = '\u23F8 Pause';
+  document.getElementById('timer-start-btn').className = 'timer-btn stop';
+  document.getElementById('timer-alert').style.display = 'none';
+  timerInterval = setInterval(function(){
+    timerRemaining--;
+    timerUpdateDisplay();
+    if (timerRemaining <= 0) {
+      timerStop();
+      timerUpdateDisplay();
+      document.getElementById('timer-alert').style.display = 'block';
+      // Vibration wenn möglich
+      if (navigator.vibrate) navigator.vibrate([500,200,500,200,500]);
+    }
+  }, 1000);
+}
+
+function timerStop() {
+  timerRunning = false;
+  clearInterval(timerInterval);
+  timerInterval = null;
+  var btn = document.getElementById('timer-start-btn');
+  if (btn) { btn.textContent = '\u25B6 Start'; btn.className = 'timer-btn start'; }
+}
+
+function timerReset() {
+  timerStop();
+  timerRemaining = timerSeconds;
+  timerUpdateDisplay();
+  document.getElementById('timer-alert').style.display = 'none';
+}
+
+function timerUpdateDisplay() {
+  var h = Math.floor(Math.max(0,timerRemaining) / 3600);
+  var m = Math.floor((Math.max(0,timerRemaining) % 3600) / 60);
+  var s = Math.max(0,timerRemaining) % 60;
+  document.getElementById('timer-display').textContent =
+    String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+  // Farbe wechseln wenn < 10 min
+  var disp = document.getElementById('timer-display');
+  if (timerRemaining <= 0)       disp.style.color = 'var(--red)';
+  else if (timerRemaining < 600) disp.style.color = 'var(--orange)';
+  else                           disp.style.color = 'var(--blue)';
+}
+
+
+// ════════════════════════════════════════════════════════
+// PATIENTENVERLAUF
+// ════════════════════════════════════════════════════════
+
+var PT_KEY      = 'icans_patients_v1';
+var ptData      = {};          // { id: { name, measurements:[] } }
+var ptActive    = null;        // aktive Patienten-ID
+var ptDay       = 1;           // aktuell gewählter Tag
+var ptChart     = null;        // Chart.js Instanz
+
+// ── Persistenz ────────────────────────────────────────────
+function ptLoad() {
+  try { ptData = JSON.parse(localStorage.getItem(PT_KEY) || '{}'); }
+  catch(e) { ptData = {}; }
+}
+function ptSave() {
+  localStorage.setItem(PT_KEY, JSON.stringify(ptData));
+}
+
+// ── Patienten hinzufügen ──────────────────────────────────
+function ptAdd() {
+  var name = document.getElementById('pt-new-name').value.trim();
+  if (!name) { document.getElementById('pt-new-name').focus(); return; }
+  var id = 'pt_' + Date.now();
+  ptData[id] = { name: name, measurements: [] };
+  ptSave();
+  document.getElementById('pt-new-name').value = '';
+  ptRender();
+  ptSelect(id);
+}
+
+// ── Patienten löschen ─────────────────────────────────────
+function ptDelete() {
+  if (!ptActive) return;
+  if (!confirm('Patient "' + ptData[ptActive].name + '" und alle Messungen löschen?')) return;
+  delete ptData[ptActive];
+  ptSave();
+  ptActive = null;
+  ptRender();
+  document.getElementById('pt-detail').style.display = 'none';
+}
+
+// ── Tag-Selektor ──────────────────────────────────────────
+(function() {
+  document.addEventListener('DOMContentLoaded', function() {
+    var seg = document.getElementById('seg-pt-day');
+    if (!seg) return;
+    seg.querySelectorAll('button').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        seg.querySelectorAll('button').forEach(function(b){ b.classList.remove('active'); });
+        btn.classList.add('active');
+        ptDay = +btn.dataset.d;
+      });
+    });
+  });
+})();
+
+// ── Messung speichern ─────────────────────────────────────
+function ptSaveMeasurement() {
+  if (!ptActive) return;
+
+  // Aktuelle Scores lesen
+  var iceTotal = 0; for (var k in ice) iceTotal += ice[k];
+
+  // ICANS-Grad neu berechnen
+  var g = 0;
+  if (clin.untestable===1) { g=4; }
+  else {
+    if (iceTotal>=7&&iceTotal<=9) g=Math.max(g,1);
+    else if (iceTotal>=3&&iceTotal<=6) g=Math.max(g,2);
+    else if (iceTotal>=1&&iceTotal<=2) g=Math.max(g,3);
+    else if (iceTotal===0) g=Math.max(g,3);
+    if (clin.consc===1) g=Math.max(g,2); if (clin.consc===2) g=Math.max(g,3); if (clin.consc===3) g=4;
+    if (clin.seizure===1) g=Math.max(g,3); if (clin.seizure===2) g=4;
+    if (clin.motor===1) g=4;
+    if (clin.edema===1) g=Math.max(g,3); if (clin.edema===2) g=4;
+  }
+
+  // CRS-Grad
+  var crsG = calcCRS(); if (!crs_state.fever) crsG = 0;
+
+  var meas = {
+    id:    'meas_' + Date.now(),
+    ts:    new Date().toISOString(),
+    day:   ptDay,
+    ice:   iceTotal,
+    icans: g,
+    crs:   crsG
+  };
+  ptData[ptActive].measurements.push(meas);
+  ptSave();
+  ptRenderDetail();
+
+  // Kurzes visuelles Feedback
+  var btn = document.querySelector('.add-meas-btn');
+  var orig = btn.textContent;
+  btn.textContent = '✓ Gespeichert';
+  btn.style.background = 'var(--okgreen)';
+  setTimeout(function(){ btn.textContent = orig; btn.style.background = ''; }, 1200);
+}
+
+// ── Messung löschen ───────────────────────────────────────
+function ptDeleteMeas(mid) {
+  if (!ptActive) return;
+  ptData[ptActive].measurements = ptData[ptActive].measurements.filter(function(m){ return m.id !== mid; });
+  ptSave();
+  ptRenderDetail();
+}
+
+// ── Patient auswählen ─────────────────────────────────────
+function ptSelect(id) {
+  ptActive = id;
+  ptRender();
+  ptRenderDetail();
+  document.getElementById('pt-detail').style.display = 'block';
+  // Scroll zum Detail
+  setTimeout(function(){
+    document.getElementById('pt-detail').scrollIntoView({behavior:'smooth', block:'nearest'});
+  }, 100);
+}
+
+// ── Patientenliste rendern ────────────────────────────────
+function ptRender() {
+  var list = document.getElementById('pt-list');
+  var ids  = Object.keys(ptData);
+  if (ids.length === 0) {
+    list.innerHTML = '<div style="font-size:12px;color:var(--mgray);padding:6px 2px 10px">Noch keine Patienten angelegt.</div>';
+    return;
+  }
+  var html = '';
+  ids.forEach(function(id) {
+    var p    = ptData[id];
+    var n    = p.measurements.length;
+    var last = n > 0 ? p.measurements[p.measurements.length-1] : null;
+    var tagI = last ? '<span class="pt-tag g'+last.icans+'">ICANS '+last.icans+'</span>' : '';
+    var tagC = last ? '<span class="pt-tag g'+last.crs+'">CRS '+last.crs+'</span>' : '';
+    var lastTs = last ? ptFmtTime(last.ts)+' (Tag '+last.day+')' : 'Keine Messungen';
+    html += '<div class="pt-card'+(id===ptActive?' active':'')+'" '+ 'data-ptid="'+id+'" onclick="ptSelect(this.dataset.ptid)">'
+          + '<div class="pt-name">'+escHtml(p.name)+'  '+tagI+tagC+'</div>'
+          + '<div class="pt-meta">'+n+' Messung'+(n!==1?'en':'')+' &nbsp;|&nbsp; Letzte: '+lastTs+'</div>'
+          + '</div>';
+  });
+  list.innerHTML = html;
+}
+
+// ── Detailansicht rendern ─────────────────────────────────
+function ptRenderDetail() {
+  if (!ptActive || !ptData[ptActive]) return;
+  var p = ptData[ptActive];
+
+  // Name
+  document.getElementById('pt-detail-name').textContent = p.name;
+
+  // Aktuelle Score-Vorschau aktualisieren
+  ptUpdatePreview();
+
+  // Chart
+  ptRenderChart(p.measurements);
+
+  // Messungsliste
+  var measList = document.getElementById('pt-meas-list');
+  if (p.measurements.length === 0) {
+    measList.innerHTML = '<div style="font-size:12px;color:var(--mgray);padding:8px 2px">Noch keine Messungen. Scores oben einstellen und speichern.</div>';
+    return;
+  }
+  // Sortiert nach Tag, dann Zeitstempel
+  var sorted = p.measurements.slice().sort(function(a,b){
+    if (a.day !== b.day) return a.day - b.day;
+    return a.ts < b.ts ? -1 : 1;
+  });
+
+  var ICANS_COL = ['var(--okgreen)','var(--okgreen)','var(--yellow)','var(--orange)','var(--red)'];
+  var CRS_COL   = ['var(--okgreen)','var(--okgreen)','var(--yellow)','var(--orange)','var(--red)'];
+
+  var html = '<div style="margin:8px 0 4px;font-size:12px;font-weight:600;color:var(--mblue)">Alle Messungen</div>';
+  html += '<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px">';
+  html += '<tr style="border-bottom:2px solid var(--border)">'
+        + '<th style="text-align:left;padding:4px 6px;color:var(--mgray);font-weight:600">Tag</th>'
+        + '<th style="text-align:left;padding:4px 6px;color:var(--mgray);font-weight:600">Zeit</th>'
+        + '<th style="text-align:center;padding:4px 6px;color:var(--mgray);font-weight:600">ICE</th>'
+        + '<th style="text-align:center;padding:4px 6px;color:var(--mgray);font-weight:600">ICANS</th>'
+        + '<th style="text-align:center;padding:4px 6px;color:var(--mgray);font-weight:600">CRS</th>'
+        + '<th></th></tr>';
+
+  sorted.forEach(function(m) {
+    html += '<tr style="border-bottom:1px solid var(--lgray)">'
+          + '<td style="padding:5px 6px;font-weight:600;color:var(--blue)">'+m.day+'</td>'
+          + '<td style="padding:5px 6px;color:var(--mgray)">'+ptFmtTime(m.ts)+'</td>'
+          + '<td style="padding:5px 6px;text-align:center;font-weight:700;color:var(--blue)">'+m.ice+'<span style="font-size:10px;color:var(--mgray)">/10</span></td>'
+          + '<td style="padding:5px 6px;text-align:center;font-weight:700;color:'+ICANS_COL[m.icans]+'">'+m.icans+'</td>'
+          + '<td style="padding:5px 6px;text-align:center;font-weight:700;color:'+CRS_COL[m.crs]+'">'+m.crs+'</td>'
+          + '<td style="padding:5px 2px"><button class="del-btn" data-mid="'+m.id+'" onclick="ptDeleteMeas(this.dataset.mid)" title="Löschen">&#10005;</button></td>'
+          + '</tr>';
+  });
+  html += '</table></div>';
+  measList.innerHTML = html;
+
+  // Patientenliste aktualisieren
+  ptRender();
+}
+
+// ── Verlaufschart ─────────────────────────────────────────
+function ptRenderChart(measurements) {
+  var wrap = document.getElementById('pt-chart-wrap');
+  if (!measurements || measurements.length < 2) {
+    wrap.style.display = 'none';
+    if (ptChart) { ptChart.destroy(); ptChart = null; }
+    return;
+  }
+  wrap.style.display = 'block';
+
+  // Datenpunkte: pro Tag + Uhrzeit (als Dezimalzahl für X-Achse)
+  var sorted = measurements.slice().sort(function(a,b){
+    return a.ts < b.ts ? -1 : 1;
+  });
+
+  // X-Achse: "Tag d, HH:MM"
+  var labels = sorted.map(function(m){ return 'T'+m.day+' '+ptFmtTime(m.ts); });
+  var iceVals  = sorted.map(function(m){ return m.ice; });
+  var icansVals= sorted.map(function(m){ return m.icans; });
+  var crsVals  = sorted.map(function(m){ return m.crs; });
+
+  if (ptChart) { ptChart.destroy(); ptChart = null; }
+
+  var ctx = document.getElementById('pt-chart').getContext('2d');
+  ptChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [
+        {
+          label: 'ICE-Score',
+          data: iceVals,
+          borderColor: '#2E75B6',
+          backgroundColor: 'rgba(46,117,182,0.08)',
+          borderWidth: 2.5,
+          pointRadius: 5,
+          pointBackgroundColor: '#2E75B6',
+          tension: 0.3,
+          yAxisID: 'yIce',
+          fill: true
+        },
+        {
+          label: 'ICANS-Grad',
+          data: icansVals,
+          borderColor: '#E67E22',
+          backgroundColor: 'rgba(230,126,34,0.08)',
+          borderWidth: 2.5,
+          pointRadius: 5,
+          pointBackgroundColor: '#E67E22',
+          tension: 0.3,
+          yAxisID: 'yGrad',
+          fill: false,
+          borderDash: []
+        },
+        {
+          label: 'CRS-Grad',
+          data: crsVals,
+          borderColor: '#CC0000',
+          backgroundColor: 'rgba(204,0,0,0.06)',
+          borderWidth: 2.5,
+          pointRadius: 5,
+          pointBackgroundColor: '#CC0000',
+          tension: 0.3,
+          yAxisID: 'yGrad',
+          fill: false,
+          borderDash: [5,3]
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { labels: { font: { size: 11 }, boxWidth: 18, padding: 10 } },
+        tooltip: {
+          callbacks: {
+            label: function(ctx) {
+              if (ctx.dataset.label==='ICE-Score') return ' ICE: '+ctx.raw+'/10';
+              return ' '+ctx.dataset.label+': Grad '+ctx.raw;
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          ticks: { font: { size: 10 }, maxRotation: 45 },
+          grid:  { color: 'rgba(0,0,0,0.05)' }
+        },
+        yIce: {
+          type: 'linear', position: 'left',
+          min: 0, max: 10,
+          title: { display: true, text: 'ICE-Score', font:{size:10}, color:'#2E75B6' },
+          ticks: { font:{size:10}, color:'#2E75B6', stepSize:2 },
+          grid:  { color:'rgba(46,117,182,0.1)' }
+        },
+        yGrad: {
+          type: 'linear', position: 'right',
+          min: 0, max: 4,
+          title: { display: true, text: 'Grad', font:{size:10}, color:'#E67E22' },
+          ticks: { font:{size:10}, color:'#888', stepSize:1,
+            callback: function(v){ return Number.isInteger(v)?v:''; }
+          },
+          grid: { drawOnChartArea: false }
+        }
+      }
+    }
+  });
+}
+
+// ── Aktuelle Score-Vorschau ───────────────────────────────
+function ptUpdatePreview() {
+  // ICE
+  var iceTotal = 0; for (var k in ice) iceTotal += ice[k];
+  document.getElementById('pt-preview-ice').textContent = iceTotal;
+
+  // ICANS-Grad
+  var g = 0;
+  if (clin.untestable===1) { g=4; }
+  else {
+    if (iceTotal>=7&&iceTotal<=9) g=Math.max(g,1);
+    else if (iceTotal>=3&&iceTotal<=6) g=Math.max(g,2);
+    else if (iceTotal>=1&&iceTotal<=2) g=Math.max(g,3);
+    else if (iceTotal===0) g=Math.max(g,3);
+    if (clin.consc===1) g=Math.max(g,2); if (clin.consc===2) g=Math.max(g,3); if (clin.consc===3) g=4;
+    if (clin.seizure===1) g=Math.max(g,3); if (clin.seizure===2) g=4;
+    if (clin.motor===1) g=4;
+    if (clin.edema===1) g=Math.max(g,3); if (clin.edema===2) g=4;
+  }
+  var GCOL = ['var(--okgreen)','var(--okgreen)','var(--yellow)','var(--orange)','var(--red)'];
+  var el = document.getElementById('pt-preview-icans');
+  el.textContent = g; el.style.color = GCOL[g];
+
+  // CRS
+  var crsG = calcCRS(); if (!crs_state.fever) crsG = 0;
+  var el2 = document.getElementById('pt-preview-crs');
+  el2.textContent = crsG; el2.style.color = GCOL[crsG];
+}
+
+// ── Hilfsfunktionen ───────────────────────────────────────
+function ptFmtTime(iso) {
+  var d = new Date(iso);
+  return d.toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit'})
+        + ' ' + d.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});
+}
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── Init Patientenverlauf ─────────────────────────────────
+function ptInit() {
+  ptLoad();
+  ptRender();
+  // Tag-Selektor initialisieren
+  var seg = document.getElementById('seg-pt-day');
+  if (seg) {
+    seg.querySelectorAll('button').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        seg.querySelectorAll('button').forEach(function(b){ b.classList.remove('active'); });
+        btn.classList.add('active');
+        ptDay = +btn.dataset.d;
+      });
+    });
+  }
+}
+
+// ── Init ───────────────────────────────────────────────
+updateCRS();
+renderQuickRef(null);
+ptInit();
+
+if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js'); }
 </script>
 </body>
 </html>
