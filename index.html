@@ -110,6 +110,10 @@ em.src{font-size:10px;color:var(--mgray);font-style:normal;display:block;margin-
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <!-- Cache-Busting: Browser soll index.html nie cachen -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
 </head>
 <body>
 <div class="hdr">
@@ -2961,7 +2965,31 @@ updateCRS();
 renderQuickRef(null);
 ptInit();
 
-if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js'); }
+if ('serviceWorker' in navigator) {
+  // SW registrieren mit Cache-Bust-Parameter (= App-Version)
+  var SW_VER = '2.3';
+  navigator.serviceWorker.register('./sw.js?v=' + SW_VER)
+    .then(function(reg) {
+      // Sofort nach Update suchen
+      reg.update();
+      // Wenn ein neuer SW wartet: sofort aktivieren
+      reg.addEventListener('updatefound', function() {
+        var newWorker = reg.installing;
+        if (!newWorker) return;
+        newWorker.addEventListener('statechange', function() {
+          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+            // Neuer SW ist ready: Seite neu laden
+            window.location.reload();
+          }
+        });
+      });
+    });
+  // Wenn SW die Kontrolle übernimmt (nach skipWaiting): neu laden
+  var refreshing = false;
+  navigator.serviceWorker.addEventListener('controllerchange', function() {
+    if (!refreshing) { refreshing = true; window.location.reload(); }
+  });
+}
 </script>
 </body>
 </html>
