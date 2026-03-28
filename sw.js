@@ -1,5 +1,5 @@
-// ICANS Grading App – Service Worker v2.8
-var CACHE_NAME = 'icans-v2.8';
+// ICANS Grading App – Service Worker v2.9
+var CACHE_NAME = 'icans-v2.9';
 var STATIC_ASSETS = [
   './manifest.json','./icons/icon-192.png','./icons/icon-512.png','./icons/banner.png',
   'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',
