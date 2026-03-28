@@ -3421,6 +3421,7 @@ function vQRConfirmImport() {
   if (!vQRImportData || !vQRImportData.pts) return;
   vptLoad();
   var imported = 0, merged = 0;
+  var importedNames = [];
   Object.keys(vQRImportData.pts).forEach(function(srcId) {
     var src = vQRImportData.pts[srcId];
     var newMeas = (src.m||[]).map(function(m) {
@@ -3438,17 +3439,53 @@ function vQRConfirmImport() {
       ptData[newId] = { name: src.n, measurements: newMeas };
       imported++;
     }
+    importedNames.push(src.n);
   });
   ptSave();
-  auditAdd('QR-Import', imported + ' neu, ' + merged + ' zusammengeführt');
-  // Modal schließen und Patientenliste aktualisieren
-  document.getElementById('vqr-scanner-modal').style.display = 'none';
-  var cd = document.getElementById('vqr-confirm-area');
-  if (cd) { cd.style.display = 'none'; cd.innerHTML = ''; }
+  auditAdd('QR-Import', imported + ' neu, ' + merged + ' zusammengefuehrt');
   vQRImportData = null;
   vptRender();
-  // Erfolgsmeldung
-  alert('Import erfolgreich! ' + imported + ' neu, ' + merged + ' zusammengefuehrt.');
+
+  // Bestätigungs-Bereich aktualisieren: Erfolg + nächsten Scan anbieten
+  var cd = document.getElementById('vqr-confirm-area');
+  if (cd) {
+    cd.style.background = '#f0fff4';
+    cd.style.border = '2px solid #27ae60';
+    cd.innerHTML =
+      '<div style="font-size:13px;font-weight:600;color:#27ae60;margin-bottom:8px">' +
+      '&#10003; Importiert: ' + importedNames.join(', ') + '</div>' +
+      '<div style="font-size:11.5px;color:#555;margin-bottom:10px">' +
+      imported + ' neue' + (merged ? ', ' + merged + ' aktualisierte' : '') + ' Patienten</div>' +
+      '<div style="display:flex;gap:8px">' +
+      '<button onclick="vQRNextScan()" style="flex:1;padding:10px;background:#1b3a5c;color:white;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">' +
+      '&#128247; Weiteren Patient scannen</button>' +
+      '<button onclick="vQRDoneImport()" style="flex:1;padding:10px;background:#eee;color:#333;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer">' +
+      'Fertig</button>' +
+      '</div>';
+  }
+}
+
+function vQRNextScan() {
+  // Bestätigungs-Bereich ausblenden und Kamera neu starten
+  var cd = document.getElementById('vqr-confirm-area');
+  if (cd) { cd.style.display = 'none'; cd.innerHTML = ''; }
+  vQRSetStatus('');
+  // Kamera-Button wieder einblenden und neu starten
+  var startBtn = document.getElementById('vqr-start-btn');
+  var stopBtn  = document.getElementById('vqr-stop-btn');
+  var wrap     = document.getElementById('vqr-live-wrap');
+  if (startBtn) startBtn.style.display = 'block';
+  if (stopBtn)  stopBtn.style.display  = 'none';
+  if (wrap)     wrap.style.display     = 'none';
+  // Sofort Kamera neu starten
+  vQRStartLive();
+}
+
+function vQRDoneImport() {
+  var cd = document.getElementById('vqr-confirm-area');
+  if (cd) { cd.style.display = 'none'; cd.innerHTML = ''; }
+  document.getElementById('vqr-scanner-modal').style.display = 'none';
+  vQRSetStatus('');
 }
 
 function vQRCancelImport() {
