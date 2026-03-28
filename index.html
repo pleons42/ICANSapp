@@ -114,12 +114,28 @@ em.src{font-size:10px;color:var(--mgray);font-style:normal;display:block;margin-
 <!-- QRCode.js + jsQR: SYNC laden (kein defer) – werden sofort bei Scan benötigt -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
-// jsQR inline-Loader: versuche CDN, dann Foto-Fallback
+/* jsQR Multi-CDN Loader - lädt jsQR von mehreren Quellen */
 (function() {
-  var s = document.createElement('script');
-  s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js';
-  s.onerror = function() { console.warn('[QR] jsQR CDN nicht erreichbar – Foto-Fallback aktiv'); };
-  document.head.appendChild(s);
+  var CDN_URLS = [
+    'https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js',
+    'https://unpkg.com/jsqr@1.4.0/dist/jsQR.min.js',
+    'https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js'
+  ];
+  var idx = 0;
+  function tryLoad() {
+    if (idx >= CDN_URLS.length) {
+      console.warn('[jsQR] Alle CDNs fehlgeschlagen – jsQR nicht verfügbar');
+      window._jsQRLoadFailed = true;
+      return;
+    }
+    var s = document.createElement('script');
+    s.src = CDN_URLS[idx];
+    s.onload = function() { console.log('[jsQR] Geladen von:', CDN_URLS[idx-1] || CDN_URLS[0]); };
+    s.onerror = function() { console.warn('[jsQR] CDN fehlgeschlagen:', CDN_URLS[idx]); idx++; tryLoad(); };
+    idx++;
+    document.head.appendChild(s);
+  }
+  tryLoad();
 })();
 </script>
   <!-- Cache-Busting: Browser soll index.html nie cachen -->
@@ -308,17 +324,27 @@ em.src{font-size:10px;color:var(--mgray);font-style:normal;display:block;margin-
   <div style="background:white;border-radius:16px;padding:16px;max-width:360px;width:100%">
     <div style="font-size:14px;font-weight:700;color:#1b3a5c;margin-bottom:12px">Patient importieren</div>
 
-    <!-- Option 1: QR mit Kamera scannen (native) -->
+    <!-- Option 1: Live-Kamera-Scanner -->
     <div style="background:#f0f7ff;border-radius:8px;padding:10px;margin-bottom:10px">
-      <div style="font-size:12px;font-weight:600;color:#1b3a5c;margin-bottom:6px">&#128247; Option 1: QR mit Kamera scannen</div>
-      <div style="font-size:11.5px;color:#555;margin-bottom:8px;line-height:1.5">
-        Öffnen Sie die <b>normale Kamera-App</b> Ihres Geräts und scannen Sie den QR-Code des anderen Geräts. Tippen Sie dann auf den angezeigten Link.
+      <div style="font-size:12px;font-weight:600;color:#1b3a5c;margin-bottom:8px">&#128247; QR-Code mit Kamera scannen</div>
+      <div id="vqr-live-wrap" style="position:relative;background:#000;border-radius:8px;overflow:hidden;margin-bottom:8px;display:none;min-height:200px">
+        <video id="vqr-video" playsinline muted autoplay style="width:100%;display:block;max-height:260px;object-fit:cover"></video>
+        <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:60%;height:55%;border:3px solid #27ae60;border-radius:8px;pointer-events:none;box-shadow:0 0 0 1000px rgba(0,0,0,0.3)"></div>
+      </div>
+      <div id="vqr-scan-status" style="font-size:11.5px;color:#555;min-height:24px;margin-bottom:8px;line-height:1.5;text-align:center"></div>
+      <div style="display:flex;gap:8px">
+        <button id="vqr-start-btn" onclick="vQRStartLive()" style="flex:1;padding:10px;background:#1b3a5c;color:white;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer">
+          &#127909; Kamera starten
+        </button>
+        <button id="vqr-stop-btn" onclick="vQRStopScan()" style="flex:1;padding:10px;background:#c0392b;color:white;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;display:none">
+          Stopp
+        </button>
       </div>
     </div>
 
     <!-- Option 2: Code einfügen -->
     <div style="background:#f5f5f5;border-radius:8px;padding:10px;margin-bottom:10px">
-      <div style="font-size:12px;font-weight:600;color:#1b3a5c;margin-bottom:6px">&#128203; Option 2: Code einfügen</div>
+      <div style="font-size:12px;font-weight:600;color:#1b3a5c;margin-bottom:6px">&#128203; Code manuell einfügen</div>
       <textarea id="vqr-paste-input" rows="4" placeholder="Import-Code hier einfügen (vom anderen Gerät kopiert)…"
         style="width:100%;font-size:11px;font-family:monospace;padding:8px;border:1px solid #ddd;border-radius:6px;box-sizing:border-box;resize:none"></textarea>
       <button onclick="vQRImportFromPaste()" style="width:100%;margin-top:6px;padding:10px;background:#27ae60;color:white;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer">
@@ -3090,6 +3116,47 @@ function vQRSetStatus(msg) {
   console.log('[QR]', msg);
 }
 
+function vQRStartLive() {
+  // Direkt den Live-Scanner starten (ohne extra Modal-Wechsel)
+  var wrap = document.getElementById('vqr-live-wrap');
+  var startBtn = document.getElementById('vqr-start-btn');
+  var stopBtn  = document.getElementById('vqr-stop-btn');
+  if (wrap) wrap.style.display = 'block';
+  if (startBtn) startBtn.style.display = 'none';
+  if (stopBtn)  stopBtn.style.display  = 'block';
+  vQRSetStatus('Kamera startet…');
+  vQRScanActive    = true;
+  vQRCurrentStream = null;
+
+  navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } } })
+    .then(function(stream) {
+      vQRCurrentStream = stream;
+      var video = document.getElementById('vqr-video');
+      video.srcObject   = stream;
+      video.playsInline = true;
+      video.muted       = true;
+      video.onloadedmetadata = function() {
+        video.play().then(function() {
+          var label = stream.getVideoTracks()[0].label;
+          vQRSetStatus('QR-Code in den Rahmen halten…<br><small>' + label.slice(0,35) + '</small>');
+          if (window.BarcodeDetector) {
+            vQRScanNative(video, stream);
+          } else {
+            vQRScanWithJsQR(video, stream);
+          }
+        }).catch(function(e) { vQRSetStatus('Fehler: ' + e.message); });
+      };
+    })
+    .catch(function(err) {
+      vQRSetStatus(err.name === 'NotAllowedError'
+        ? 'Kamera-Berechtigung verweigert – bitte in Einstellungen erlauben.'
+        : 'Kamera-Fehler: ' + err.name);
+      if (wrap) wrap.style.display = 'none';
+      if (startBtn) startBtn.style.display = 'block';
+      if (stopBtn)  stopBtn.style.display  = 'none';
+    });
+}
+
 function vQRStartScan() {
   var modal = document.getElementById('vqr-scanner-modal');
   modal.style.display = 'flex';
@@ -3202,58 +3269,193 @@ function vQRDecodeCanvas(imgData) {
 
 function vQRScanNative(video, stream) {
   var bd = new BarcodeDetector({ formats: ['qr_code'] });
-  var fails = 0, frames = 0;
+  var frames = 0, fails = 0;
+
   function tick() {
     if (!vQRScanActive) return;
+    if (video.readyState < 2 || video.videoWidth === 0) {
+      vQRScanRAF = requestAnimationFrame(tick); return;
+    }
+    frames++;
+    if (frames % 30 === 0) vQRSetStatus('QR-Code in den Rahmen halten… (' + frames + ' Frames)');
+
+    // BarcodeDetector direkt auf video-Element (korrekt für Chrome/macOS)
     bd.detect(video).then(function(codes) {
       if (!vQRScanActive) return;
-      frames++;
-      if (frames % 60 === 0) vQRSetStatus('Scannen… (' + frames + ' Frames)');
       if (codes && codes.length > 0 && codes[0].rawValue) {
         vQRFoundCode(codes[0].rawValue, stream);
-      } else { vQRScanRAF = requestAnimationFrame(tick); }
-    }).catch(function() {
-      if (++fails > 3) { vQRSetStatus('Scannen… (jsQR)'); vQRScanWithJsQR(video, stream); }
-      else { vQRScanRAF = requestAnimationFrame(tick); }
+      } else {
+        vQRScanRAF = requestAnimationFrame(tick);
+      }
+    }).catch(function(e) {
+      fails++;
+      if (fails > 10) {
+        console.log('[QR] BarcodeDetector → jsQR:', e.message);
+        vQRScanWithJsQR(video, stream);
+      } else {
+        vQRScanRAF = requestAnimationFrame(tick);
+      }
     });
   }
   tick();
 }
 
 function vQRScanWithJsQR(video, stream) {
+  // Warte bis jsQR geladen ist (Multi-CDN braucht Zeit)
   if (typeof jsQR === 'undefined') {
-    vQRSetStatus('jsQR nicht geladen – bitte Foto aufnehmen: <button onclick="vQRTriggerFile()" style="margin-top:6px;padding:8px 16px;background:#1b3a5c;color:white;border:none;border-radius:6px;cursor:pointer">Foto</button>');
+    vQRSetStatus('jsQR wird geladen…');
+    var waited = 0;
+    var waitTimer = setInterval(function() {
+      waited += 500;
+      if (typeof jsQR !== 'undefined') {
+        clearInterval(waitTimer);
+        vQRSetStatus('QR-Code in den Rahmen halten…');
+        vQRScanWithJsQR(video, stream);
+      } else if (waited > 10000) {
+        clearInterval(waitTimer);
+        vQRSetStatus('jsQR nicht verfügbar.<br>Bitte Foto aufnehmen: <button onclick="vQRTriggerFile()" style="padding:6px 12px;background:#1b3a5c;color:white;border:none;border-radius:6px;cursor:pointer;font-size:12px">Foto</button>');
+      }
+    }, 500);
     return;
   }
+
   var canvas = document.createElement('canvas');
   var ctx    = canvas.getContext('2d');
   var frames = 0;
+
   function tick() {
     if (!vQRScanActive) return;
-    if (video.readyState < 2 || video.videoWidth === 0) { vQRScanRAF = requestAnimationFrame(tick); return; }
+    if (video.readyState < 2 || video.videoWidth === 0) {
+      vQRScanRAF = requestAnimationFrame(tick); return;
+    }
     canvas.width  = video.videoWidth;
     canvas.height = video.videoHeight;
     ctx.drawImage(video, 0, 0);
-    var code = jsQR(ctx.getImageData(0, 0, canvas.width, canvas.height).data, canvas.width, canvas.height, { inversionAttempts: 'attemptBoth' });
+    var imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    var code = jsQR(imgData.data, imgData.width, imgData.height, {
+      inversionAttempts: 'attemptBoth'
+    });
     frames++;
-    if (frames % 30 === 0) vQRSetStatus('QR-Code in den Rahmen halten…<br><small>' + canvas.width + '×' + canvas.height + ' · ' + frames + ' Frames</small>');
-    if (code && code.data) { vQRFoundCode(code.data, stream); }
-    else { vQRScanRAF = requestAnimationFrame(tick); }
+    if (frames % 30 === 0) {
+      vQRSetStatus('QR-Code in den Rahmen halten…<br><small>' +
+        canvas.width + '×' + canvas.height + ' · ' + frames + ' Frames</small>');
+    }
+    if (code && code.data) {
+      vQRFoundCode(code.data, stream);
+    } else {
+      vQRScanRAF = requestAnimationFrame(tick);
+    }
   }
   tick();
 }
 
 
-function vQRTriggerFile() {
-  var fi = document.getElementById('vqr-file-input');
-  if (fi) { fi.value = ''; fi.click(); }
-}
-
 function vQRFoundCode(data, stream) {
   console.log('[QR] Erkannt ('+data.length+' Zeichen):', data.slice(0,80));
-  vQRSetStatus('QR erkannt – verarbeite…');
-  vQRStopScan(stream);
-  setTimeout(function() { vQRImportFromCode(data); }, 300);
+  // Kamera stoppen aber Modal OFFEN lassen für Bestätigung
+  vQRScanActive = false;
+  if (vQRScanRAF) { cancelAnimationFrame(vQRScanRAF); clearTimeout(vQRScanRAF); vQRScanRAF = null; }
+  var s = stream || vQRCurrentStream;
+  if (s && s.getTracks) { s.getTracks().forEach(function(t){ t.stop(); }); }
+  vQRCurrentStream = null;
+  var video = document.getElementById('vqr-video');
+  if (video) { video.srcObject = null; }
+  var wrap = document.getElementById('vqr-live-wrap');
+  if (wrap) wrap.style.display = 'none';
+  var startBtn = document.getElementById('vqr-start-btn');
+  var stopBtn  = document.getElementById('vqr-stop-btn');
+  if (stopBtn) stopBtn.style.display = 'none';
+
+  // Bestätigung direkt im Scanner-Modal anzeigen
+  vQRShowConfirmInModal(data);
+}
+
+function vQRShowConfirmInModal(data) {
+  // Verarbeite den Code
+  var raw = data.trim();
+  if (raw.indexOf('#import=') !== -1) raw = raw.split('#import=')[1];
+  raw = raw.trim();
+  console.log('[Import] raw:', raw.slice(0,50));
+
+  try {
+    var json, parsed;
+    try { json = decodeURIComponent(raw); parsed = JSON.parse(json); }
+    catch(e1) { parsed = JSON.parse(raw); }
+    if (!parsed || !parsed.pts) throw new Error('Ungültiges Format');
+
+    var pts = Object.values(parsed.pts);
+    var infoHtml = '<div style="font-size:13px;font-weight:600;color:#1b3a5c;margin-bottom:8px">QR erkannt!</div>';
+    infoHtml += '<div style="font-size:12px;color:#444;margin-bottom:12px">';
+    pts.forEach(function(p) {
+      infoHtml += '&#128100; ' + (p.n||'?') + ' &nbsp;(' + (p.m||[]).length + ' Messungen)<br>';
+    });
+    infoHtml += '</div>';
+
+    // Im Scanner-Modal anzeigen
+    var confirmDiv = document.getElementById('vqr-confirm-area');
+    if (!confirmDiv) {
+      confirmDiv = document.createElement('div');
+      confirmDiv.id = 'vqr-confirm-area';
+      confirmDiv.style.cssText = 'background:#f0fff4;border:2px solid #27ae60;border-radius:10px;padding:12px;margin-top:10px';
+      var scannerModal = document.getElementById('vqr-scanner-modal');
+      if (scannerModal) scannerModal.querySelector('div').appendChild(confirmDiv);
+    }
+    confirmDiv.style.display = 'block';
+    confirmDiv.innerHTML = infoHtml +
+      '<div style="display:flex;gap:8px">' +
+      '<button onclick="vQRConfirmImport()" style="flex:1;padding:10px;background:#27ae60;color:white;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">&#10003; Importieren</button>' +
+      '<button onclick="vQRCancelImport()" style="flex:1;padding:10px;background:#eee;color:#333;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer">Abbrechen</button>' +
+      '</div>';
+
+    // Daten für Bestätigung speichern
+    vQRImportData = parsed;
+
+  } catch(e) {
+    console.error('[Import] Fehler:', e.message);
+    vQRSetStatus('<span style="color:#c0392b">&#9888; ' + e.message + '</span>');
+    if (startBtn) startBtn.style.display = 'block';
+  }
+}
+
+function vQRConfirmImport() {
+  if (!vQRImportData || !vQRImportData.pts) return;
+  vptLoad();
+  var imported = 0, merged = 0;
+  Object.keys(vQRImportData.pts).forEach(function(srcId) {
+    var src = vQRImportData.pts[srcId];
+    var newMeas = (src.m||[]).map(function(m) {
+      return { id: m.id, ts: m.ts, day: m.d, ice: m.i, icans: m.ia, crs: m.c };
+    });
+    var existId = Object.keys(ptData).find(function(id){ return ptData[id].name === src.n; });
+    if (existId) {
+      var existIds = ptData[existId].measurements.map(function(m){ return m.id; });
+      ptData[existId].measurements = ptData[existId].measurements.concat(
+        newMeas.filter(function(m){ return existIds.indexOf(m.id) === -1; })
+      );
+      merged++;
+    } else {
+      var newId = 'pt_imp_' + Date.now() + '_' + Math.random().toString(36).slice(2,6);
+      ptData[newId] = { name: src.n, measurements: newMeas };
+      imported++;
+    }
+  });
+  ptSave();
+  auditAdd('QR-Import', imported + ' neu, ' + merged + ' zusammengeführt');
+  // Modal schließen und Patientenliste aktualisieren
+  document.getElementById('vqr-scanner-modal').style.display = 'none';
+  var cd = document.getElementById('vqr-confirm-area');
+  if (cd) { cd.style.display = 'none'; cd.innerHTML = ''; }
+  vQRImportData = null;
+  vptRender();
+  // Erfolgsmeldung
+  alert('Import erfolgreich! ' + imported + ' neu, ' + merged + ' zusammengefuehrt.');
+}
+
+function vQRCancelImport() {
+  var cd = document.getElementById('vqr-confirm-area');
+  if (cd) { cd.style.display = 'none'; cd.innerHTML = ''; }
+  vQRImportData = null;
+  document.getElementById('vqr-scanner-modal').style.display = 'none';
 }
 
 function vQRStopScan(stream) {
@@ -3268,8 +3470,16 @@ function vQRStopScan(stream) {
   vQRCurrentStream = null;
   var video = document.getElementById('vqr-video');
   if (video) { video.srcObject = null; }
-  var modal = document.getElementById('vqr-scanner-modal');
+  var modal  = document.getElementById('vqr-scanner-modal');
   if (modal) modal.style.display = 'none';
+  // Live-UI zurücksetzen
+  var wrap    = document.getElementById('vqr-live-wrap');
+  var startBtn = document.getElementById('vqr-start-btn');
+  var stopBtn  = document.getElementById('vqr-stop-btn');
+  if (wrap)    wrap.style.display = 'none';
+  if (startBtn) startBtn.style.display = 'block';
+  if (stopBtn)  stopBtn.style.display  = 'none';
+  vQRSetStatus('');
 }
 
 // ── Import aus gescanntem Code ────────────────────────────
@@ -3281,18 +3491,23 @@ function vQRImportFromCode(code) {
     raw = raw.split('#import=')[1];
   }
   raw = raw.trim();
+  console.log('[Import] Verarbeite Code, Länge:', raw.length, 'Anfang:', raw.slice(0,50));
   try {
     var json, data;
-    // Versuche 1: decodeURIComponent (Standard-Format)
+    // Versuche 1: decodeURIComponent (URL-encoded JSON)
     try {
       json = decodeURIComponent(raw);
       data = JSON.parse(json);
+      console.log('[Import] decodeURIComponent OK');
     } catch(e1) {
-      // Versuche 2: direkt als JSON (falls jemand JSON eingefügt hat)
+      console.log('[Import] decodeURIComponent fehlgeschlagen:', e1.message);
+      // Versuche 2: direkt als JSON
       try {
         data = JSON.parse(raw);
+        console.log('[Import] JSON direkt OK');
       } catch(e2) {
-        throw new Error('Format nicht erkannt. Bitte den vollständigen Code vom anderen Gerät kopieren.');
+        console.log('[Import] JSON direkt fehlgeschlagen:', e2.message);
+        throw new Error('Ungültiges Format. Code vollständig vom anderen Gerät kopieren.');
       }
     }
     if (!data || !data.pts) throw new Error('Ungültiges Datenformat');
@@ -3355,19 +3570,59 @@ function vQRImportConfirm() {
 
 // ── URL-Hash beim Laden prüfen (automatischer Import nach QR-Scan) ─
 function vCheckURLImport() {
-  // App via URL mit #import= geöffnet (nach QR-Scan mit nativer Kamera)
-  var hash = window.location.hash;
-  if (hash && hash.indexOf('#import=') !== -1) {
-    var code = hash.split('#import=')[1];
-    if (!code) return;
-    // Hash aus URL entfernen
-    history.replaceState(null, '', window.location.pathname + window.location.search);
-    setTimeout(function() {
-      setMode('visiten');
+  var hash = window.location.hash || '';
+  var search = window.location.search || '';
+  var code = null;
+
+  // Format 1: #import=DATEN
+  if (hash.indexOf('import=') !== -1) {
+    code = hash.split('import=')[1];
+  }
+  // Format 2: ?import=DATEN (falls Hash nicht funktioniert)
+  else if (search.indexOf('import=') !== -1) {
+    try { code = new URLSearchParams(search).get('import'); } catch(e) {}
+  }
+
+  if (!code || code.length < 5) return;
+
+  // URL sofort bereinigen damit kein doppelter Import passiert
+  history.replaceState(null, '', window.location.pathname);
+
+  console.log('[Import] Code erkannt, Länge:', code.length);
+
+  // Import sofort ausführen - kein langer Timeout
+  function doImport() {
+    if (typeof setMode === 'function') setMode('visiten');
+    if (typeof vQRImportFromCode === 'function') {
       vQRImportFromCode(code);
-    }, 800);
+    } else {
+      // Funktionen noch nicht bereit - kurz warten
+      setTimeout(doImport, 200);
+    }
+  }
+
+  // Sofort oder nach kurzem DOM-Ready-Warten
+  if (document.readyState === 'complete') {
+    setTimeout(doImport, 100);
+  } else {
+    document.addEventListener('DOMContentLoaded', function() {
+      setTimeout(doImport, 300);
+    });
   }
 }
+
+// Alle möglichen Eintrittspunkte abdecken
+// 1. Beim Start (normale Navigation)
+// 2. hashchange (wenn App-Tab schon offen, Safari öffnet neuen Hash)
+window.addEventListener('hashchange', function() {
+  vCheckURLImport();
+});
+// 3. pageshow (iOS PWA: zurück zur App nach Link-Klick)
+window.addEventListener('pageshow', function(e) {
+  if (e.persisted) { // Aus dem BFCache wiederhergestellt
+    vCheckURLImport();
+  }
+});
 
 // ── Init Patientenverlauf ─────────────────────────────────
 function ptInit() {
