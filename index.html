@@ -2927,8 +2927,9 @@ function vCopyKIS() {
 var vQRQueue   = [];
 var vQRIdx     = 0;
 var vQRImportData = null;
-var vQRScanActive = false;
-var vQRScanRAF    = null;
+var vQRScanActive    = false;
+var vQRScanRAF      = null;
+var vQRCurrentStream = null;
 
 // ── Daten für QR aufbereiten (reiner Base64-String, keine URL) ──
 function vBuildPayload(ids) {
@@ -3015,94 +3016,108 @@ function vQRNext() { vQRIdx = (vQRIdx + 1) % vQRQueue.length; vQRRender(); }
 // ── Kamera-Scanner starten ────────────────────────────────
 function vQRStartScan() {
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-    alert('Kamera-Zugriff wird von diesem Browser nicht unterstützt.\nBitte Chrome oder Safari verwenden.');
+    alert('Kamera nicht verfügbar.\nBitte die App über HTTPS aufrufen und Chrome oder Safari verwenden.');
     return;
   }
-  // jsQR noch nicht bereit → max. 5 Sekunden warten, dann starten
-  if (typeof jsQR === 'undefined') {
-    var status = document.getElementById('vqr-scan-status');
-    var modal  = document.getElementById('vqr-scanner-modal');
-    if (modal) modal.style.display = 'flex';
-    if (status) status.textContent = 'Scan-Bibliothek wird geladen…';
-    var waited = 0;
-    var waitInterval = setInterval(function() {
-      waited += 200;
-      if (typeof jsQR !== 'undefined') {
-        clearInterval(waitInterval);
-        if (status) status.textContent = 'Kamera wird gestartet…';
-        vQRStartScanCamera();
-      } else if (waited >= 8000) {
-        clearInterval(waitInterval);
-        if (modal) modal.style.display = 'none';
-        alert('Scan-Bibliothek konnte nicht geladen werden.\nBitte Internetverbindung prüfen und erneut versuchen.');
-      } else {
-        if (status) status.textContent = 'Laden… (' + Math.round(waited/1000) + 's)';
-      }
-    }, 200);
-    return;
-  }
-  vQRStartScanCamera();
-}
-
-function vQRStartScanCamera() {
-
-  var modal = document.getElementById('vqr-scanner-modal');
+  // Modal sofort öffnen
+  var modal  = document.getElementById('vqr-scanner-modal');
+  var status = document.getElementById('vqr-scan-status');
   modal.style.display = 'flex';
-  document.getElementById('vqr-scan-status').textContent = 'Kamera wird gestartet...';
+  status.textContent  = 'Kamera wird gestartet…';
   vQRScanActive = true;
 
-  var constraints = {
-    video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } }
-  };
-
+  // Kamera starten – Rückkamera bevorzugen
+  var constraints = { video: { facingMode: { ideal: 'environment' } } };
   navigator.mediaDevices.getUserMedia(constraints)
     .then(function(stream) {
-      var video  = document.getElementById('vqr-video');
-      video.srcObject = stream;
-      video.setAttribute('playsinline', true);
-      video.play();
-      video.addEventListener('loadedmetadata', function() {
-        document.getElementById('vqr-scan-status').textContent = 'QR-Code in den Rahmen halten...';
-        vQRScanLoop(video, stream);
+      vQRCurrentStream = stream;
+      var video = document.getElementById('vqr-video');
+      video.srcObject  = stream;
+      video.playsInline = true;
+      video.muted       = true;
+      video.play().then(function() {
+        status.textContent = 'QR-Code in den Rahmen halten…';
+        vQRScanTick(video, stream);
+      }).catch(function(e) {
+        status.textContent = 'Video-Fehler: ' + e.message;
       });
     })
     .catch(function(err) {
-      document.getElementById('vqr-scan-status').textContent =
-        'Kamera-Fehler: ' + err.message + '. Bitte Berechtigung erlauben.';
+      var msg = err.name === 'NotAllowedError'
+        ? 'Kamera-Berechtigung verweigert. Bitte in den Browser-Einstellungen erlauben.'
+        : 'Kamera-Fehler: ' + err.message;
+      status.textContent = msg;
     });
 }
 
-function vQRScanLoop(video, stream) {
+function vQRScanTick(video, stream) {
   if (!vQRScanActive) return;
+
+  // Methode 1: native BarcodeDetector (Chrome/Android, Safari 17+)
+  if (window.BarcodeDetector) {
+    var bd = new BarcodeDetector({ formats: ['qr_code'] });
+    bd.detect(video).then(function(codes) {
+      if (!vQRScanActive) return;
+      if (codes && codes.length > 0) {
+        vQRFoundCode(codes[0].rawValue, stream);
+      } else {
+        vQRScanRAF = requestAnimationFrame(function() { vQRScanTick(video, stream); });
+      }
+    }).catch(function() {
+      // BarcodeDetector schlug fehl → auf jsQR-Fallback wechseln
+      vQRScanRAF = requestAnimationFrame(function() { vQRScanWithJsQR(video, stream); });
+    });
+    return;
+  }
+
+  // Methode 2: jsQR via Canvas
+  vQRScanWithJsQR(video, stream);
+}
+
+function vQRScanWithJsQR(video, stream) {
+  if (!vQRScanActive) return;
+  if (typeof jsQR === 'undefined') {
+    // jsQR noch nicht geladen – kurz warten
+    vQRScanRAF = setTimeout(function() { vQRScanWithJsQR(video, stream); }, 300);
+    return;
+  }
+  if (video.readyState < 2) {
+    vQRScanRAF = requestAnimationFrame(function() { vQRScanWithJsQR(video, stream); });
+    return;
+  }
   var canvas = document.getElementById('vqr-scan-canvas');
   var ctx    = canvas.getContext('2d');
-  if (video.readyState === video.HAVE_ENOUGH_DATA) {
-    canvas.width  = video.videoWidth;
-    canvas.height = video.videoHeight;
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-    var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    var code = jsQR(imageData.data, imageData.width, imageData.height, {
-      inversionAttempts: 'dontInvert'
-    });
-    if (code && code.data) {
-      // QR erkannt!
-      vQRStopScan(stream);
-      document.getElementById('vqr-scan-status').textContent = 'QR erkannt!';
-      setTimeout(function() { vQRImportFromCode(code.data); }, 100);
-      return;
-    }
+  canvas.width  = video.videoWidth  || 640;
+  canvas.height = video.videoHeight || 480;
+  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+  var imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  var code    = jsQR(imgData.data, imgData.width, imgData.height);
+  if (code && code.data) {
+    vQRFoundCode(code.data, stream);
+  } else {
+    vQRScanRAF = requestAnimationFrame(function() { vQRScanWithJsQR(video, stream); });
   }
-  vQRScanRAF = requestAnimationFrame(function() { vQRScanLoop(video, stream); });
+}
+
+function vQRFoundCode(data, stream) {
+  vQRStopScan(stream);
+  setTimeout(function() { vQRImportFromCode(data); }, 150);
 }
 
 function vQRStopScan(stream) {
   vQRScanActive = false;
-  if (vQRScanRAF) { cancelAnimationFrame(vQRScanRAF); vQRScanRAF = null; }
+  if (vQRScanRAF) {
+    cancelAnimationFrame(vQRScanRAF);
+    clearTimeout(vQRScanRAF);
+    vQRScanRAF = null;
+  }
+  var s = stream || vQRCurrentStream;
+  if (s && s.getTracks) { s.getTracks().forEach(function(t){ t.stop(); }); }
+  vQRCurrentStream = null;
   var video = document.getElementById('vqr-video');
-  var src   = stream || (video.srcObject);
-  if (src && src.getTracks) { src.getTracks().forEach(function(t){ t.stop(); }); }
   if (video) { video.srcObject = null; }
-  document.getElementById('vqr-scanner-modal').style.display = 'none';
+  var modal = document.getElementById('vqr-scanner-modal');
+  if (modal) modal.style.display = 'none';
 }
 
 // ── Import aus gescanntem Code ────────────────────────────
@@ -3234,7 +3249,7 @@ ptInit();
 
 if ('serviceWorker' in navigator) {
   // SW registrieren mit Cache-Bust-Parameter (= App-Version)
-  var SW_VER = '2.7';
+  var SW_VER = '2.8';
   navigator.serviceWorker.register('./sw.js?v=' + SW_VER)
     .then(function(reg) {
       // Sofort nach Update suchen
