@@ -2941,8 +2941,9 @@ function vBuildPayload(ids) {
     })};
   });
   var json = JSON.stringify({ v: 1, pts: pts });
-  // URL-sicherer Base64 (für jsQR robust)
-  var b64 = btoa(unescape(encodeURIComponent(json)));
+  // Robustes UTF-8 Base64 (TextEncoder – kein Umlaut-Bug)
+  var bytes = new TextEncoder().encode(json);
+  var b64   = btoa(String.fromCharCode.apply(null, bytes));
   var name = ids.length === 1 ? ptData[ids[0]].name : ids.length + ' Patienten';
   return { qrText: b64, raw: b64, size: json.length, count: ids.length, name: name };
 }
@@ -3058,7 +3059,7 @@ function vQRScanTick(video, stream) {
     var bd = new BarcodeDetector({ formats: ['qr_code'] });
     bd.detect(video).then(function(codes) {
       if (!vQRScanActive) return;
-      if (codes && codes.length > 0) {
+      if (codes && codes.length > 0 && codes[0].rawValue) {
         vQRFoundCode(codes[0].rawValue, stream);
       } else {
         vQRScanRAF = requestAnimationFrame(function() { vQRScanTick(video, stream); });
@@ -3124,9 +3125,13 @@ function vQRStopScan(stream) {
 function vQRImportFromCode(code) {
   // Bereinigen: falls URL mit #import= gescannt wurde (Kompatibilität)
   var raw = code.replace(/.*#import=/, '').trim();
+  // Bereinige Base64 (Scanner fügt manchmal Leerzeichen/Zeilenumbrüche ein)
+  raw = raw.replace(/[\s]/g, '');
   try {
-    var json = decodeURIComponent(escape(atob(raw)));
-    var data = JSON.parse(json);
+    // Robustes UTF-8 Decode (TextDecoder – kein Umlaut-Bug)
+    var bytes = Uint8Array.from(atob(raw), function(ch){ return ch.charCodeAt(0); });
+    var json  = new TextDecoder().decode(bytes);
+    var data  = JSON.parse(json);
     if (!data || !data.pts) throw new Error('Ungültiges Datenformat');
 
     var names      = Object.values(data.pts).map(function(p){ return p.n; });
@@ -3149,7 +3154,10 @@ function vQRImportFromCode(code) {
     vQRImportData = data;
     document.getElementById('vqr-import-modal').style.display = 'flex';
   } catch(e) {
-    alert('Import-Fehler: ' + e.message + '\nBitte erneut scannen.');
+    // Zeige Fehler verständlich an
+    var errMsg = e.message || String(e);
+    console.error('QR-Import Fehler:', errMsg, 'Code-Länge:', raw.length, 'Anfang:', raw.slice(0,40));
+    alert('Import fehlgeschlagen: ' + errMsg + '\n\nBitte den QR-Code erneut scannen oder den Patienten manuell anlegen.');
   }
 }
 
@@ -3249,7 +3257,7 @@ ptInit();
 
 if ('serviceWorker' in navigator) {
   // SW registrieren mit Cache-Bust-Parameter (= App-Version)
-  var SW_VER = '2.8';
+  var SW_VER = '2.3';
   navigator.serviceWorker.register('./sw.js?v=' + SW_VER)
     .then(function(reg) {
       // Sofort nach Update suchen
