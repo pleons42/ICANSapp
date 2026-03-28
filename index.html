@@ -108,10 +108,10 @@ em.src{font-size:10px;color:var(--mgray);font-style:normal;display:block;margin-
 .pt-tag.g3{background:var(--lorange);color:#b7600a}
 .pt-tag.g4{background:var(--lred);color:var(--red)}
 </style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js" defer></script>
   <!-- Cache-Busting: Browser soll index.html nie cachen -->
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
@@ -3018,10 +3018,33 @@ function vQRStartScan() {
     alert('Kamera-Zugriff wird von diesem Browser nicht unterstützt.\nBitte Chrome oder Safari verwenden.');
     return;
   }
+  // jsQR noch nicht bereit → max. 5 Sekunden warten, dann starten
   if (typeof jsQR === 'undefined') {
-    alert('QR-Scan-Bibliothek noch nicht geladen. Bitte kurz warten und erneut versuchen.');
+    var status = document.getElementById('vqr-scan-status');
+    var modal  = document.getElementById('vqr-scanner-modal');
+    if (modal) modal.style.display = 'flex';
+    if (status) status.textContent = 'Scan-Bibliothek wird geladen…';
+    var waited = 0;
+    var waitInterval = setInterval(function() {
+      waited += 200;
+      if (typeof jsQR !== 'undefined') {
+        clearInterval(waitInterval);
+        if (status) status.textContent = 'Kamera wird gestartet…';
+        vQRStartScanCamera();
+      } else if (waited >= 8000) {
+        clearInterval(waitInterval);
+        if (modal) modal.style.display = 'none';
+        alert('Scan-Bibliothek konnte nicht geladen werden.\nBitte Internetverbindung prüfen und erneut versuchen.');
+      } else {
+        if (status) status.textContent = 'Laden… (' + Math.round(waited/1000) + 's)';
+      }
+    }, 200);
     return;
   }
+  vQRStartScanCamera();
+}
+
+function vQRStartScanCamera() {
 
   var modal = document.getElementById('vqr-scanner-modal');
   modal.style.display = 'flex';
@@ -3211,7 +3234,7 @@ ptInit();
 
 if ('serviceWorker' in navigator) {
   // SW registrieren mit Cache-Bust-Parameter (= App-Version)
-  var SW_VER = '2.6';
+  var SW_VER = '2.7';
   navigator.serviceWorker.register('./sw.js?v=' + SW_VER)
     .then(function(reg) {
       // Sofort nach Update suchen
