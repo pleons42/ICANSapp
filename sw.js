@@ -1,5 +1,5 @@
-// ICANS v4.0
-var CACHE_NAME='icans-v4.0';
+// ICANS v4.2
+var CACHE_NAME='icans-v4.2';
 var S=['./manifest.json','./icons/icon-192.png','./icons/icon-512.png','./icons/banner.png','https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js','https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js','https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js','https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js'];
 self.addEventListener('install',function(e){e.waitUntil(caches.open(CACHE_NAME).then(function(c){return c.addAll(S.filter(function(f){return f.startsWith('./');})).then(function(){return Promise.all(S.filter(function(f){return!f.startsWith('./');}).map(function(u){return c.add(u).catch(function(){});}));});}).then(function(){return self.skipWaiting();}));});
 self.addEventListener('activate',function(e){e.waitUntil(caches.keys().then(function(k){return Promise.all(k.filter(function(n){return n!==CACHE_NAME;}).map(function(n){return caches.delete(n);}));}).then(function(){return self.clients.claim();}));});
