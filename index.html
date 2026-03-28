@@ -110,6 +110,8 @@ em.src{font-size:10px;color:var(--mgray);font-style:normal;display:block;margin-
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js"></script>
   <!-- Cache-Busting: Browser soll index.html nie cachen -->
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
@@ -139,11 +141,16 @@ em.src{font-size:10px;color:var(--mgray);font-style:normal;display:block;margin-
   <!-- Patientenliste Visite -->
   <div class="stitle">Patienten</div>
   <div id="vpt-list" style="display:grid;gap:8px;margin-bottom:10px"></div>
-  <div style="display:flex;gap:8px;margin-bottom:16px">
+  <div style="display:flex;gap:8px;margin-bottom:8px">
     <input id="vpt-name-input" type="text" placeholder="Pseudonym / Kürzel" maxlength="30"
       style="flex:1;padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px">
     <button onclick="vptAdd()" style="padding:9px 16px;background:var(--blue);color:white;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer">
       &#43; Patient
+    </button>
+  </div>
+  <div style="display:flex;gap:8px;margin-bottom:16px">
+    <button onclick="vQRStartScan()" style="flex:1;padding:9px;background:#5b4fcf;color:white;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer">
+      &#9641; QR-Code scannen &amp; importieren
     </button>
   </div>
 
@@ -226,6 +233,16 @@ em.src{font-size:10px;color:var(--mgray);font-style:normal;display:block;margin-
       </button>
     </div>
 
+    <!-- QR-Code Modal Trigger -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px">
+      <button onclick="vShowQR('single')" style="padding:10px;background:#5b4fcf;color:white;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer">
+        &#9641; QR dieser Patient
+      </button>
+      <button onclick="vShowQR('all')" style="padding:10px;background:#7c6fe0;color:white;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer">
+        &#9641; QR alle Patienten
+      </button>
+    </div>
+
     <!-- KIS-Text Ausgabe -->
     <div id="vkis-output" style="display:none;margin-top:10px">
       <div style="font-size:11px;font-weight:600;color:var(--mgray);margin-bottom:4px">KIS-Eintrag (zum Kopieren):</div>
@@ -238,6 +255,53 @@ em.src{font-size:10px;color:var(--mgray);font-style:normal;display:block;margin-
 
   </div><!-- /vpt-detail -->
 </div><!-- /visiten-section -->
+
+<!-- QR-Code Modal -->
+<div id="vqr-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:9999;align-items:center;justify-content:center;padding:16px;box-sizing:border-box" onclick="this.style.display='none'">
+  <div style="background:white;border-radius:16px;padding:20px;max-width:340px;width:100%;text-align:center" onclick="event.stopPropagation()">
+    <div id="vqr-title" style="font-size:14px;font-weight:700;color:#1b3a5c;margin-bottom:4px"></div>
+    <div id="vqr-subtitle" style="font-size:11px;color:#888;margin-bottom:14px"></div>
+    <div id="vqr-nav" style="display:none;margin-bottom:10px;display:flex;gap:8px;justify-content:center;align-items:center">
+      <button onclick="vQRPrev()" style="padding:5px 12px;border:1px solid #ddd;border-radius:6px;background:white;cursor:pointer;font-size:13px">&#8249;</button>
+      <span id="vqr-counter" style="font-size:12px;color:#666"></span>
+      <button onclick="vQRNext()" style="padding:5px 12px;border:1px solid #ddd;border-radius:6px;background:white;cursor:pointer;font-size:13px">&#8250;</button>
+    </div>
+    <div id="vqr-canvas" style="display:flex;justify-content:center;margin-bottom:12px"></div>
+    <div id="vqr-info" style="font-size:11px;color:#666;margin-bottom:14px;line-height:1.5"></div>
+    <div style="font-size:10.5px;color:#aaa;margin-bottom:14px">QR mit dieser App scannen zum Importieren</div>
+    <button onclick="document.getElementById('vqr-modal').style.display='none'"
+      style="width:100%;padding:10px;background:#1b3a5c;color:white;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer">Schließen</button>
+  </div>
+</div>
+
+<!-- Kamera-Scanner Modal -->
+<div id="vqr-scanner-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);z-index:9999;align-items:center;justify-content:center;padding:16px;box-sizing:border-box">
+  <div style="background:white;border-radius:16px;padding:16px;max-width:360px;width:100%;text-align:center">
+    <div style="font-size:14px;font-weight:700;color:#1b3a5c;margin-bottom:10px">&#9641; QR-Code scannen</div>
+    <div style="position:relative;width:100%;background:#000;border-radius:8px;overflow:hidden;margin-bottom:10px">
+      <video id="vqr-video" playsinline style="width:100%;display:block"></video>
+      <canvas id="vqr-scan-canvas" style="display:none"></canvas>
+      <!-- Scan-Rahmen -->
+      <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:60%;height:60%;border:3px solid #27ae60;border-radius:8px;pointer-events:none"></div>
+    </div>
+    <div id="vqr-scan-status" style="font-size:12px;color:#555;margin-bottom:12px;min-height:32px">Kamera wird gestartet...</div>
+    <div style="display:flex;gap:8px">
+      <button onclick="vQRStopScan()" style="flex:1;padding:10px;background:#eee;color:#333;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer">Abbrechen</button>
+    </div>
+  </div>
+</div>
+
+<!-- QR-Import Bestätigungs-Modal -->
+<div id="vqr-import-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:9999;align-items:center;justify-content:center;padding:16px;box-sizing:border-box">
+  <div style="background:white;border-radius:16px;padding:20px;max-width:340px;width:100%">
+    <div style="font-size:14px;font-weight:700;color:#1b3a5c;margin-bottom:8px">&#11015; Patient importieren</div>
+    <div id="vqr-import-info" style="font-size:12px;color:#555;margin-bottom:14px;line-height:1.5"></div>
+    <div style="display:flex;gap:8px">
+      <button onclick="vQRImportConfirm()" style="flex:1;padding:10px;background:#27ae60;color:white;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer">&#10003; Importieren</button>
+      <button onclick="document.getElementById('vqr-import-modal').style.display='none'" style="flex:1;padding:10px;background:#eee;color:#333;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer">Abbrechen</button>
+    </div>
+  </div>
+</div>
 
 <!-- ===== DIENST-MODUS ===== -->
 <div id="dienst-section">
@@ -504,68 +568,6 @@ em.src{font-size:10px;color:var(--mgray);font-style:normal;display:block;margin-
 </div>
 </div>
 
-
-<!-- ===== PATIENTENVERLAUF ===== -->
-<div class="stitle">Patientenverlauf (CAR-T Monitoring)</div>
-
-<!-- Patientenauswahl -->
-<div id="pt-list"></div>
-
-<div style="display:flex;gap:8px;margin:0 0 8px">
-  <input type="text" class="pt-input" id="pt-new-name" placeholder="Pseudonym (z.B. P-001)" style="margin:0;flex:1">
-  <button onclick="ptAdd()" style="padding:9px 14px;background:var(--blue);color:white;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap">+ Patient</button>
-</div>
-
-<!-- Aktiver Patient -->
-<div id="pt-detail" style="display:none">
-  <div style="display:flex;justify-content:space-between;align-items:center;margin:8px 0 4px">
-    <span id="pt-detail-name" style="font-size:15px;font-weight:700;color:var(--blue)"></span>
-    <button onclick="ptDelete()" style="background:none;border:none;color:var(--mgray);font-size:12px;cursor:pointer;text-decoration:underline">Patient l&#246;schen</button>
-  </div>
-
-  <!-- Messung hinzuf&#252;gen -->
-  <div class="card" style="background:var(--lokgreen);border-color:#a9dfbf">
-    <div style="font-size:12px;font-weight:600;color:var(--green);margin-bottom:8px">Aktuelle Scores &#252;bernehmen</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:10px">
-      <div style="text-align:center">
-        <div style="font-size:10px;color:var(--mgray)">ICE-Score</div>
-        <div id="pt-preview-ice" style="font-size:22px;font-weight:700;color:var(--blue)">10</div>
-      </div>
-      <div style="text-align:center">
-        <div style="font-size:10px;color:var(--mgray)">ICANS-Grad</div>
-        <div id="pt-preview-icans" style="font-size:22px;font-weight:700;color:var(--okgreen)">0</div>
-      </div>
-      <div style="text-align:center">
-        <div style="font-size:10px;color:var(--mgray)">CRS-Grad</div>
-        <div id="pt-preview-crs" style="font-size:22px;font-weight:700;color:var(--okgreen)">0</div>
-      </div>
-    </div>
-    <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
-      <span style="font-size:12px;color:var(--mgray);white-space:nowrap">Tag post CAR-T:</span>
-      <div class="seg seg-sm" id="seg-pt-day" style="flex:1">
-        <button class="active" data-d="1">1</button><button data-d="2">2</button><button data-d="3">3</button>
-        <button data-d="4">4</button><button data-d="5">5</button><button data-d="6">6</button>
-        <button data-d="7">7</button><button data-d="8">8</button><button data-d="9">9</button>
-        <button data-d="10">10</button>
-      </div>
-    </div>
-    <button class="add-meas-btn" onclick="ptSaveMeasurement()">&#128190; Messung jetzt speichern</button>
-  </div>
-
-  <!-- Verlaufschart -->
-  <div class="chart-wrap" id="pt-chart-wrap" style="display:none">
-    <div style="font-size:12px;font-weight:600;color:var(--mblue);margin-bottom:8px">Verlauf</div>
-    <canvas id="pt-chart" height="180"></canvas>
-  </div>
-
-  <!-- Messungen Liste -->
-  <div id="pt-meas-list"></div>
-
-  <!-- Verlauf PDF-Export -->
-  <button onclick="ptExportPDF()" style="width:100%;margin-top:12px;padding:10px;background:var(--blue);color:white;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px">
-    &#128438; Verlauf als PDF exportieren
-  </button>
-</div>
 
 
 <!-- ===== ANHANG: ICANS-ALGORITHMUS ===== -->
@@ -1207,7 +1209,7 @@ function generatePDF() {
   var { jsPDF } = window.jspdf;
   var doc = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
 
-  // Farben
+  // Farben – reduziert für übersichtliches PDF
   var C = {
     blue:[27,58,92], mblue:[46,117,182], green:[39,174,96], dgreen:[30,130,70],
     yellow:[220,140,10], orange:[200,100,20], red:[180,50,35],
@@ -1216,6 +1218,9 @@ function generatePDF() {
     lgreen:[230,248,236], lyellow:[253,246,220], lorange:[253,240,220], lred:[252,232,230],
     purple:[80,30,140], lpurple:[243,237,255],
     amber:[255,248,220],
+    // Vereinfacht für Sektionsköpfe
+    sect_arzt:[27,58,92],    // Dunkelblau – ärztlich
+    sect_pflege:[70,70,70],  // Dunkelgrau – pflegerisch
   };
   var ICANS_FG = [C.dgreen,C.dgreen,C.yellow,C.orange,C.red];
   var ICANS_BG = [C.lgreen,C.lgreen,C.lyellow,C.lorange,C.lred];
@@ -1379,9 +1384,9 @@ function generatePDF() {
     var col=i%2,xi=ML+col*cw2;
     if(col===0)ns(5.5);
     var ok=II[i][1]===1;
-    fi(ok?[232,250,238]:[252,233,232]);doc.rect(xi+0.5,y-0.5,cw2-1,5,'F');
+    fi(ok?[240,245,252]:[248,248,248]);doc.rect(xi+0.5,y-0.5,cw2-1,5,'F');
     fo('normal',8,C.gray);doc.text(II[i][0],xi+3,y+3.2);
-    fo('bold',8.5,ok?C.dgreen:C.red);doc.text(ok?'OK 1':'-- 0',xi+cw2-12,y+3.2);
+    fo('bold',8.5,ok?C.mblue:C.mgray);doc.text(ok?'1 Pkt':'0 Pkt',xi+cw2-12,y+3.2);
     if(col===1)y+=5.5;
   }
   if(II.length%2!==0)y+=5.5;
@@ -1406,15 +1411,15 @@ function generatePDF() {
   ];
   CR.forEach(function(r){
     ns(5.5);
-    fi(r[2]?[255,244,225]:[244,250,255]);doc.rect(ML+0.5,y-0.5,CW-1,5,'F');
-    fo('bold',8,C.gray);doc.text(r[0]+':',ML+3,y+3.2);
-    fo('normal',8,r[2]?C.orange:C.dgreen);doc.text(r[1],ML+52,y+3.2);
+    fi(r[2]?[244,246,252]:[248,248,248]);doc.rect(ML+0.5,y-0.5,CW-1,5,'F');
+    fo('bold',8,C.blue);doc.text(r[0]+':',ML+3,y+3.2);
+    fo('normal',8,r[2]?C.mblue:C.mgray);doc.text(r[1],ML+52,y+3.2);
     y+=5.5;
   });
   sp(1.5);
 
   // === ÄRZTLICHES PROCEDERE - ICANS =======================
-  sh('Ärztliches Procedere - '+IN[g],[90,40,5]);
+  sh('Ärztliches Procedere · '+IN[g], C.sect_arzt);
 
   var IS=['Stationäre Überwachung - ICE+BHISA 1x/Tag, Schriftprobe, Vitalzeichen 3x/Tag',
     'Stationäre Überwachung, ggf. Überwachungsstation erwägen',
@@ -1453,13 +1458,13 @@ function generatePDF() {
      clin.motor===1?'Höhergradige Parese: Bildgebung, Neuro-Konsil sofort':'',
      'Bei Versagen: Cyclophosphamid, Ruxolitinib, ATG, Emapalumab erwägen']];
 
-  uh('Setting / Überwachung',C.red); bu(IS[g]);sp();
+  uh('Setting / Überwachung',C.mblue); bu(IS[g]);sp();
   if(IDG[g].length){uh('Diagnostik / Monitoring',C.mblue); IDG[g].forEach(function(t){bu(t,4);}); sp();}
-  if(ITH[g].length){uh('Medikamentöse Therapie (ICANS)',C.dgreen); ITH[g].forEach(function(t){bu(t,4);}); sp();}
+  if(ITH[g].length){uh('Medikamentöse Therapie (ICANS)',C.mblue); ITH[g].forEach(function(t){bu(t,4);}); sp();}
 
   // === ÄRZTLICHES PROCEDERE - CRS (nur wenn CRS > 0) ======
   if(crs>0){
-    sh('Ärztliches Procedere - '+CN[crs],[90,40,5]);
+    sh('Ärztliches Procedere · '+CN[crs], C.sect_arzt);
     var CS=['',
       'Stationäre Überwachung, Vitalzeichen alle 4 h, engmaschige Verlaufskontrolle',
       'Überwachungs- oder Intensivstation, kontinuierliches Monitoring (RR, SpO2, Temp.)',
@@ -1491,15 +1496,15 @@ function generatePDF() {
       ['Blutbild, Gerinnung, CRP, Ferritin, Troponin, BNP, Krea. 2x/Tag','Echo bei kardialer Beteiligung erwägen','Bei Progression zu Grad 4: sofortige Eskalation'],
       ['Kontinuierliches hämodynamisches Monitoring','Echo (CRS-Kardiomyopathie ausschließen)','Ferritin, Fibrinogen, d-Dimere, Troponin, BNP alle 6 h','Blutgas, Laktat, Nierenfunktion mind. alle 6 h']];
 
-    uh('Setting',C.red); bu(CS[crs]); sp();
-    uh('Medikamentöse Therapie (CRS)',C.dgreen); CT[crs].forEach(function(t){bu(t,4);}); sp();
+    uh('Setting',C.mblue); bu(CS[crs]); sp();
+    uh('Medikamentöse Therapie (CRS)',C.mblue); CT[crs].forEach(function(t){bu(t,4);}); sp();
     uh('Monitoring (CRS)',C.mblue); CM[crs].forEach(function(t){bu(t,4);}); sp();
   }
 
   // === PFLEGE-PROCEDERE ===================================
   ns(9);
-  fi(C.lpurple);st([120,60,180],0.5);doc.roundedRect(ML,y,CW,6.5,2,2,'FD');
-  fo('bold',9.5,C.purple);doc.text('Pflege-Procedere',ML+2.5,y+4.5);
+  fi([90,90,90]);st([60,60,60],0.5);doc.roundedRect(ML,y,CW,6.5,2,2,'FD');
+  fo('bold',9.5,C.white);doc.text('Pflege-Procedere',ML+2.5,y+4.5);
   y+=8.5;
 
   var mf=['1x täglich (ICE+BHISA, Schriftprobe, Vitalzeichen 3x/Tag)',
@@ -1508,13 +1513,13 @@ function generatePDF() {
     'alle 2-4 Stunden (ICE+BHISA+GCS, Vitalzeichen)',
     'stündlich oder kontinuierlich (GCS, Vitalzeichen)'][g];
 
-  uh('Überwachungsintervalle',C.purple);
+  uh('Überwachungsintervalle',[90,90,90]);
   bu('Monitoring-Frequenz: '+mf,4,true);
   if(g>=1)bu('Aspirationsprophylaxe beachten (ICANS Grad >= 1)',4);
   if(g>=2)bu('Schriftprobe bei jeder Messung dokumentieren und mit Baseline vergleichen',4);
   sp();
 
-  uh('Alarmzeichen - sofort Arzt informieren bei:',C.purple);
+  uh('Alarmzeichen - sofort Arzt informieren bei:',[90,90,90]);
   ['Neuem Verwirrtheitszustand oder Verschlechterung der Orientierung',
    'Nicht unterbrechbarem epileptischem Anfall',
    'Neu aufgetretener Schwäche / Lähmung einer Extremität',
@@ -1522,10 +1527,10 @@ function generatePDF() {
    'Fieber >= 38,0 °C (neu oder erneut)',
    'Blutdruckabfall (syst. < 90 mmHg) oder neu benötigter O2-Gabe',
    'Verschlechterung der Schriftprobe oder der Orientierung'
-  ].forEach(function(a){bu(a,4,false,C.red);});
+  ].forEach(function(a){bu(a,4,true,[27,58,92]);});
   sp();
 
-  uh('Vitalparameter-Zielwerte',C.purple);
+  uh('Vitalparameter-Zielwerte',[90,90,90]);
   ['SpO2 >= 94 % (unter O2-Supplementation)',
    'Systolischer Blutdruck >= 90 mmHg',
    'Herzfrequenz 50-100 / min',
@@ -1533,7 +1538,7 @@ function generatePDF() {
    'Flüssigkeitsbilanz dokumentieren (Einfuhr / Ausfuhr)'].forEach(function(v){bu(v,4);});
   sp();
 
-  uh('Pflegerische Maßnahmen',C.purple);
+  uh('Pflegerische Maßnahmen',[90,90,90]);
   var nm=['Sturzprophylaxe: Bettgitter hochstellen, Klingel in Reichweite, ggf. Niedrigbett',
     'Aspirationsprophylaxe: Oberkörperhochlagerung 30°, bei Schlückstörung Diätassistenz',
     'Mundpflege alle 4 h','Schriftprobe vor jeder Messung dokumentieren',
@@ -1545,7 +1550,7 @@ function generatePDF() {
   nm.forEach(function(m){bu(m,4);}); sp();
 
   if(crs>0){
-    uh('Zusätz bei begleitendem '+CN[crs],C.purple);
+    uh('Zusätz bei begleitendem '+CN[crs],C.mblue);
     var cn=[[],
       ['Temperatur alle 4 h messen, Antipyretika nach AO geben',
        'Trinkmenge/Infusion dokumentieren (>= 2 l/Tag Ziel)',
@@ -2915,11 +2920,250 @@ function vCopyKIS() {
   } catch(e) { document.execCommand('copy'); }
 }
 
+
+// ════════════════════════════════════════════════════════
+// QR-CODE EXPORT / IMPORT (Visiten-Modus)
+// ════════════════════════════════════════════════════════
+var vQRQueue   = [];
+var vQRIdx     = 0;
+var vQRImportData = null;
+var vQRScanActive = false;
+var vQRScanRAF    = null;
+
+// ── Daten für QR aufbereiten (reiner Base64-String, keine URL) ──
+function vBuildPayload(ids) {
+  var pts = {};
+  ids.forEach(function(id) {
+    var p = ptData[id];
+    pts[id] = { n: p.name, m: (p.measurements||[]).map(function(m) {
+      return { id: m.id, ts: m.ts, d: m.day, i: m.ice, ia: m.icans, c: m.crs };
+    })};
+  });
+  var json = JSON.stringify({ v: 1, pts: pts });
+  // URL-sicherer Base64 (für jsQR robust)
+  var b64 = btoa(unescape(encodeURIComponent(json)));
+  var name = ids.length === 1 ? ptData[ids[0]].name : ids.length + ' Patienten';
+  return { qrText: b64, raw: b64, size: json.length, count: ids.length, name: name };
+}
+
+// ── QR anzeigen ───────────────────────────────────────────
+function vShowQR(mode) {
+  vptLoad();
+  if (mode === 'single') {
+    if (!vActive || !ptData[vActive]) { alert('Bitte zuerst einen Patienten auswählen.'); return; }
+    vQRQueue = [{ payload: vBuildPayload([vActive]) }];
+    vQRIdx = 0;
+  } else {
+    var ids = Object.keys(ptData);
+    if (ids.length === 0) { alert('Keine Patienten vorhanden.'); return; }
+    vQRQueue = ids.map(function(id) { return { payload: vBuildPayload([id]) }; });
+    vQRIdx = 0;
+  }
+  vQRRender();
+  document.getElementById('vqr-modal').style.display = 'flex';
+}
+
+function vQRRender() {
+  var item    = vQRQueue[vQRIdx];
+  var payload = item.payload;
+  document.getElementById('vqr-title').textContent    = payload.name;
+  document.getElementById('vqr-subtitle').textContent =
+    payload.count === 1
+      ? (function(){ var ms=0; Object.values(ptData).forEach(function(p){ if(p.name===payload.name) ms=p.measurements.length; }); return ms+' Messungen'; })()
+      : '';
+
+  var nav = document.getElementById('vqr-nav');
+  nav.style.display = vQRQueue.length > 1 ? 'flex' : 'none';
+  if (vQRQueue.length > 1)
+    document.getElementById('vqr-counter').textContent = (vQRIdx+1) + ' / ' + vQRQueue.length;
+
+  // QR erzeugen
+  var canvas = document.getElementById('vqr-canvas');
+  canvas.innerHTML = '';
+  var info = document.getElementById('vqr-info');
+
+  if (payload.size > 2800) {
+    info.innerHTML = '<span style="color:#c0392b">&#9888; Daten zu groß (' + payload.size + ' B) – QR evtl. nicht lesbar.</span>';
+  } else {
+    info.innerHTML = 'Datengröße: ' + payload.size + ' B · ' + payload.count +
+      (payload.count===1 ? ' Patient' : ' Patienten');
+  }
+
+  try {
+    if (typeof QRCode !== 'undefined') {
+      var qrDiv = document.createElement('div');
+      canvas.appendChild(qrDiv);
+      new QRCode(qrDiv, {
+        text:         payload.qrText,
+        width:        220,
+        height:       220,
+        colorDark:    '#1b3a5c',
+        colorLight:   '#ffffff',
+        correctLevel: QRCode.CorrectLevel.M
+      });
+    } else {
+      canvas.innerHTML = '<div style="padding:20px;color:#c0392b;font-size:12px">QR-Bibliothek nicht geladen – bitte Internetverbindung prüfen.</div>';
+    }
+  } catch(e) {
+    canvas.innerHTML = '<div style="padding:10px;color:#c0392b;font-size:11px">Fehler: ' + e.message + '</div>';
+  }
+}
+
+function vQRPrev() { vQRIdx = (vQRIdx - 1 + vQRQueue.length) % vQRQueue.length; vQRRender(); }
+function vQRNext() { vQRIdx = (vQRIdx + 1) % vQRQueue.length; vQRRender(); }
+
+// ── Kamera-Scanner starten ────────────────────────────────
+function vQRStartScan() {
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    alert('Kamera-Zugriff wird von diesem Browser nicht unterstützt.\nBitte Chrome oder Safari verwenden.');
+    return;
+  }
+  if (typeof jsQR === 'undefined') {
+    alert('QR-Scan-Bibliothek noch nicht geladen. Bitte kurz warten und erneut versuchen.');
+    return;
+  }
+
+  var modal = document.getElementById('vqr-scanner-modal');
+  modal.style.display = 'flex';
+  document.getElementById('vqr-scan-status').textContent = 'Kamera wird gestartet...';
+  vQRScanActive = true;
+
+  var constraints = {
+    video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } }
+  };
+
+  navigator.mediaDevices.getUserMedia(constraints)
+    .then(function(stream) {
+      var video  = document.getElementById('vqr-video');
+      video.srcObject = stream;
+      video.setAttribute('playsinline', true);
+      video.play();
+      video.addEventListener('loadedmetadata', function() {
+        document.getElementById('vqr-scan-status').textContent = 'QR-Code in den Rahmen halten...';
+        vQRScanLoop(video, stream);
+      });
+    })
+    .catch(function(err) {
+      document.getElementById('vqr-scan-status').textContent =
+        'Kamera-Fehler: ' + err.message + '. Bitte Berechtigung erlauben.';
+    });
+}
+
+function vQRScanLoop(video, stream) {
+  if (!vQRScanActive) return;
+  var canvas = document.getElementById('vqr-scan-canvas');
+  var ctx    = canvas.getContext('2d');
+  if (video.readyState === video.HAVE_ENOUGH_DATA) {
+    canvas.width  = video.videoWidth;
+    canvas.height = video.videoHeight;
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    var code = jsQR(imageData.data, imageData.width, imageData.height, {
+      inversionAttempts: 'dontInvert'
+    });
+    if (code && code.data) {
+      // QR erkannt!
+      vQRStopScan(stream);
+      document.getElementById('vqr-scan-status').textContent = 'QR erkannt!';
+      setTimeout(function() { vQRImportFromCode(code.data); }, 100);
+      return;
+    }
+  }
+  vQRScanRAF = requestAnimationFrame(function() { vQRScanLoop(video, stream); });
+}
+
+function vQRStopScan(stream) {
+  vQRScanActive = false;
+  if (vQRScanRAF) { cancelAnimationFrame(vQRScanRAF); vQRScanRAF = null; }
+  var video = document.getElementById('vqr-video');
+  var src   = stream || (video.srcObject);
+  if (src && src.getTracks) { src.getTracks().forEach(function(t){ t.stop(); }); }
+  if (video) { video.srcObject = null; }
+  document.getElementById('vqr-scanner-modal').style.display = 'none';
+}
+
+// ── Import aus gescanntem Code ────────────────────────────
+function vQRImportFromCode(code) {
+  // Bereinigen: falls URL mit #import= gescannt wurde (Kompatibilität)
+  var raw = code.replace(/.*#import=/, '').trim();
+  try {
+    var json = decodeURIComponent(escape(atob(raw)));
+    var data = JSON.parse(json);
+    if (!data || !data.pts) throw new Error('Ungültiges Datenformat');
+
+    var names      = Object.values(data.pts).map(function(p){ return p.n; });
+    var measCounts = Object.values(data.pts).map(function(p){ return (p.m||[]).length; });
+    var infoHtml   = '<strong>Zu importieren:</strong><br>';
+    names.forEach(function(n, i) {
+      infoHtml += '&bull; ' + n + ' (' + measCounts[i] + ' Messungen)<br>';
+    });
+
+    // Prüfen ob Patienten schon vorhanden
+    vptLoad();
+    var existing = names.filter(function(n) {
+      return Object.values(ptData).some(function(p){ return p.name === n; });
+    });
+    if (existing.length > 0) {
+      infoHtml += '<br><em>Bereits vorhanden (werden zusammengeführt): ' + existing.join(', ') + '</em>';
+    }
+
+    document.getElementById('vqr-import-info').innerHTML = infoHtml;
+    vQRImportData = data;
+    document.getElementById('vqr-import-modal').style.display = 'flex';
+  } catch(e) {
+    alert('Import-Fehler: ' + e.message + '\nBitte erneut scannen.');
+  }
+}
+
+function vQRImportConfirm() {
+  if (!vQRImportData || !vQRImportData.pts) return;
+  vptLoad();
+  var imported = 0, merged = 0;
+  Object.keys(vQRImportData.pts).forEach(function(srcId) {
+    var src     = vQRImportData.pts[srcId];
+    var newMeas = (src.m||[]).map(function(m) {
+      return { id: m.id, ts: m.ts, day: m.d, ice: m.i, icans: m.ia, crs: m.c };
+    });
+    var existId = Object.keys(ptData).find(function(id){ return ptData[id].name === src.n; });
+    if (existId) {
+      var existIds = ptData[existId].measurements.map(function(m){ return m.id; });
+      ptData[existId].measurements = ptData[existId].measurements.concat(
+        newMeas.filter(function(m){ return existIds.indexOf(m.id) === -1; })
+      );
+      merged++;
+    } else {
+      var newId = 'pt_imp_' + Date.now() + '_' + Math.random().toString(36).slice(2,6);
+      ptData[newId] = { name: src.n, measurements: newMeas };
+      imported++;
+    }
+  });
+  ptSave();
+  auditAdd('QR-Import', imported + ' neu, ' + merged + ' zusammengeführt');
+  document.getElementById('vqr-import-modal').style.display = 'none';
+  vptRender();
+  alert('Import erfolgreich:\n' + imported + ' neue Patienten\n' + merged + ' zusammengeführte Patienten');
+}
+
+// ── URL-Hash beim Laden prüfen (automatischer Import nach QR-Scan) ─
+function vCheckURLImport() {
+  // Kompatibilitäts-Fallback: Falls App via URL mit #import= geöffnet wird
+  var hash = window.location.hash;
+  if (hash && hash.indexOf('#import=') === 0) {
+    var code = hash.slice(8);
+    history.replaceState(null, '', window.location.pathname + window.location.search);
+    setTimeout(function() {
+      setMode('visiten');
+      vQRImportFromCode(code);
+    }, 600);
+  }
+}
+
 // ── Init Patientenverlauf ─────────────────────────────────
 function ptInit() {
   auditLoad();
   ptLoad();
   ptRender();
+  vCheckURLImport();
   // Tag-Selektor initialisieren
   var seg = document.getElementById('seg-pt-day');
   if (seg) {
@@ -2967,7 +3211,7 @@ ptInit();
 
 if ('serviceWorker' in navigator) {
   // SW registrieren mit Cache-Bust-Parameter (= App-Version)
-  var SW_VER = '2.3';
+  var SW_VER = '2.6';
   navigator.serviceWorker.register('./sw.js?v=' + SW_VER)
     .then(function(reg) {
       // Sofort nach Update suchen
