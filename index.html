@@ -144,6 +144,282 @@ em.src{font-size:10px;color:var(--mgray);font-style:normal;display:block;margin-
   <meta http-equiv="Expires" content="0">
 </head>
 <body>
+<!-- HTTPS-Check: wird via JS nach DOMContentLoaded befüllt -->
+
+
+
+<!-- HLH Kurzscreening Modal -->
+<div id="hlh-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.82);z-index:9200;align-items:flex-start;justify-content:center;padding:12px;box-sizing:border-box;overflow-y:auto">
+  <div style="background:white;border-radius:16px;padding:16px;max-width:440px;width:100%;margin:8px auto">
+
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;border-bottom:2px solid #fde8cc;padding-bottom:10px">
+      <div>
+        <div style="font-size:14px;font-weight:700;color:#1b3a5c">HLH-Kurzscreening (CAR-T-assoziiert)</div>
+        <div style="font-size:11px;color:#888">Hyperferritinämisches Syndrom / HLH-2004 adaptiert</div>
+      </div>
+    </div>
+
+    <!-- Score-Anzeige oben -->
+    <div id="hlh-score-box" style="background:#f5f5f5;border-radius:10px;padding:10px 14px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <div style="font-size:11px;color:#888;margin-bottom:2px">Aktueller Score</div>
+        <div style="font-size:26px;font-weight:700;color:#1b3a5c" id="hlh-score-val">0</div>
+      </div>
+      <div id="hlh-score-label" style="font-size:12px;font-weight:600;color:#888;text-align:right;max-width:200px;line-height:1.4">
+        Bitte Parameter ausfüllen
+      </div>
+    </div>
+
+    <!-- Parameter-Abschnitt 1: Labor -->
+    <div style="font-size:11px;font-weight:700;color:#1b3a5c;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">Laborparameter</div>
+
+    <!-- Ferritin -->
+    <div style="margin-bottom:8px;padding:8px 10px;background:#fafafa;border-radius:8px;border:1px solid #eee">
+      <div style="font-size:12px;font-weight:600;color:#333;margin-bottom:5px">Ferritin</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button class="hlh-btn" data-id="ferritin" data-val="0" onclick="hlhSet(this)" style="padding:5px 10px;border-radius:6px;border:1px solid #ddd;background:white;font-size:11px;cursor:pointer">&lt; 500 ng/mL (0)</button>
+        <button class="hlh-btn" data-id="ferritin" data-val="1" onclick="hlhSet(this)" style="padding:5px 10px;border-radius:6px;border:1px solid #ddd;background:white;font-size:11px;cursor:pointer">500–2000 ng/mL (1)</button>
+        <button class="hlh-btn" data-id="ferritin" data-val="2" onclick="hlhSet(this)" style="padding:5px 10px;border-radius:6px;border:1px solid #ddd;background:white;font-size:11px;cursor:pointer">2000–10.000 ng/mL (2)</button>
+        <button class="hlh-btn" data-id="ferritin" data-val="3" onclick="hlhSet(this)" style="padding:5px 10px;border-radius:6px;border:1px solid #ddd;background:white;font-size:11px;cursor:pointer">&gt; 10.000 ng/mL (3)</button>
+      </div>
+    </div>
+
+    <!-- Triglyzeride -->
+    <div style="margin-bottom:8px;padding:8px 10px;background:#fafafa;border-radius:8px;border:1px solid #eee">
+      <div style="font-size:12px;font-weight:600;color:#333;margin-bottom:5px">Triglyzeride</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button class="hlh-btn" data-id="trig" data-val="0" onclick="hlhSet(this)" style="padding:5px 10px;border-radius:6px;border:1px solid #ddd;background:white;font-size:11px;cursor:pointer">&lt; 132 mg/dL (0)</button>
+        <button class="hlh-btn" data-id="trig" data-val="1" onclick="hlhSet(this)" style="padding:5px 10px;border-radius:6px;border:1px solid #ddd;background:white;font-size:11px;cursor:pointer">132–265 mg/dL (1)</button>
+        <button class="hlh-btn" data-id="trig" data-val="2" onclick="hlhSet(this)" style="padding:5px 10px;border-radius:6px;border:1px solid #ddd;background:white;font-size:11px;cursor:pointer">&gt; 265 mg/dL (2)</button>
+      </div>
+    </div>
+
+    <!-- Fibrinogen -->
+    <div style="margin-bottom:8px;padding:8px 10px;background:#fafafa;border-radius:8px;border:1px solid #eee">
+      <div style="font-size:12px;font-weight:600;color:#333;margin-bottom:5px">Fibrinogen</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button class="hlh-btn" data-id="fibri" data-val="0" onclick="hlhSet(this)" style="padding:5px 10px;border-radius:6px;border:1px solid #ddd;background:white;font-size:11px;cursor:pointer">&gt; 250 mg/dL (0)</button>
+        <button class="hlh-btn" data-id="fibri" data-val="1" onclick="hlhSet(this)" style="padding:5px 10px;border-radius:6px;border:1px solid #ddd;background:white;font-size:11px;cursor:pointer">&le; 250 mg/dL (1)</button>
+      </div>
+    </div>
+
+    <!-- Zytopenien -->
+    <div style="margin-bottom:8px;padding:8px 10px;background:#fafafa;border-radius:8px;border:1px solid #eee">
+      <div style="font-size:12px;font-weight:600;color:#333;margin-bottom:5px">Zytopenien (Anzahl betroffener Reihen)<br><span style="font-weight:400;color:#666">Hb &lt; 9,2 g/dL / Thrombo &lt; 100 × 10⁹/L / Neutro &lt; 1,0 × 10⁹/L</span></div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button class="hlh-btn" data-id="cyto" data-val="0" onclick="hlhSet(this)" style="padding:5px 10px;border-radius:6px;border:1px solid #ddd;background:white;font-size:11px;cursor:pointer">Keine (0)</button>
+        <button class="hlh-btn" data-id="cyto" data-val="1" onclick="hlhSet(this)" style="padding:5px 10px;border-radius:6px;border:1px solid #ddd;background:white;font-size:11px;cursor:pointer">1 Reihe (1)</button>
+        <button class="hlh-btn" data-id="cyto" data-val="2" onclick="hlhSet(this)" style="padding:5px 10px;border-radius:6px;border:1px solid #ddd;background:white;font-size:11px;cursor:pointer">2–3 Reihen (2)</button>
+      </div>
+    </div>
+
+    <!-- GOT/SGOT -->
+    <div style="margin-bottom:10px;padding:8px 10px;background:#fafafa;border-radius:8px;border:1px solid #eee">
+      <div style="font-size:12px;font-weight:600;color:#333;margin-bottom:5px">GOT / SGOT (AST)</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button class="hlh-btn" data-id="got" data-val="0" onclick="hlhSet(this)" style="padding:5px 10px;border-radius:6px;border:1px solid #ddd;background:white;font-size:11px;cursor:pointer">Normal (0)</button>
+        <button class="hlh-btn" data-id="got" data-val="1" onclick="hlhSet(this)" style="padding:5px 10px;border-radius:6px;border:1px solid #ddd;background:white;font-size:11px;cursor:pointer">Erhöht &ge; 30 U/L (1)</button>
+      </div>
+    </div>
+
+    <!-- Klinische Parameter -->
+    <div style="font-size:11px;font-weight:700;color:#1b3a5c;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">Klinische Parameter</div>
+
+    <!-- Fieber -->
+    <div style="margin-bottom:8px;padding:8px 10px;background:#fafafa;border-radius:8px;border:1px solid #eee">
+      <div style="font-size:12px;font-weight:600;color:#333;margin-bottom:5px">Fieber (&ge; 38,4°C)</div>
+      <div style="display:flex;gap:6px">
+        <button class="hlh-btn" data-id="fever" data-val="0" onclick="hlhSet(this)" style="padding:5px 10px;border-radius:6px;border:1px solid #ddd;background:white;font-size:11px;cursor:pointer">Nein (0)</button>
+        <button class="hlh-btn" data-id="fever" data-val="1" onclick="hlhSet(this)" style="padding:5px 10px;border-radius:6px;border:1px solid #ddd;background:white;font-size:11px;cursor:pointer">Ja (1)</button>
+      </div>
+    </div>
+
+    <!-- Splenomegalie -->
+    <div style="margin-bottom:8px;padding:8px 10px;background:#fafafa;border-radius:8px;border:1px solid #eee">
+      <div style="font-size:12px;font-weight:600;color:#333;margin-bottom:5px">Splenomegalie (klinisch / Sonographie)</div>
+      <div style="display:flex;gap:6px">
+        <button class="hlh-btn" data-id="spleno" data-val="0" onclick="hlhSet(this)" style="padding:5px 10px;border-radius:6px;border:1px solid #ddd;background:white;font-size:11px;cursor:pointer">Nein (0)</button>
+        <button class="hlh-btn" data-id="spleno" data-val="1" onclick="hlhSet(this)" style="padding:5px 10px;border-radius:6px;border:1px solid #ddd;background:white;font-size:11px;cursor:pointer">Ja (1)</button>
+      </div>
+    </div>
+
+    <!-- Hämophagozytose -->
+    <div style="margin-bottom:10px;padding:8px 10px;background:#fafafa;border-radius:8px;border:1px solid #eee">
+      <div style="font-size:12px;font-weight:600;color:#333;margin-bottom:5px">Hämophagozytose (KM / Leber / Milz bioptisch)</div>
+      <div style="display:flex;gap:6px">
+        <button class="hlh-btn" data-id="hemo" data-val="0" onclick="hlhSet(this)" style="padding:5px 10px;border-radius:6px;border:1px solid #ddd;background:white;font-size:11px;cursor:pointer">Nein / nicht untersucht (0)</button>
+        <button class="hlh-btn" data-id="hemo" data-val="2" onclick="hlhSet(this)" style="padding:5px 10px;border-radius:6px;border:1px solid #ddd;background:white;font-size:11px;cursor:pointer">Ja, nachgewiesen (2)</button>
+      </div>
+    </div>
+
+    <!-- Immunsuppression -->
+    <div style="font-size:11px;font-weight:700;color:#1b3a5c;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">Immunstatus</div>
+    <div style="margin-bottom:12px;padding:8px 10px;background:#fafafa;border-radius:8px;border:1px solid #eee">
+      <div style="font-size:12px;font-weight:600;color:#333;margin-bottom:5px">Bekannte Immunsuppression (inkl. CAR-T-Vorkonditionierung)</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button class="hlh-btn" data-id="immuno" data-val="0" onclick="hlhSet(this)" style="padding:5px 10px;border-radius:6px;border:1px solid #ddd;background:white;font-size:11px;cursor:pointer">Keine (0)</button>
+        <button class="hlh-btn" data-id="immuno" data-val="1" onclick="hlhSet(this)" style="padding:5px 10px;border-radius:6px;border:1px solid #ddd;background:white;font-size:11px;cursor:pointer">Vorhanden (1)</button>
+      </div>
+    </div>
+
+    <!-- Empfehlung-Box -->
+    <div id="hlh-recommendation" style="display:none;border-radius:10px;padding:12px;margin-bottom:12px"></div>
+
+    <!-- Quellen -->
+    <div style="background:#f0f7ff;border-radius:8px;padding:10px;margin-bottom:12px;font-size:10.5px;color:#555;line-height:1.6">
+      <div style="font-weight:700;color:#1b3a5c;margin-bottom:4px">Quellen &amp; Literatur</div>
+      <div>&#8226; <b>Fardet L et al.</b> (2014). Reactive haemophagocytic syndrome in adults: a retrospective analysis of 162 patients. <i>Am J Med</i>. HScore-Original.<br>
+      &#8226; <b>Locatelli F et al.</b> (2020). Emapalumab in Children with Primary Hemophagocytic Lymphohistiocytosis. <i>NEJM</i>.<br>
+      &#8226; <b>Henter JI et al.</b> (2007). HLH-2004: Diagnostic and therapeutic guidelines. <i>Pediatr Blood Cancer</i>.<br>
+      &#8226; <b>Teachey DT et al.</b> (2016). Identification of Predictive Biomarkers for CRS after CAR T-cell Therapy. <i>Cancer Discov</i>.<br>
+      &#8226; <b>Neelapu SS et al.</b> (2018). Axicabtagene Ciloleucel CAR T-Cell Therapy in Diffuse Large B-Cell Lymphoma. <i>NEJM</i>.<br>
+      &#8226; <b>Lee DW et al.</b> (2019). ASTCT Consensus Grading for CRS and Neurologic Toxicity. <i>Biol Blood Marrow Transplant</i>.</div>
+    </div>
+
+    <div style="font-size:10px;color:#aaa;margin-bottom:12px;text-align:center;line-height:1.4">
+      Klinische Entscheidungshilfe &ndash; kein Ersatz f&uuml;r h&auml;matologisches Konsil.<br>
+      Score-Cutoffs adaptiert nach HScore (Fardet 2014) f&uuml;r CAR-T-Kontext.
+    </div>
+
+    <div style="display:flex;gap:8px">
+      <button onclick="hlhAuditLog()" style="flex:1;padding:10px;background:#1b3a5c;color:white;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer">
+        In Audit-Log eintragen
+      </button>
+      <button onclick="hlhClose()" style="flex:1;padding:10px;background:#eee;color:#333;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer">
+        Schlie&szlig;en
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Lumbalpunktion Checkliste Modal -->
+<div id="lp-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:9100;align-items:flex-start;justify-content:center;padding:12px;box-sizing:border-box;overflow-y:auto">
+  <div style="background:white;border-radius:16px;padding:16px;max-width:420px;width:100%;margin:8px auto">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;border-bottom:2px solid #eaf0fb;padding-bottom:10px">
+      <span style="font-size:22px">&#128203;</span>
+      <div>
+        <div style="font-size:14px;font-weight:700;color:#1b3a5c">Lumbalpunktion &ndash; Checkliste &amp; KI</div>
+        <div style="font-size:11px;color:#888">CAR-T / ICANS-Kontext &middot; MHH Neurologie</div>
+      </div>
+    </div>
+
+    <!-- Kontraindikationen -->
+    <div style="background:#fff5f5;border:1px solid #e74c3c;border-radius:10px;padding:12px;margin-bottom:12px">
+      <div style="font-size:12px;font-weight:700;color:#c0392b;margin-bottom:8px">&#9888; Kontraindikationen prüfen</div>
+      <div style="font-size:12px;color:#444;line-height:1.7">
+        <label style="display:flex;gap:8px;align-items:flex-start;margin-bottom:5px;cursor:pointer">
+          <input type="checkbox" id="lp_ki1" onchange="lpKIUpdate()" style="margin-top:2px;accent-color:#c0392b;width:15px;height:15px;flex-shrink:0">
+          <span>Erh&ouml;hter intrakranieller Druck (klinisch oder <strong>cCT Notfall</strong>) &ndash; Bildgebung obligat vor LP</span>
+        </label>
+        <label style="display:flex;gap:8px;align-items:flex-start;margin-bottom:5px;cursor:pointer">
+          <input type="checkbox" id="lp_ki2" onchange="lpKIUpdate()" style="margin-top:2px;accent-color:#c0392b;width:15px;height:15px;flex-shrink:0">
+          <span>Thrombozyten &lt; 50 &times; 10&sup9;/L &rarr; Thrombozytensubstitution vor LP</span>
+        </label>
+        <label style="display:flex;gap:8px;align-items:flex-start;margin-bottom:5px;cursor:pointer">
+          <input type="checkbox" id="lp_ki3" onchange="lpKIUpdate()" style="margin-top:2px;accent-color:#c0392b;width:15px;height:15px;flex-shrink:0">
+          <span>INR &gt; 1,5 oder PTT verl&auml;ngert &rarr; Gerinnung normalisieren</span>
+        </label>
+        <label style="display:flex;gap:8px;align-items:flex-start;margin-bottom:5px;cursor:pointer">
+          <input type="checkbox" id="lp_ki4" onchange="lpKIUpdate()" style="margin-top:2px;accent-color:#c0392b;width:15px;height:15px;flex-shrink:0">
+          <span>Antikoagulation (NMH / DOAK) &ndash; letzte Gabe &lt; 12h (NMH) / &lt; 24h (DOAK)</span>
+        </label>
+        <label style="display:flex;gap:8px;align-items:flex-start;margin-bottom:5px;cursor:pointer">
+          <input type="checkbox" id="lp_ki5" onchange="lpKIUpdate()" style="margin-top:2px;accent-color:#c0392b;width:15px;height:15px;flex-shrink:0">
+          <span>Lokale Infektion / Abszess im Punktionsbereich</span>
+        </label>
+        <label style="display:flex;gap:8px;align-items:flex-start;cursor:pointer">
+          <input type="checkbox" id="lp_ki6" onchange="lpKIUpdate()" style="margin-top:2px;accent-color:#c0392b;width:15px;height:15px;flex-shrink:0">
+          <span>Raumforderung mit Mittellinienverschiebung (cCT/cMRT obligat vorher)</span>
+        </label>
+      </div>
+      <div id="lp-ki-warn" style="display:none;margin-top:8px;background:#c0392b;color:white;border-radius:6px;padding:8px;font-size:11.5px;font-weight:600">
+        &#9888; Kontraindikation markiert &ndash; bitte vor LP kl&auml;ren!
+      </div>
+    </div>
+
+    <!-- Checkliste Vorbereitung -->
+    <div style="background:#f0f7ff;border:1px solid #2E75B6;border-radius:10px;padding:12px;margin-bottom:12px">
+      <div style="font-size:12px;font-weight:700;color:#1b3a5c;margin-bottom:8px">&#10003; Checkliste Vorbereitung</div>
+      <div style="font-size:12px;color:#444;line-height:1.8">
+        <label style="display:flex;gap:8px;align-items:flex-start;margin-bottom:5px;cursor:pointer">
+          <input type="checkbox" id="lp_c1" style="margin-top:2px;accent-color:#27ae60;width:15px;height:15px;flex-shrink:0">
+          <span>Aufkl&auml;rung erfolgt, schriftliche Einwilligung vorhanden</span>
+        </label>
+        <label style="display:flex;gap:8px;align-items:flex-start;margin-bottom:5px;cursor:pointer">
+          <input type="checkbox" id="lp_c2" style="margin-top:2px;accent-color:#27ae60;width:15px;height:15px;flex-shrink:0">
+          <span><strong>cCT (Notfall)</strong> gesichtet &ndash; kein Hir&ouml;dem, keine Raumforderung, kein Einklemmungszeichen</span>
+        </label>
+        <label style="display:flex;gap:8px;align-items:flex-start;margin-bottom:5px;cursor:pointer">
+          <input type="checkbox" id="lp_c3" style="margin-top:2px;accent-color:#27ae60;width:15px;height:15px;flex-shrink:0">
+          <span>Gerinnung gepr&uuml;ft: Thrombozyten, Quick/INR, PTT aktuell (max. 24h)</span>
+        </label>
+        <label style="display:flex;gap:8px;align-items:flex-start;cursor:pointer">
+          <input type="checkbox" id="lp_c4" style="margin-top:2px;accent-color:#27ae60;width:15px;height:15px;flex-shrink:0">
+          <span>Material bereit: LP-Set, sterile Handschuhe, Desinfektion, beschriftete R&ouml;hrchen</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Liquordiagnostik -->
+    <div style="background:#f5f5f5;border-radius:10px;padding:12px;margin-bottom:12px">
+      <div style="font-size:12px;font-weight:700;color:#1b3a5c;margin-bottom:8px">&#128300; Liquordiagnostik</div>
+      <div style="font-size:11.5px;color:#444;line-height:1.8">
+
+        <div style="font-weight:600;color:#1b3a5c;margin-bottom:3px">Standard-Diagnostik:</div>
+        Zellzahl + Differenzierung &middot; Gesamtprotein &middot; Glukose (+ Serumglukose simultan) &middot; Laktat &middot; Albumin
+
+        <div style="font-weight:600;color:#1b3a5c;margin-top:10px;margin-bottom:3px">Virologie / Mikrobiologie (Erregerdiagnostik):</div>
+        <div style="background:white;border-radius:6px;padding:8px;border-left:3px solid #2E75B6">
+          <strong>Virusdiagnostik (PCR):</strong> HSV&nbsp;1/2, VZV, EBV, CMV, HHV-6, Enteroviren<br>
+          <strong>Bakteriologie:</strong> Kultur + Gramf&auml;rbung, Kryptokokken-Ag (bei Immunsuppression)<br>
+          <strong>Weitere:</strong> Toxoplasma-PCR (bei entsprechendem klinischen Verdacht)
+        </div>
+
+        <div style="font-weight:600;color:#c0392b;margin-top:10px;margin-bottom:3px">&#9888; Wichtig &ndash; Bildgebung:</div>
+        <strong>cCT als Notfalluntersuchung</strong> obligat vor LP zum Ausschluss Einklemmungsgefahr.<br>
+        cMRT (FLAIR/DWI) erg&auml;nzend bei V.a. Leukenzephalopathie oder ICANS &ge;&nbsp;G2 (elektiv, nicht als Notfall-KI).
+      </div>
+    </div>
+
+    <div style="font-size:10px;color:#aaa;margin-bottom:12px;line-height:1.5;text-align:center">
+      Klinische Entscheidungshilfe &ndash; ersetzt nicht die &auml;rztliche Beurteilung.<br>
+      Leitlinien: ASTCT Consensus 2019 &middot; Neurologie MHH SOP
+    </div>
+    <button onclick="lpModalClose()" style="width:100%;padding:11px;background:#1b3a5c;color:white;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer">Schlie&szlig;en</button>
+  </div>
+</div>
+
+<!-- Kontraindikations-Check Modal -->
+<div id="kontra-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.75);z-index:9000;align-items:center;justify-content:center;padding:12px;box-sizing:border-box">
+  <div style="background:white;border-radius:16px;padding:16px;max-width:400px;width:100%;max-height:90vh;overflow-y:auto">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;border-bottom:2px solid #fee;padding-bottom:10px">
+      <span style="font-size:22px">&#9888;&#65039;</span>
+      <div>
+        <div style="font-size:14px;font-weight:700;color:#1b3a5c">Kontraindikations-Screening</div>
+        <div style="font-size:11px;color:#888">Bitte vor Therapiebeginn prüfen</div>
+      </div>
+    </div>
+    <div id="kontra-content"></div>
+    <div style="display:flex;gap:8px;margin-top:14px">
+      <button onclick="kontraConfirm()" id="kontra-confirm-btn"
+        style="flex:1;padding:11px;background:#27ae60;color:white;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">
+        &#10003; Bestätigen
+      </button>
+      <button onclick="document.getElementById('kontra-modal').style.display='none';_kontraCallback=null;"
+        style="flex:1;padding:11px;background:#eee;color:#333;border:none;border-radius:8px;font-size:13px;cursor:pointer">
+        Abbrechen
+      </button>
+    </div>
+    <div style="font-size:10px;color:#aaa;margin-top:8px;line-height:1.4;text-align:center">
+      Dieses Screening ersetzt nicht die ärztliche Beurteilung.<br>Angaben werden nicht gespeichert.
+    </div>
+  </div>
+</div>
+
+<div id="https-warning" style="display:none;position:fixed;top:0;left:0;right:0;z-index:99999;background:#7b1818;color:white;padding:12px 16px;font-size:13px;font-weight:600;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,0.4)">
+  &#9888; Unsichere Verbindung (HTTP) – Patientendaten könnten abgefangen werden.<br>
+  <span style="font-weight:400;font-size:12px">Bitte die App ausschließlich über <b>HTTPS</b> aufrufen. Kontaktieren Sie Ihren Administrator.</span>
+</div>
 <div class="hdr">
 <img class="banner" src="icons/banner.png" alt="ICANS Grading & Therapie">
 </div>
@@ -161,12 +437,251 @@ em.src{font-size:10px;color:var(--mgray);font-style:normal;display:block;margin-
   </button>
 </div>
 
+<!-- ===== HILFE-BUTTONS ===== -->
+<div style="border-top:2px solid var(--border);margin-bottom:14px;padding-top:14px">
+  <div style="font-size:10px;font-weight:700;color:var(--mgray);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:7px">Einf&uuml;hrung &amp; Referenz</div>
+  <div style="display:grid;gap:6px">
+    <button onclick="document.getElementById('intro-modal').style.display='flex'"
+      style="width:100%;padding:9px 14px;background:#2e75b6;color:white;border:none;border-radius:8px;font-size:12.5px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:8px;box-sizing:border-box">
+      <span style="font-size:14px;flex-shrink:0">&#9432;</span>
+      ICANS &amp; CRS Einf&uuml;hrung
+    </button>
+    <button onclick="document.getElementById('quickref-modal').style.display='flex'"
+      style="width:100%;padding:9px 14px;background:#1b3a5c;color:white;border:none;border-radius:8px;font-size:12.5px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:8px;box-sizing:border-box">
+      <span style="font-size:14px;flex-shrink:0">&#128203;</span>
+      Schnell&uuml;bersicht Dienst &ndash; Kitteltaschenkarte
+    </button>
+  </div>
+</div>
+
+<!-- ===== EINFÜHRUNGS-MODAL ===== -->
+<div id="intro-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:9050;align-items:flex-start;justify-content:center;padding:12px;box-sizing:border-box;overflow-y:auto">
+  <div style="background:white;border-radius:16px;max-width:440px;width:100%;margin:8px auto;overflow:hidden">
+
+    <div style="background:#1b3a5c;padding:16px">
+      <div style="font-size:16px;font-weight:700;color:white;margin-bottom:4px">ICANS &amp; CRS bei CAR-T</div>
+      <div style="font-size:12px;color:#a8c4e0">Erste Schritte &ndash; Klinik f&uuml;r Neurologie MHH</div>
+    </div>
+
+    <div style="padding:16px">
+
+      <!-- Karte 1: Was ist CAR-T? -->
+      <details style="margin-bottom:10px;border:1px solid #dde6f0;border-radius:10px;overflow:hidden">
+        <summary style="padding:12px 14px;background:#f0f6ff;font-size:13px;font-weight:700;color:#1b3a5c;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center">
+          Was ist CAR-T-Zelltherapie? <span style="font-size:16px;color:#2e75b6">&#9660;</span>
+        </summary>
+        <div style="padding:12px 14px;font-size:12px;color:#333;line-height:1.7;border-top:1px solid #dde6f0">
+          CAR-T-Zellen sind genetisch ver&auml;nderte T-Lymphozyten des Patienten, die einen chimären Antigenrezeptor (CAR) exprimieren.
+          Dieser erkennt tumorspezifische Oberfl&auml;chenantigene (z.B. CD19, BCMA) und vernichtet Tumorzellen direkt &ndash; unabh&auml;ngig vom MHC-System.<br><br>
+          <b>Zugelassene Produkte (Auswahl):</b><br>
+          &bull; CD19-gerichtet: Axicabtagen (Yescarta), Tisagenleceleucel (Kymriah), Lisocabtagen (Breyanzi), Brexucabtagen (Tecartus)<br>
+          &bull; BCMA-gerichtet: Idecabtagen (Abecma), Ciltacabtagen (Carvykti)<br><br>
+          <b>Zeitlicher Ablauf:</b> Leukapherese &rarr; Herstellung (3&ndash;6 Wochen) &rarr; Lymphodepleting-Konditionierung (Fludarabin/Cyclophosphamid) &rarr; CAR-T-Infusion &rarr; Monitoring Phase
+        </div>
+      </details>
+
+      <!-- Karte 2: CRS -->
+      <details style="margin-bottom:10px;border:1px solid #dde6f0;border-radius:10px;overflow:hidden">
+        <summary style="padding:12px 14px;background:#fff5f5;font-size:13px;font-weight:700;color:#c0392b;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center">
+          Zytokin-Freisetzungssyndrom (CRS) <span style="font-size:16px;color:#c0392b">&#9660;</span>
+        </summary>
+        <div style="padding:12px 14px;font-size:12px;color:#333;line-height:1.7;border-top:1px solid #dde6f0">
+          Systemische Inflammation durch massive Zytokinaussch&uuml;ttung (v.a. IL-6) nach CAR-T-Aktivierung.<br>
+          <b>Typisches Auftreten:</b> Tag 1&ndash;14 post Infusion, Peak Tag 5&ndash;8.<br><br>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:8px 0">
+            <div style="background:#f0fff0;border-radius:6px;padding:8px;border-left:3px solid #27ae60">
+              <b style="color:#27ae60">Grad 1</b><br>Fieber &ge; 38&deg;C, keine Organbeteiligung
+            </div>
+            <div style="background:#fffbf0;border-radius:6px;padding:8px;border-left:3px solid #e67e22">
+              <b style="color:#e67e22">Grad 2</b><br>+ Hypotonie (kein Vasopressor) oder Hypox&auml;mie
+            </div>
+            <div style="background:#fff5f0;border-radius:6px;padding:8px;border-left:3px solid #d35400">
+              <b style="color:#d35400">Grad 3</b><br>Vasopressor oder O&sup2; &gt; 6 l/min &rarr; ITS!
+            </div>
+            <div style="background:#fff0f0;border-radius:6px;padding:8px;border-left:3px solid #c0392b">
+              <b style="color:#c0392b">Grad 4</b><br>Lebensbedrohlich &rarr; Notfall!
+            </div>
+          </div>
+          <b>Therapie-Grundprinzip:</b> G1: Supportiv. G2+: Tocilizumab 8 mg/kg i.v. G3+: + Dexamethason. G4: ICU + Eskalation.
+        </div>
+      </details>
+
+      <!-- Karte 3: ICANS -->
+      <details style="margin-bottom:10px;border:1px solid #dde6f0;border-radius:10px;overflow:hidden">
+        <summary style="padding:12px 14px;background:#f0f4ff;font-size:13px;font-weight:700;color:#1b3a5c;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center">
+          Neurotoxizit&auml;t (ICANS) <span style="font-size:16px;color:#2e75b6">&#9660;</span>
+        </summary>
+        <div style="padding:12px 14px;font-size:12px;color:#333;line-height:1.7;border-top:1px solid #dde6f0">
+          Immune Effector Cell-Associated Neurotoxicity Syndrome. Betrifft 20&ndash;60% der Patienten je nach Produkt.<br>
+          <b>Typisches Auftreten:</b> Tag 5&ndash;14, kann nach CRS oder simultan auftreten.<br><br>
+          <b>Symptome:</b> Aufmerksamkeits- und Wortfindungsst&ouml;rungen, Tremor, Apraxie, Agitiertheit, Krampfanf&auml;lle, Hir&ouml;dem (selten, Grad 4).<br><br>
+          <b>ICE-Score (0&ndash;10):</b><br>
+          <div style="background:#f5f5f5;border-radius:6px;padding:8px;margin:6px 0;font-size:11.5px">
+            Orientierung: Jahr/Monat/Ort/Klinik (4 Punkte)<br>
+            Benennung: 3 Objekte (3 Punkte)<br>
+            Nachsprechen: 1 Satz (1 Punkt)<br>
+            Schreiben: 1 Satz (1 Punkt)<br>
+            Aufmerksamkeit: R&uuml;ckw&auml;rtsz&auml;hlen (1 Punkt)
+          </div>
+          ICE 7&ndash;10 = Grad 1 &bull; ICE 3&ndash;6 = Grad 2 &bull; ICE 0&ndash;2 = Grad 3 &bull; Nicht testbar = Grad 4
+        </div>
+      </details>
+
+      <!-- Karte 4: Wie App nutzen -->
+      <details style="margin-bottom:10px;border:1px solid #dde6f0;border-radius:10px;overflow:hidden">
+        <summary style="padding:12px 14px;background:#f5fff5;font-size:13px;font-weight:700;color:#1b6b3a;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center">
+          Diese App im Dienst nutzen <span style="font-size:16px;color:#1b6b3a">&#9660;</span>
+        </summary>
+        <div style="padding:12px 14px;font-size:12px;color:#333;line-height:1.7;border-top:1px solid #dde6f0">
+          <b>Dienst-Modus:</b> ICE-Score eingeben &rarr; CRS-Kriterien ankreuzen &rarr; Therapieempfehlung erscheint automatisch mit Dosierungen und Eskalationsstrategie.<br><br>
+          <b>Visiten-Modus:</b> Patienten anlegen, Messungen speichern, Verlauf als Grafik und PDF exportieren. QR-Code-&Uuml;bertragung zwischen Ger&auml;ten m&ouml;glich.<br><br>
+          <b>Wichtig:</b> Diese App ist eine klinische Entscheidungshilfe &ndash; kein zugelassenes Medizinprodukt. Alle Empfehlungen m&uuml;ssen &auml;rztlich bewertet werden.<br><br>
+          <b>Wann Hintergrunddienst anrufen?</b><br>
+          &bull; ICANS Grad 2+ oder CRS Grad 2+<br>
+          &bull; Rasche Verschlechterung innerhalb 4h<br>
+          &bull; Neue neurologische Symptome<br>
+          &bull; Unsicherheit bei Therapieentscheidung
+        </div>
+      </details>
+
+      <button onclick="document.getElementById('intro-modal').style.display='none'"
+        style="width:100%;padding:11px;background:#1b3a5c;color:white;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;margin-top:4px">
+        Schlie&szlig;en
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SCHNELLÜBERSICHT DIENST MODAL ===== -->
+<div id="quickref-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:9050;align-items:flex-start;justify-content:center;padding:10px;box-sizing:border-box;overflow-y:auto">
+  <div style="background:white;border-radius:14px;max-width:420px;width:100%;margin:6px auto;overflow:hidden">
+
+    <div style="background:#1b3a5c;padding:12px 16px;display:flex;justify-content:space-between;align-items:center">
+      <div>
+        <div style="font-size:14px;font-weight:700;color:white">Schnell&uuml;bersicht CAR-T Dienst</div>
+        <div style="font-size:10.5px;color:#a8c4e0">Kitteltaschenkarte &ndash; Klinik f&uuml;r Neurologie MHH</div>
+      </div>
+      <button onclick="document.getElementById('quickref-modal').style.display='none'"
+        style="background:rgba(255,255,255,0.15);border:none;color:white;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:12px">&#10005;</button>
+    </div>
+
+    <div style="padding:12px;font-size:11.5px">
+
+      <!-- ICE-Score Tabelle -->
+      <div style="margin-bottom:10px">
+        <div style="font-size:11px;font-weight:700;color:#1b3a5c;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:5px;border-bottom:1px solid #dde6f0;padding-bottom:3px">ICE-Score (0&ndash;10 Punkte)</div>
+        <table style="width:100%;border-collapse:collapse;font-size:11px">
+          <tr style="background:#f0f4ff">
+            <td style="padding:4px 6px;font-weight:600;color:#1b3a5c">Bereich</td>
+            <td style="padding:4px 6px;color:#555">Frage / Aufgabe</td>
+            <td style="padding:4px 6px;font-weight:600;text-align:right;color:#1b3a5c">Punkte</td>
+          </tr>
+          <tr style="border-bottom:1px solid #eee"><td style="padding:3px 6px;color:#333">Orientierung</td><td style="padding:3px 6px;color:#555">Jahr, Monat, Ort, Klinik</td><td style="padding:3px 6px;text-align:right">max. 4</td></tr>
+          <tr style="border-bottom:1px solid #eee;background:#fafafa"><td style="padding:3px 6px;color:#333">Benennung</td><td style="padding:3px 6px;color:#555">3 Objekte benennen</td><td style="padding:3px 6px;text-align:right">max. 3</td></tr>
+          <tr style="border-bottom:1px solid #eee"><td style="padding:3px 6px;color:#333">Nachsprechen</td><td style="padding:3px 6px;color:#555">&bdquo;Keine Wenn, Und oder Aber&ldquo;</td><td style="padding:3px 6px;text-align:right">max. 1</td></tr>
+          <tr style="border-bottom:1px solid #eee;background:#fafafa"><td style="padding:3px 6px;color:#333">Schreiben</td><td style="padding:3px 6px;color:#555">Einen Satz schreiben</td><td style="padding:3px 6px;text-align:right">max. 1</td></tr>
+          <tr><td style="padding:3px 6px;color:#333">Aufmerksamkeit</td><td style="padding:3px 6px;color:#555">100 r&uuml;ckw&auml;rts in 10er-Schritten</td><td style="padding:3px 6px;text-align:right">max. 1</td></tr>
+        </table>
+      </div>
+
+      <!-- ICANS/CRS Gradeinteilung -->
+      <div style="margin-bottom:10px">
+        <div style="font-size:11px;font-weight:700;color:#1b3a5c;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:5px;border-bottom:1px solid #dde6f0;padding-bottom:3px">ICANS-Grad (ASTCT 2019)</div>
+        <table style="width:100%;border-collapse:collapse;font-size:11px">
+          <tr><td style="padding:3px 6px;background:#e8f8ee;border-radius:3px;color:#27ae60;font-weight:700;width:40px">Grad 1</td><td style="padding:3px 6px;color:#333">ICE 7&ndash;9 oder erw. Bewusstseinstr&uuml;bung</td></tr>
+          <tr><td style="padding:3px 6px;background:#fff8e0;color:#d4940a;font-weight:700">Grad 2</td><td style="padding:3px 6px;color:#333">ICE 3&ndash;6 oder leichte Agitiertheit / Tremor</td></tr>
+          <tr><td style="padding:3px 6px;background:#ffeee0;color:#d35400;font-weight:700">Grad 3</td><td style="padding:3px 6px;color:#333">ICE 0&ndash;2 oder Krampfanfall / Hir&ouml;dem</td></tr>
+          <tr><td style="padding:3px 6px;background:#ffe0e0;color:#c0392b;font-weight:700">Grad 4</td><td style="padding:3px 6px;color:#333">Nicht testbar (Koma) oder lebensbedrohl. Hir&ouml;dem</td></tr>
+        </table>
+      </div>
+
+      <div style="margin-bottom:10px">
+        <div style="font-size:11px;font-weight:700;color:#1b3a5c;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:5px;border-bottom:1px solid #dde6f0;padding-bottom:3px">CRS-Grad (ASTCT 2019)</div>
+        <table style="width:100%;border-collapse:collapse;font-size:11px">
+          <tr><td style="padding:3px 6px;background:#e8f8ee;border-radius:3px;color:#27ae60;font-weight:700;width:40px">Grad 1</td><td style="padding:3px 6px;color:#333">Fieber &ge; 38&deg;C, kein Vasopressor, kein O&sup2;</td></tr>
+          <tr><td style="padding:3px 6px;background:#fff8e0;color:#d4940a;font-weight:700">Grad 2</td><td style="padding:3px 6px;color:#333">+ Hypotonie ohne Vasopr. <i>oder</i> O&sup2; &le; 6 l/min</td></tr>
+          <tr><td style="padding:3px 6px;background:#ffeee0;color:#d35400;font-weight:700">Grad 3</td><td style="padding:3px 6px;color:#333">1 Vasopressor <i>oder</i> O&sup2; &gt; 6 l/min &rarr; ITS!</td></tr>
+          <tr><td style="padding:3px 6px;background:#ffe0e0;color:#c0392b;font-weight:700">Grad 4</td><td style="padding:3px 6px;color:#333">Mehrere Vasopressoren / Beatmung / ECMO</td></tr>
+        </table>
+      </div>
+
+      <!-- Therapie-Algorithmus kompakt -->
+      <div style="margin-bottom:10px">
+        <div style="font-size:11px;font-weight:700;color:#1b3a5c;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:5px;border-bottom:1px solid #dde6f0;padding-bottom:3px">Therapie-Grundprinzip</div>
+        <div style="display:grid;gap:4px">
+          <div style="display:flex;gap:8px;align-items:flex-start;padding:5px 8px;background:#f0f4ff;border-radius:6px;border-left:3px solid #2e75b6">
+            <span style="font-weight:700;color:#2e75b6;white-space:nowrap;width:40px">G1</span>
+            <span style="color:#333">Supportiv, engmaschig beobachten, Paracetamol</span>
+          </div>
+          <div style="display:flex;gap:8px;align-items:flex-start;padding:5px 8px;background:#fffbf0;border-radius:6px;border-left:3px solid #e67e22">
+            <span style="font-weight:700;color:#e67e22;white-space:nowrap;width:40px">G2</span>
+            <span style="color:#333">Tocilizumab 8 mg/kg i.v. (max. 800 mg), ggf. Dexamethason</span>
+          </div>
+          <div style="display:flex;gap:8px;align-items:flex-start;padding:5px 8px;background:#fff5f0;border-radius:6px;border-left:3px solid #d35400">
+            <span style="font-weight:700;color:#d35400;white-space:nowrap;width:40px">G3</span>
+            <span style="color:#333">ITS + Tocilizumab + Dexamethason 10&ndash;20 mg alle 6 h</span>
+          </div>
+          <div style="display:flex;gap:8px;align-items:flex-start;padding:5px 8px;background:#fff0f0;border-radius:6px;border-left:3px solid #c0392b">
+            <span style="font-weight:700;color:#c0392b;white-space:nowrap;width:40px">G4</span>
+            <span style="color:#333">ITS + Intubation erw&auml;gen + Methylprednisolon 1 g/d</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Telefonnummern MHH -->
+      <div style="background:#fff8e0;border:1px solid #f39c12;border-radius:8px;padding:10px;margin-bottom:10px">
+        <div style="font-size:11px;font-weight:700;color:#1b3a5c;margin-bottom:6px;border-bottom:1px solid #f9e4a0;padding-bottom:4px">Wichtige Telefonnummern MHH intern</div>
+        <div style="display:grid;gap:4px;font-size:11.5px">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span style="color:#333;font-weight:600">CAR-T Hintergrund</span>
+            <a href="tel:017615328834" style="color:#c0392b;font-weight:700;text-decoration:none">01761-532-<b>8834</b></a>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;color:#666;font-size:11px">
+            <span>RS Station 13 (IMC)</span>
+            <a href="tel:017615321137" style="color:#c0392b;font-weight:600;text-decoration:none">01761-532-<b>1137</b></a>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;color:#666;font-size:11px">
+            <span>RS Station 14 (ITS)</span>
+            <a href="tel:017615327623" style="color:#c0392b;font-weight:600;text-decoration:none">01761-532-<b>7623</b></a>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;color:#666;font-size:11px">
+            <span>Neurologie CAR-T Team (Mo&ndash;Fr 08&ndash;16:30)</span>
+            <a href="tel:017615324870" style="color:#c0392b;font-weight:600;text-decoration:none">01761-532-<b>4870</b></a>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span style="color:#333;font-weight:600">1. Dienst Neurologie</span>
+            <a href="tel:017615327055" style="color:#c0392b;font-weight:700;text-decoration:none">01761-532-<b>7055</b></a>
+          </div>
+        </div>
+      </div>
+
+      <div style="font-size:10px;color:#aaa;text-align:center;line-height:1.4;margin-bottom:10px">
+        Klinische Entscheidungshilfe &ndash; kein zugelassenes Medizinprodukt.<br>
+        Leitlinie: ASTCT Consensus (Lee et al. 2019)
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px">
+        <button onclick="document.getElementById('quickref-modal').style.display='none'"
+          style="padding:10px;background:#eee;color:#333;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer">
+          Schlie&szlig;en
+        </button>
+        <button onclick="exportKitteltaschenPDF()"
+          style="padding:10px;background:#27ae60;color:white;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px">
+          &#128438; PDF drucken
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
 <!-- ===== VISITE-MODUS ===== -->
 <div id="visiten-section" style="display:none">
 
   <!-- Patientenliste Visite -->
   <div class="stitle">Patienten</div>
-  <div id="vpt-list" style="display:grid;gap:8px;margin-bottom:10px"></div>
+  <!-- Neuen Patienten anlegen (jetzt OBEN) -->
   <div style="display:flex;gap:8px;margin-bottom:8px">
     <input id="vpt-name-input" type="text" placeholder="Pseudonym / Kürzel" maxlength="30"
       style="flex:1;padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px">
@@ -174,11 +689,17 @@ em.src{font-size:10px;color:var(--mgray);font-style:normal;display:block;margin-
       &#43; Patient
     </button>
   </div>
-  <div style="display:flex;gap:8px;margin-bottom:16px">
-    <button onclick="document.getElementById('vqr-scanner-modal').style.display='flex'" style="flex:1;padding:9px;background:#5b4fcf;color:white;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer">
-      &#11015; Patient importieren
+  <!-- Import + Stations-PDF -->
+  <div style="display:flex;gap:8px;margin-bottom:10px">
+    <button onclick="vQRStartScan()" style="flex:1;padding:9px;background:#5b4fcf;color:white;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer">
+      &#11015; Importieren (QR)
+    </button>
+    <button onclick="vExportStationPDF()" style="flex:1;padding:9px;background:#1b3a5c;color:white;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer">
+      &#128438; Stations-PDF
     </button>
   </div>
+  <div id="vpt-list" style="display:grid;gap:8px;margin-bottom:10px"></div>
+
 
   <!-- Aktiver Patient Visite -->
   <div id="vpt-detail" style="display:none">
@@ -449,8 +970,8 @@ em.src{font-size:10px;color:var(--mgray);font-style:normal;display:block;margin-
   <span class="ice-sub">&#8805; 38,0 &#176;C, nicht anderweitig erkl&#228;rbar</span>
 </div>
 <div class="ice-btn-group">
-  <button class="ice-btn" data-crs="fever" data-v="0" onclick="setCRS(this)">Nein</button>
-  <button class="ice-btn active" data-crs="fever" data-v="1" onclick="setCRS(this)">Ja</button>
+  <button class="ice-btn active" data-crs="fever" data-v="0" onclick="setCRS(this)">Nein</button>
+  <button class="ice-btn" data-crs="fever" data-v="1" onclick="setCRS(this)">Ja</button>
 </div>
 </div>
 
@@ -569,6 +1090,42 @@ em.src{font-size:10px;color:var(--mgray);font-style:normal;display:block;margin-
 
 <!-- ===== THERAPIE ===== -->
 <div class="stitle">Therapieempfehlung</div>
+<!-- KI-Check Modal -->
+<div id="ki-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.75);z-index:9999;align-items:center;justify-content:center;padding:12px;box-sizing:border-box">
+  <div style="background:white;border-radius:16px;padding:16px;max-width:380px;width:100%;max-height:90vh;overflow-y:auto">
+    <div style="font-size:14px;font-weight:700;color:#1b3a5c;margin-bottom:4px">&#9888;&#65039; Kontraindikations-Check</div>
+    <div style="font-size:11.5px;color:#666;margin-bottom:12px;line-height:1.5">Bekannte Kontraindikationen markieren &ndash; die Empfehlung wird entsprechend angepasst.</div>
+    <div style="display:grid;gap:8px;margin-bottom:14px">
+      <label style="display:flex;align-items:flex-start;gap:10px;padding:8px;background:#fff8e7;border-radius:8px;border:1px solid #f39c12;cursor:pointer">
+        <input type="checkbox" id="ki-tocilizumab" style="margin-top:2px;accent-color:#c0392b">
+        <div><div style="font-size:12px;font-weight:600;color:#c0392b">Tocilizumab</div>
+        <div style="font-size:11px;color:#666">Hypersensitivität gegen Tocilizumab oder IL-6-Inhibitoren</div></div>
+      </label>
+      <label style="display:flex;align-items:flex-start;gap:10px;padding:8px;background:#fff8e7;border-radius:8px;border:1px solid #f39c12;cursor:pointer">
+        <input type="checkbox" id="ki-anakinra" style="margin-top:2px;accent-color:#c0392b">
+        <div><div style="font-size:12px;font-weight:600;color:#c0392b">Anakinra</div>
+        <div style="font-size:11px;color:#666">IL-1-Hypersensitivität oder aktive schwere Infektion / Sepsis</div></div>
+      </label>
+      <label style="display:flex;align-items:flex-start;gap:10px;padding:8px;background:#fff8e7;border-radius:8px;border:1px solid #f39c12;cursor:pointer">
+        <input type="checkbox" id="ki-siltuximab" style="margin-top:2px;accent-color:#c0392b">
+        <div><div style="font-size:12px;font-weight:600;color:#c0392b">Siltuximab</div>
+        <div style="font-size:11px;color:#666">Hypersensitivität oder aktive schwere Infektion</div></div>
+      </label>
+      <label style="display:flex;align-items:flex-start;gap:10px;padding:8px;background:#fff8e7;border-radius:8px;border:1px solid #f39c12;cursor:pointer">
+        <input type="checkbox" id="ki-ruxolitinib" style="margin-top:2px;accent-color:#c0392b">
+        <div><div style="font-size:12px;font-weight:600;color:#c0392b">Ruxolitinib</div>
+        <div style="font-size:11px;color:#666">Thrombozyten &lt; 50/nl oder hämatologische Kontraindikation</div></div>
+      </label>
+      <label style="display:flex;align-items:flex-start;gap:10px;padding:8px;background:#fff8e7;border-radius:8px;border:1px solid #f39c12;cursor:pointer">
+        <input type="checkbox" id="ki-steroids" style="margin-top:2px;accent-color:#c0392b">
+        <div><div style="font-size:12px;font-weight:600;color:#c0392b">Kortikosteroide</div>
+        <div style="font-size:11px;color:#666">Relative KI: Unkontroll. Diabetes, aktive Psychose, Glaukom</div></div>
+      </label>
+    </div>
+    <div style="font-size:10.5px;color:#999;margin-bottom:12px;line-height:1.4">&#128274; Die Auswahl wird im Audit-Trail dokumentiert. Ohne Auswahl = keine bekannten KI.</div>
+    <button onclick="kiConfirm()" style="width:100%;padding:11px;background:#1b3a5c;color:white;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">&#10003; Weiter zur Empfehlung</button>
+  </div>
+</div>
 <div class="th-card" id="therapy-content"></div>
 
 
@@ -685,6 +1242,9 @@ em.src{font-size:10px;color:var(--mgray);font-style:normal;display:block;margin-
   </button>
   <button onclick="auditExportPDF()" style="padding:7px 14px;background:none;color:var(--mblue);border:1px solid var(--mblue);border-radius:8px;font-size:12px;font-weight:600;cursor:pointer">
     PDF
+  </button>
+  <button onclick="auditCheckIntegrity()" style="padding:7px 14px;background:none;color:#27ae60;border:1px solid #27ae60;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer">
+    &#128274; Integrität
   </button>
 </div>
 <div id="audit-panel" style="display:none">
@@ -864,7 +1424,7 @@ function renderQuickRef(gfr) {
 
 var ice = {o1:1,o2:1,o3:1,o4:1,n1:1,n2:1,n3:1,w1:1,a1:1,f1:1};
 var clin = {consc:0,seizure:0,motor:0,edema:0,untestable:0};
-var crs_state = {fever:1, htn:0, o2:0};  // fever default Ja
+var crs_state = {fever:0, htn:0, o2:0};  // fever default Nein
 
 // CRS grade labels
 var CRS_NAMES  = ['Kein CRS','CRS Grad 1','CRS Grad 2','CRS Grad 3','CRS Grad 4'];
@@ -979,13 +1539,104 @@ function setSeg(key, btn) {
 }
 
 // ── Helper: therapy section ────────────────────────────
+// Medikamente → KI-Key Mapping für KI-Buttons
+var _MS_DRUG_MAP = {
+  'Tocilizumab':       'tocilizumab',
+  'Siltuximab':        'siltuximab',
+  'Dexamethason':      'dexamethason',
+  'Methylprednisolon': 'dexamethason',
+  'Anakinra':          'anakinra',
+  'Ruxolitinib':       'anakinra'
+};
+var _msKiId = 0;
+
 function ms(cls, title, lines) {
   var h = '<div class="th-sec"><h4 class="'+cls+'">'+title+'</h4>';
-  for (var i=0; i<lines.length; i++) { if (lines[i]) h += '<p>'+lines[i]+'</p>'; }
+  for (var i=0; i<lines.length; i++) {
+    if (!lines[i]) continue;
+    var line = lines[i];
+    var kiKey = null;
+    // Prüfe ob ein Medikament in dieser Zeile vorkommt
+    // Finde das Medikament mit der frühesten Position in der Zeile
+    // → korrekte Zuordnung auch wenn mehrere Medikamente erwähnt werden
+    var drugs = Object.keys(_MS_DRUG_MAP);
+    var firstPos = -1;
+    for (var d=0; d<drugs.length; d++) {
+      var pos = line.indexOf(drugs[d]);
+      if (pos !== -1 && (firstPos === -1 || pos < firstPos)) {
+        firstPos = pos;
+        kiKey = _MS_DRUG_MAP[drugs[d]];
+      }
+    }
+    // LP-Button prüfen
+    var hasLP = (line.indexOf('Lumbalpunktion') !== -1 || line.indexOf('LP ') !== -1 || line.indexOf('LP,') !== -1 || line.indexOf('LP-') !== -1);
+    if (kiKey || hasLP) {
+      _msKiId++;
+      var lid = 'ki_' + _msKiId;
+      var btns = '';
+      if (kiKey) {
+        btns += '<button id="kibtn_'+lid+'" onclick="kontraToggleLine(\''+lid+'\',\''+kiKey+'\')" '+
+          'title="Kontraindikationen prüfen" '+
+          'style="display:inline-flex;align-items:center;gap:2px;margin-right:6px;'+
+          'padding:2px 7px;background:#c0392b;color:white;border:none;'+
+          'border-radius:4px;font-size:10px;font-weight:700;cursor:pointer;'+
+          'vertical-align:middle;flex-shrink:0;line-height:1.5">'+
+          '&#9888; KI</button>';
+      }
+      if (hasLP) {
+        btns += '<button onclick="lpModalOpen()" '+
+          'title="LP-Checkliste &amp; Kontraindikationen" '+
+          'style="display:inline-flex;align-items:center;gap:2px;margin-right:6px;'+
+          'padding:2px 7px;background:#1b3a5c;color:white;border:none;'+
+          'border-radius:4px;font-size:10px;font-weight:700;cursor:pointer;'+
+          'vertical-align:middle;flex-shrink:0;line-height:1.5">'+
+          '&#128203; LP</button>';
+      }
+      h += '<p id="'+lid+'" '+(kiKey?'data-ki="'+kiKey+'"':'')+' '+
+        'style="display:flex;align-items:flex-start;gap:4px;margin:3px 0">'+
+        btns+'<span>'+line+'</span></p>';
+    } else {
+      h += '<p>'+line+'</p>';
+    }
+  }
   return h+'</div>';
 }
 
 // ── Main grade + therapy function ──────────────────────
+// Globale KI-State
+var kiState = { tocilizumab:false, anakinra:false, siltuximab:false, ruxolitinib:false, steroids:false };
+
+function kiOpen() {
+  // Checkboxen auf gespeichertem State setzen
+  ['tocilizumab','anakinra','siltuximab','ruxolitinib','steroids'].forEach(function(k) {
+    var el = document.getElementById('ki-'+k);
+    if (el) el.checked = kiState[k];
+  });
+  document.getElementById('ki-modal').style.display = 'flex';
+}
+
+function kiConfirm() {
+  // State speichern
+  ['tocilizumab','anakinra','siltuximab','ruxolitinib','steroids'].forEach(function(k) {
+    var el = document.getElementById('ki-'+k);
+    kiState[k] = el ? el.checked : false;
+  });
+  document.getElementById('ki-modal').style.display = 'none';
+
+  // Audit: nur wenn KI markiert
+  var marked = Object.keys(kiState).filter(function(k){ return kiState[k]; });
+  if (marked.length > 0) {
+    auditAdd('KI-Check', 'Markiert: ' + marked.join(', '));
+  }
+
+  grade();
+}
+
+function kiWarnHtml(drug) {
+  // Gibt einen roten KI-Warnbanner zurück falls markiert
+  return '<div style="background:#fee;border:1px solid #c0392b;border-radius:6px;padding:6px 10px;margin:4px 0;font-size:11px;color:#c0392b;font-weight:600">'    + '&#9888;&#65039; KONTRAINDIKATION dokumentiert – ' + drug + ' laut Angabe nicht einsetzbar. '    + 'Alternative wählen oder Rücksprache halten.</div>';
+}
+
 function grade() {
   // ICE total
   var total = 0;
@@ -1047,6 +1698,7 @@ function grade() {
 
   // ── Therapy ────────────────────────────────────────────
   var th = '';
+  _msKiId = 0;  // KI-Button IDs zurücksetzen
   var hasCRS = crs > 0;
 
   // Produkt-Hinweis oben in Therapie
@@ -1122,6 +1774,8 @@ function grade() {
         'Echokardiographie bei kardialer Beteiligung erw\u00e4gen',
         'Bei Progression zu Grad\u00a04: sofortige Eskalation'
       ]);
+      // HLH-Screening Button
+      ct += '<div style="margin-top:10px"><button onclick="hlhOpen()" style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:#8b0000;color:white;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer">HLH-Kurzscreening (Hyperferritinämie / HLH-Bild)</button></div>';
     }
     else if (crs === 4) {
       // CRS Grad 4: mehrere Vasopressoren / Beatmung / ECMO
@@ -1144,6 +1798,8 @@ function grade() {
         'Ferritin, Fibrinogen, d-Dimere, Troponin, BNP engmaschig',
         'Blutgas, Laktat, Nierenfunktion mind. alle 6\u00a0h'
       ]);
+      // HLH-Screening Button
+      ct += '<div style="margin-top:10px"><button onclick="hlhOpen()" style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:#8b0000;color:white;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer">HLH-Kurzscreening (Hyperferritinämie / HLH-Bild)</button></div>';
     }
     ct += '</div>';
     return ct;
@@ -1253,12 +1909,11 @@ function grade() {
 
   document.getElementById('therapy-content').innerHTML = th;
   if (typeof ptUpdatePreview === 'function') ptUpdatePreview();
-  // Audit-Trail
   if (typeof auditAdd === 'function') {
     var _iceT=0; for(var _k in ice) _iceT+=ice[_k];
-    var _crsG=calcCRS(); if(!crs_state.fever)_crsG=0;
+    var _crsLog=calcCRS(); if(!crs_state.fever)_crsLog=0;
     auditAdd('Therapieempfehlung aufgerufen',
-      'ICE='+_iceT+' · ICANS Grad '+g+' · CRS Grad '+_crsG+
+      'ICE='+_iceT+' · ICANS G'+g+' · CRS G'+_crsLog+
       ' · Präparat: '+(typeof currentProduct!=='undefined'?currentProduct:'allgemein'));
   }
 }
@@ -1735,9 +2390,9 @@ function resetAll() {
 
   // CRS
   crs_state.fever = 1; crs_state.htn = 0; crs_state.o2 = 0;
-  // Fever: Ja aktiv setzen
+  // Fever: Nein aktiv setzen (Default kein Fieber)
   var feverBtns = document.querySelectorAll('[data-crs="fever"]');
-  feverBtns.forEach(function(b){ b.classList.remove('active'); if(b.dataset.v==='1') b.classList.add('active'); });
+  feverBtns.forEach(function(b){ b.classList.remove('active'); if(b.dataset.v==='0') b.classList.add('active'); });
   var htnBtns = document.querySelectorAll('[data-crs="htn"]');
   htnBtns.forEach(function(b){ b.classList.remove('active'); if(b.dataset.v==='0') b.classList.add('active'); });
   var o2Btns = document.querySelectorAll('[data-crs="o2"]');
@@ -2389,14 +3044,51 @@ function auditSave() {
   localStorage.setItem(AUDIT_KEY, JSON.stringify(auditLog));
 }
 
+function auditHashEntry(entry) {
+  // SHA-256 via SubtleCrypto (async, speichert nach Berechnung)
+  var str = entry.ts + '|' + entry.action + '|' + entry.detail;
+  if (!window.crypto || !window.crypto.subtle) {
+    entry.hash = 'no-webcrypto';
+    auditSave();
+    return;
+  }
+  var encoder = new TextEncoder();
+  window.crypto.subtle.digest('SHA-256', encoder.encode(str))
+    .then(function(hashBuf) {
+      var hashArr = Array.from(new Uint8Array(hashBuf));
+      entry.hash = hashArr.map(function(b){ return b.toString(16).padStart(2,'0'); }).join('');
+      auditSave();
+    })
+    .catch(function() { entry.hash = 'hash-error'; auditSave(); });
+}
+
+function auditVerifyEntry(entry) {
+  // Prüft ob Eintrag manipuliert wurde
+  return new Promise(function(resolve) {
+    if (!entry.hash || entry.hash === 'no-webcrypto') { resolve('unverified'); return; }
+    var str = entry.ts + '|' + entry.action + '|' + entry.detail;
+    var encoder = new TextEncoder();
+    window.crypto.subtle.digest('SHA-256', encoder.encode(str))
+      .then(function(hashBuf) {
+        var hashArr = Array.from(new Uint8Array(hashBuf));
+        var computed = hashArr.map(function(b){ return b.toString(16).padStart(2,'0'); }).join('');
+        resolve(computed === entry.hash ? 'ok' : 'tampered');
+      })
+      .catch(function() { resolve('error'); });
+  });
+}
+
 function auditAdd(action, details) {
   var now = new Date();
-  auditLog.push({
+  var entry = {
     ts:     now.toISOString(),
     action: action,
-    detail: details || ''
-  });
-  auditSave();
+    detail: details || '',
+    hash:   null
+  };
+  auditLog.push(entry);
+  auditSave(); // sofort speichern
+  auditHashEntry(entry); // Hash async berechnen und erneut speichern
 }
 
 function auditRender() {
@@ -2408,20 +3100,21 @@ function auditRender() {
     return;
   }
   var sorted = auditLog.slice().reverse(); // neueste zuerst
-  var html = '<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:11.5px">';
-  html += '<tr style="border-bottom:2px solid var(--border)">'
-        + '<th style="text-align:left;padding:5px 6px;color:var(--mgray);font-weight:600;white-space:nowrap">Zeitstempel</th>'
-        + '<th style="text-align:left;padding:5px 6px;color:var(--mgray);font-weight:600">Aktion</th>'
-        + '<th style="text-align:left;padding:5px 6px;color:var(--mgray);font-weight:600">Details</th></tr>';
+  var hasHashes = auditLog.some(function(e){ return e.hash && e.hash !== 'no-webcrypto'; });
+  var html = '<div style="margin-bottom:8px;display:flex;gap:8px;align-items:center">'
+    + (hasHashes ? '<button onclick="auditVerifyAll()" style="padding:5px 12px;background:#2e75b6;color:white;border:none;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer">&#128274; Integrität prüfen</button>' : '')
+    + '<span id="audit-verify-result" style="font-size:11px"></span>'
+    + '</div>';
+  html += '<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:11.5px">';
+  html += '<tr style="border-bottom:2px solid var(--border)">'        + '<th style="text-align:left;padding:5px 6px;color:var(--mgray);font-weight:600;white-space:nowrap">Zeitstempel</th>'        + '<th style="text-align:left;padding:5px 6px;color:var(--mgray);font-weight:600">Aktion</th>'        + '<th style="text-align:left;padding:5px 6px;color:var(--mgray);font-weight:600">Details</th>'        + '<th style="text-align:center;padding:5px 6px;color:var(--mgray);font-weight:600;font-size:10px">&#128274;</th></tr>';
   sorted.forEach(function(e) {
     var d = new Date(e.ts);
     var ds = d.toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric'});
     var ts = d.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
-    html += '<tr style="border-bottom:1px solid var(--lgray)">'
-          + '<td style="padding:5px 6px;white-space:nowrap;color:var(--mgray);font-size:10.5px">'+ds+' '+ts+'</td>'
-          + '<td style="padding:5px 6px;font-weight:600;color:var(--blue)">'+escHtml(e.action)+'</td>'
-          + '<td style="padding:5px 6px;color:var(--gray);font-size:11px">'+escHtml(e.detail)+'</td>'
-          + '</tr>';
+    var hb = !e.hash ? '<span title="ausstehend" style="color:#ccc">&#9714;</span>'
+           : e.hash === 'no-webcrypto' ? '<span title="n/a" style="color:#bbb">&ndash;</span>'
+           : '<span title="SHA-256: '+escHtml(e.hash.slice(0,16))+'..." style="color:#2e75b6">&#128274;</span>';
+    html += '<tr style="border-bottom:1px solid var(--lgray)">'          + '<td style="padding:5px 6px;white-space:nowrap;color:var(--mgray);font-size:10.5px">'+ds+' '+ts+'</td>'          + '<td style="padding:5px 6px;font-weight:600;color:var(--blue)">'+escHtml(e.action)+'</td>'          + '<td style="padding:5px 6px;color:var(--gray);font-size:11px">'+escHtml(e.detail)+'</td>'          + '<td style="text-align:center;padding:5px 6px">'+hb+'</td>'          + '</tr>';
   });
   html += '</table></div>';
   wrap.innerHTML = html;
@@ -2506,6 +3199,48 @@ function auditExportPDF() {
   doc.save('ICANS_AuditTrail_'+ds.replace(/\./g,'-')+'_'+ts.replace(':','')+'.pdf');
 }
 
+function auditCheckIntegrity() {
+  auditLoad();
+  var withHash = auditLog.filter(function(e){ return e.hash; });
+  if (withHash.length === 0) {
+    alert('Keine verifizierbaren Einträge. Ältere Einträge ohne Hash.');
+    return;
+  }
+  auditVerifyAll().then(function(results) {
+    var ok = results.filter(function(r){ return r.ok; }).length;
+    var fail = results.filter(function(r){ return !r.ok; });
+    if (fail.length === 0) {
+      alert('✅ Integritätsprüfung bestanden: ' + ok + ' Einträge unverändert.');
+    } else {
+      var msg = '⚠ Integritätsverletzung! ' + fail.length + ' manipulierte Einträge: ';
+      fail.forEach(function(r){ msg += ' | ' + r.ts.slice(0,10) + ' ' + r.action; });
+      alert(msg);
+    }
+  }).catch(function(e) {
+    alert('Fehler bei Prüfung: ' + e.message);
+  });
+}
+
+function auditVerifyAll() {
+  auditLoad();
+  var resultEl = document.getElementById('audit-verify-result');
+  if (resultEl) resultEl.innerHTML = 'Prüfe…';
+  var promises = auditLog.map(function(e) { return auditVerifyEntry(e); });
+  Promise.all(promises).then(function(results) {
+    var tampered = results.filter(function(r){ return r === 'tampered'; }).length;
+    var ok       = results.filter(function(r){ return r === 'ok'; }).length;
+    var unver    = results.filter(function(r){ return r === 'unverified'; }).length;
+    if (!resultEl) return;
+    if (tampered > 0) {
+      resultEl.innerHTML = '<span style="color:#c0392b;font-weight:700">⚠ ' + tampered + ' Einträge manipuliert!</span>';
+    } else if (ok > 0) {
+      resultEl.innerHTML = '<span style="color:#27ae60;font-weight:600">✓ Alle ' + ok + ' Einträge integer</span>' + (unver ? ' (' + unver + ' ohne Hash)' : '');
+    } else {
+      resultEl.innerHTML = '<span style="color:#888">Keine verifizierbaren Einträge</span>';
+    }
+  });
+}
+
 function auditClear() {
   if (!confirm('Audit-Log wirklich löschen? Dieser Schritt kann nicht rückgängig gemacht werden.')) return;
   auditLog = [];
@@ -2540,6 +3275,11 @@ function setMode(mode) {
     btnA.style.color      = 'white';
     btnV.style.background = 'white';
     btnV.style.color      = 'var(--blue)';
+    // Dosierungen neu rendern falls leer
+    var qrc = document.getElementById('quick-ref-content');
+    if (qrc && !qrc.innerHTML.trim()) {
+      if (typeof renderQuickRef === 'function') renderQuickRef(null);
+    }
   }
 }
 
@@ -2553,6 +3293,20 @@ var vState  = { ice: 10, fever: 0, hypo: 0, hypox: 0, day: 1 };
 function vptLoad() {
   try { ptData = JSON.parse(localStorage.getItem(PT_KEY) || '{}'); }
   catch(e) { ptData = {}; }
+}
+
+function vptDelete(id, event) {
+  event.stopPropagation(); // kein vptSelect auslösen
+  vptLoad();
+  var name = ptData[id] ? ptData[id].name : 'Patient';
+  var mCount = ptData[id] && ptData[id].measurements ? ptData[id].measurements.length : 0;
+  var msg = 'Patient "' + name + '" wirklich entfernen?\n' + mCount + ' Messung(en) werden gelöscht.\n\nDiese Aktion kann nicht rückgängig gemacht werden.';
+  if (!confirm(msg)) return;
+  delete ptData[id];
+  if (vActive === id) vActive = null;
+  ptSave();
+  auditAdd('Patient entfernt', name);
+  vptRender();
 }
 
 function vptRender() {
@@ -2573,11 +3327,14 @@ function vptRender() {
       ? p.measurements.slice().sort(function(a,b){ return a.ts<b.ts?1:-1; })[0]
       : null;
     var isActive = (id === vActive);
-    html += '<div onclick="vptSelect(&quot;'+id+'&quot;)" style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-radius:10px;border:1px solid '+(isActive?'var(--mblue)':'var(--border)')+';background:'+(isActive?'#edf3fb':'white')+';cursor:pointer;border-left:4px solid '+(isActive?'var(--mblue)':'var(--border)')+'">'
+    html += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">'
+            + '<div onclick="vptSelect(&quot;'+id+'&quot;)" style="flex:1;display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-radius:10px;border:1px solid '+(isActive?'var(--mblue)':'var(--border)')+';background:'+(isActive?'#edf3fb':'white')+';cursor:pointer;border-left:4px solid '+(isActive?'var(--mblue)':'var(--border)')+'">'
             + '<div><div class="pt-name">'+p.name+'</div>'
             + (last ? '<div class="pt-meta">Letzte Messung: T'+last.day+' · ICE '+last.ice+' · ICANS <span style="color:'+GRADE_COL[last.icans]+'">G'+last.icans+'</span> · CRS <span style="color:'+GRADE_COL[last.crs]+'">G'+last.crs+'</span></div>' : '<div class="pt-meta">Noch keine Messungen</div>')
             + '</div>'
             + '<div style="font-size:11px;color:var(--mgray)">'+p.measurements.length+' Mess.</div>'
+            + '</div>'
+            + '<button onclick="vptDelete(&quot;'+id+'&quot;,event)" title="Patient entfernen" style="flex-shrink:0;width:32px;height:32px;border:none;border-radius:8px;background:#fee;color:#c0392b;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1">&times;</button>'
             + '</div>';
   });
   list.innerHTML = html;
@@ -2819,6 +3576,441 @@ function vRenderChart(measurements) {
     }
   });
 }
+
+
+// ── Stations-PDF: alle Patienten Übersicht ────────────────
+
+// ════════════════════════════════════════════════════════
+// KITTELTASCHEN-PDF Export
+// Format: A5 Hochformat, 2 Seiten (Vorder-/Rückseite)
+// ════════════════════════════════════════════════════════
+function exportKitteltaschenPDF() {
+  if (!window.jspdf) { alert('PDF-Bibliothek nicht geladen.'); return; }
+  var { jsPDF } = window.jspdf;
+  // A5 Hochformat (148 × 210 mm)
+  var doc = new jsPDF({ unit:'mm', format:'a5', orientation:'portrait' });
+  var PW=148, PH=210, ML=10, MR=10, CW=128;
+
+  var BLUE   = [27,58,92];
+  var MBLUE  = [46,117,182];
+  var WHITE  = [255,255,255];
+  var GRAY   = [50,50,50];
+  var MGRAY  = [120,120,120];
+  var LGRAY  = [210,210,210];
+  var G0COL  = [39,174,96];
+  var G2COL  = [190,130,10];
+  var G3COL  = [185,85,15];
+  var G4COL  = [175,35,35];
+  var GCOL   = [[39,174,96],[39,174,96],[190,130,10],[185,85,15],[175,35,35]];
+  var GBKG   = [[228,246,234],[228,246,234],[253,243,205],[253,235,215],[251,226,226]];
+
+  function fi(r,g,b){ doc.setFillColor(r,g,b); }
+  function fo(bold,sz,r,g,b){
+    doc.setFont('helvetica', bold?'bold':'normal');
+    doc.setFontSize(sz);
+    doc.setTextColor(r!=null?r:50, g!=null?g:50, b!=null?b:50);
+  }
+  function ln(x1,y1,x2,y2,r,g,b,w){
+    doc.setDrawColor(r,g,b); doc.setLineWidth(w||0.2); doc.line(x1,y1,x2,y2);
+  }
+  function tx(s,x,y,opts){
+    var safe = String(s==null?'':s)
+      .replace(/\u00e4/g,'ae').replace(/\u00f6/g,'oe').replace(/\u00fc/g,'ue')
+      .replace(/\u00c4/g,'Ae').replace(/\u00d6/g,'Oe').replace(/\u00dc/g,'Ue')
+      .replace(/\u00df/g,'ss').replace(/\u2013/g,'-').replace(/\u2014/g,'-')
+      .replace(/\u2265/g,'>=').replace(/\u2264/g,'<=').replace(/\u00b0/g,' Grad')
+      .replace(/\u00b9/g,'1').replace(/\u00b2/g,'2').replace(/\u00b3/g,'3')
+      .replace(/[^\x00-\xFF]/g,'?');
+    doc.text(safe, x, y, opts||{});
+  }
+  function sth(title, y_pos) {
+    fo(true,7.5,MBLUE[0],MBLUE[1],MBLUE[2]);
+    tx(title.toUpperCase(), ML, y_pos);
+    ln(ML, y_pos+1, PW-MR, y_pos+1, MBLUE[0],MBLUE[1],MBLUE[2], 0.3);
+    return y_pos + 4;
+  }
+
+  var now = new Date();
+  var ds = now.toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric'});
+
+  // ══════════════════════════════════════
+  // SEITE 1: ICE-Score + ICANS + CRS
+  // ══════════════════════════════════════
+  fi(BLUE[0],BLUE[1],BLUE[2]); doc.rect(0,0,PW,14,'F');
+  fo(true,13,255,255,255); tx('CAR-T Dienst  -  Schnelluebersicht', ML, 8);
+  fo(false,7.5,[180,210,240]); tx('Klinik fuer Neurologie  MHH  ' + ds, ML, 12.5);
+
+  var y = 18;
+
+  // ICE-Score Tabelle
+  y = sth('ICE-Score (0-10 Punkte)', y);
+  var rows = [
+    ['Orientierung','Jahr / Monat / Ort / Klinik','4'],
+    ['Benennung','3 Objekte benennen','3'],
+    ['Nachsprechen','"Keine Wenn, Und oder Aber"','1'],
+    ['Schreiben','Einen Satz schreiben','1'],
+    ['Aufmerksamkeit','100 rueckwaerts in 10er-Schritten','1'],
+  ];
+  rows.forEach(function(r,i){
+    var bg = i%2===0 ? [248,250,255] : WHITE;
+    fi(bg[0],bg[1],bg[2]); doc.rect(ML,y,CW,6,'F');
+    fo(true,7.5,GRAY[0],GRAY[1],GRAY[2]); tx(r[0], ML+2, y+4.3);
+    fo(false,7,GRAY[0],GRAY[1],GRAY[2]); tx(r[1], ML+30, y+4.3);
+    fo(true,7.5,MBLUE[0],MBLUE[1],MBLUE[2]); tx(r[2], PW-MR, y+4.3, {align:'right'});
+    ln(ML,y+6,ML+CW,y+6,LGRAY[0],LGRAY[1],LGRAY[2],0.15);
+    y += 6;
+  });
+  y += 4;
+
+  // ICANS-Grad Tabelle
+  y = sth('ICANS-Grad (ASTCT 2019)', y);
+  var icans = [
+    ['Grad 1','ICE 7-9 oder erw. Bewusstseinstr.', GCOL[1], GBKG[1]],
+    ['Grad 2','ICE 3-6 oder Agitiertheit / Tremor', GCOL[2], GBKG[2]],
+    ['Grad 3','ICE 0-2 oder Krampfanfall / Hirnoedem', GCOL[3], GBKG[3]],
+    ['Grad 4','Koma / lebensbedrohl. Hirnoedem', GCOL[4], GBKG[4]],
+  ];
+  icans.forEach(function(r){
+    fi(r[3][0],r[3][1],r[3][2]); doc.rect(ML,y,CW,6,'F');
+    fi(r[2][0],r[2][1],r[2][2]); doc.rect(ML,y,18,6,'F');
+    fo(true,7.5,255,255,255); tx(r[0], ML+2, y+4.3);
+    fo(false,7.5,GRAY[0],GRAY[1],GRAY[2]); tx(r[1], ML+21, y+4.3);
+    ln(ML,y+6,ML+CW,y+6,LGRAY[0],LGRAY[1],LGRAY[2],0.15);
+    y += 6;
+  });
+  y += 4;
+
+  // CRS-Grad Tabelle
+  y = sth('CRS-Grad (ASTCT 2019)', y);
+  var crs_rows = [
+    ['Grad 1','Fieber >= 38 Grad, kein Vasopressor, kein O2', GCOL[1], GBKG[1]],
+    ['Grad 2','+ Hypotonie o. O2 <= 6 l/min (kein Vasopressor)', GCOL[2], GBKG[2]],
+    ['Grad 3','1 Vasopressor oder O2 > 6 l/min  --> ITS!', GCOL[3], GBKG[3]],
+    ['Grad 4','Mehrere Vasopressoren / Beatmung / ECMO', GCOL[4], GBKG[4]],
+  ];
+  crs_rows.forEach(function(r){
+    fi(r[3][0],r[3][1],r[3][2]); doc.rect(ML,y,CW,6,'F');
+    fi(r[2][0],r[2][1],r[2][2]); doc.rect(ML,y,18,6,'F');
+    fo(true,7.5,255,255,255); tx(r[0], ML+2, y+4.3);
+    fo(false,7,GRAY[0],GRAY[1],GRAY[2]); tx(r[1], ML+21, y+4.3);
+    ln(ML,y+6,ML+CW,y+6,LGRAY[0],LGRAY[1],LGRAY[2],0.15);
+    y += 6;
+  });
+
+  // Footer Seite 1
+  ln(ML,PH-8,PW-MR,PH-8,LGRAY[0],LGRAY[1],LGRAY[2],0.2);
+  fo(false,6,MGRAY[0],MGRAY[1],MGRAY[2]);
+  tx('Seite 1/2  -  ICANS Grading App  -  Klinik fuer Neurologie MHH', ML, PH-4);
+
+  // ══════════════════════════════════════
+  // SEITE 2: Therapie + Telefon
+  // ══════════════════════════════════════
+  doc.addPage();
+  fi(BLUE[0],BLUE[1],BLUE[2]); doc.rect(0,0,PW,14,'F');
+  fo(true,13,255,255,255); tx('CAR-T Dienst  -  Therapie & Kontakt', ML, 8);
+  fo(false,7.5,[180,210,240]); tx('Klinik fuer Neurologie  MHH', ML, 12.5);
+
+  y = 18;
+
+  // Therapie-Algorithmus kompakt
+  y = sth('Therapie-Algorithmus ICANS / CRS', y);
+  var therapy = [
+    ['G1', 'Supportiv, Paracetamol, engmaschig beobachten', GCOL[1], GBKG[1]],
+    ['G2', 'Tocilizumab 8 mg/kg i.v. (max. 800 mg), ggf. Dexa', GCOL[2], GBKG[2]],
+    ['G3', 'ITS + Tocilizumab + Dexamethason 10-20 mg alle 6h', GCOL[3], GBKG[3]],
+    ['G4', 'ITS/Intubation + Methylprednisolon 1 g/d i.v.', GCOL[4], GBKG[4]],
+  ];
+  therapy.forEach(function(r){
+    fi(r[3][0],r[3][1],r[3][2]); doc.rect(ML,y,CW,7,'F');
+    fi(r[2][0],r[2][1],r[2][2]); doc.rect(ML,y,10,7,'F');
+    fo(true,8,255,255,255); tx(r[0], ML+2, y+4.8);
+    fo(false,7.5,GRAY[0],GRAY[1],GRAY[2]); tx(r[1], ML+13, y+4.8);
+    ln(ML,y+7,ML+CW,y+7,LGRAY[0],LGRAY[1],LGRAY[2],0.15);
+    y += 7;
+  });
+  y += 5;
+
+  // Wann Hintergrunddienst anrufen?
+  y = sth('Wann anrufen?', y);
+  var hints = [
+    'ICANS Grad 2+ oder CRS Grad 2+',
+    'Rasche Verschlechterung (< 4h um >= 1 Grad)',
+    'Neue neurologische Symptome',
+    'Fieber + neurologische Ausfaelle',
+    'Unsicherheit bei Therapieentscheidung',
+  ];
+  hints.forEach(function(h,i){
+    var bg = i%2===0 ? [248,250,255] : WHITE;
+    fi(bg[0],bg[1],bg[2]); doc.rect(ML,y,CW,5.5,'F');
+    fi(MBLUE[0],MBLUE[1],MBLUE[2]); doc.circle(ML+3, y+2.8, 1.2, 'F');
+    fo(false,7.5,GRAY[0],GRAY[1],GRAY[2]); tx(h, ML+7, y+4);
+    y += 5.5;
+  });
+  y += 5;
+
+  // Telefonnummern Box
+  fi(255,248,220); doc.setDrawColor(243,156,18); doc.setLineWidth(0.4);
+  var telBoxH = 42;
+  doc.roundedRect(ML, y, CW, telBoxH, 2, 2, 'FD');
+  fo(true,8,BLUE[0],BLUE[1],BLUE[2]);
+  tx('TELEFONNUMMERN MHH INTERN', ML+4, y+6);
+  ln(ML+4, y+8, ML+CW-4, y+8, LGRAY[0],LGRAY[1],LGRAY[2], 0.2);
+
+  var contacts = [
+    ['CAR-T Hintergrund', '01761-532-8834', true],
+    ['RS Station 13 (IMC)', '01761-532-1137', false],
+    ['RS Station 14 (ITS)', '01761-532-7623', false],
+    ['CAR-T Team (Mo-Fr 08-16:30)', '01761-532-4870', false],
+    ['1. Dienst Neurologie', '01761-532-7055', true],
+  ];
+  var ty = y + 11;
+  contacts.forEach(function(ct){
+    fo(ct[2]?true:false, ct[2]?8:7.5, GRAY[0],GRAY[1],GRAY[2]);
+    tx(ct[0], ML+4, ty);
+    fo(true, ct[2]?8.5:8, G4COL[0],G4COL[1],G4COL[2]);
+    tx(ct[1], PW-MR-4, ty, {align:'right'});
+    ty += 5.5;
+  });
+
+  // Footer Seite 2
+  ln(ML,PH-8,PW-MR,PH-8,LGRAY[0],LGRAY[1],LGRAY[2],0.2);
+  fo(false,6,MGRAY[0],MGRAY[1],MGRAY[2]);
+  tx('Seite 2/2  -  Klinische Entscheidungshilfe  -  Kein Medizinprodukt  -  ASTCT 2019', ML, PH-4);
+
+  doc.save('CAR-T_Kitteltaschenkarte_' + ds.replace(/\./g,'-') + '.pdf');
+  if (typeof auditAdd === 'function') auditAdd('Kitteltaschen-PDF exportiert', 'A5-Format, 2 Seiten');
+}
+
+
+function vExportStationPDF() {
+  if (!window.jspdf) { alert('PDF-Bibliothek nicht geladen.'); return; }
+  vptLoad();
+  var ids = Object.keys(ptData);
+  if (ids.length === 0) { alert('Keine Patienten vorhanden.'); return; }
+
+  var { jsPDF } = window.jspdf;
+  var doc = new jsPDF({ unit:'mm', format:'a4', orientation:'landscape' });
+  var PW=297, PH=210, ML=12, CW=273;
+
+  // Farben (alle als RGB-Arrays)
+  var BLUE   = [27,58,92];
+  var MBLUE  = [46,117,182];
+  var GRAY   = [50,50,50];
+  var MGRAY  = [120,120,120];
+  var LGRAY  = [210,210,210];
+  var WHITE  = [255,255,255];
+  var XLBLUE = [240,246,255];
+  // Grad-Farben
+  var GC = [[39,174,96],[39,174,96],[190,130,10],[185,85,15],[175,35,35]];
+  var GB = [[228,246,234],[228,246,234],[253,243,205],[253,235,215],[251,226,226]];
+
+  function fi(r,g,b){ doc.setFillColor(r,g,b); }
+  function fo(bold,sz,r,g,b){
+    doc.setFont('helvetica', bold?'bold':'normal');
+    doc.setFontSize(sz);
+    doc.setTextColor(r!=null?r:50, g!=null?g:50, b!=null?b:50);
+  }
+  function ln(x1,y1,x2,y2,r,g,b,w){
+    doc.setDrawColor(r,g,b); doc.setLineWidth(w||0.2); doc.line(x1,y1,x2,y2);
+  }
+  // Text nur mit Latin1-sicheren Zeichen
+  function tx(s,x,y,opts){
+    var safe = String(s==null?'':s)
+      .replace(/\u2019/g,"'").replace(/\u2018/g,"'")
+      .replace(/\u201C/g,'"').replace(/\u201D/g,'"')
+      .replace(/\u2013/g,'-').replace(/\u2014/g,'-')
+      .replace(/\u00B7/g,'*').replace(/\u2265/g,'>=')
+      .replace(/\u2264/g,'<=').replace(/\u00B9/g,'1')
+      .replace(/\u00B2/g,'2').replace(/\u00B3/g,'3')
+      .replace(/[^\x00-\xFF]/g,'?');
+    doc.text(safe, x, y, opts||{});
+  }
+
+  var now = new Date();
+  var ds = now.toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric'});
+  var ts = now.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});
+  var pg = 1;
+
+  function header() {
+    fi(BLUE[0],BLUE[1],BLUE[2]);
+    doc.rect(0,0,PW,14,'F');
+    fo(true,14,255,255,255); tx('Morgenvisite CAR-T  -  Stationsuebersicht', ML, 9);
+    fo(false,8,180,210,240); tx(ds+'  '+ts+' Uhr', PW-ML, 9, {align:'right'});
+    fo(false,7,200,225,245); tx('Klinik fuer Neurologie  -  MHH  -  Vertraulich', ML, 13);
+    fo(false,7,200,225,245); tx('Seite '+pg, PW-ML, 13, {align:'right'});
+  }
+
+  function footer() {
+    ln(ML,PH-9,PW-ML,PH-9,LGRAY[0],LGRAY[1],LGRAY[2],0.2);
+    fo(false,6,MGRAY[0],MGRAY[1],MGRAY[2]);
+    tx('ICANS Grading App  -  Klinische Entscheidungshilfe  -  Nicht als Medizinprodukt validiert  -  Jan Juerss  -  MHH', ML, PH-5);
+  }
+
+  header();
+  var y = 18;
+
+  // Zusammenfassungs-Box
+  var total  = ids.length;
+  var totalM = ids.reduce(function(s,id){ return s+(ptData[id].measurements||[]).length; },0);
+  var highG  = ids.filter(function(id){
+    var mm=ptData[id].measurements||[];
+    if(!mm.length) return false;
+    var last=mm.slice().sort(function(a,b){return a.ts<b.ts?1:-1;})[0];
+    return (last.icans||0)>=2;
+  }).length;
+
+  fi(XLBLUE[0],XLBLUE[1],XLBLUE[2]);
+  doc.setDrawColor(MBLUE[0],MBLUE[1],MBLUE[2]); doc.setLineWidth(0.3);
+  doc.roundedRect(ML,y,CW,10,1.5,1.5,'FD');
+  fo(true,9,BLUE[0],BLUE[1],BLUE[2]);
+  tx(total+' Patienten gesamt   '+totalM+' Messungen gesamt   '+highG+' Patient(en) ICANS >= G2   Erstellt: '+ds+' '+ts, ML+4, y+7);
+  y += 14;
+
+  // Spalten-Definition
+  var COL = {
+    name:  {x:ML+3,   w:38},
+    mess:  {x:ML+42,  w:12},
+    tag:   {x:ML+55,  w:12},
+    ice:   {x:ML+68,  w:16},
+    icans: {x:ML+85,  w:20},
+    crs:   {x:ML+106, w:20},
+    trend: {x:ML+127, w:30},
+    zeit:  {x:ML+158, w:44},
+    verlauf:{x:ML+203,w:70}
+  };
+
+  // Tabellen-Header
+  function drawHeader() {
+    fi(MBLUE[0],MBLUE[1],MBLUE[2]);
+    doc.rect(ML,y,CW,7,'F');
+    fo(true,8,255,255,255);
+    tx('Patient',        COL.name.x,  y+5);
+    tx('Mess.',          COL.mess.x,  y+5);
+    tx('Tag',            COL.tag.x,   y+5);
+    tx('ICE',            COL.ice.x,   y+5);
+    tx('ICANS',          COL.icans.x, y+5);
+    tx('CRS',            COL.crs.x,   y+5);
+    tx('Trend',          COL.trend.x, y+5);
+    tx('Letzte Messung', COL.zeit.x,  y+5);
+    tx('Verlauf (letzte 5 Mess.)', COL.verlauf.x, y+5);
+    y += 7;
+  }
+  drawHeader();
+
+  var ROW = 10;
+
+  ids.forEach(function(id, idx2) {
+    var p   = ptData[id];
+    var mm  = (p.measurements||[]).slice().sort(function(a,b){return a.ts<b.ts?-1:1;});
+    var last = mm.length ? mm[mm.length-1] : null;
+    var prev = mm.length > 1 ? mm[mm.length-2] : null;
+
+    if (y + ROW > PH-14) {
+      footer(); doc.addPage(); pg++; header(); y=18; drawHeader();
+    }
+
+    // Zeilen-Hintergrund
+    var bg = last ? GB[Math.min(Math.max(last.icans||0,last.crs||0),4)] : [248,250,252];
+    fi(bg[0],bg[1],bg[2]); doc.rect(ML,y,CW,ROW,'F');
+
+    // Farbstreifen links (ICANS-Farbe)
+    var sc = last ? GC[Math.min(last.icans||0,4)] : LGRAY;
+    fi(sc[0],sc[1],sc[2]); doc.rect(ML,y,2.5,ROW,'F');
+
+    // Trennlinie
+    ln(ML,y+ROW,ML+CW,y+ROW,LGRAY[0],LGRAY[1],LGRAY[2],0.15);
+
+    // Patientenname (max 20 Zeichen)
+    fo(true,9,BLUE[0],BLUE[1],BLUE[2]);
+    tx(p.name.substring(0,20), COL.name.x, y+6.5);
+
+    // Messungsanzahl
+    fo(false,8,MGRAY[0],MGRAY[1],MGRAY[2]);
+    tx(String(mm.length), COL.mess.x, y+6.5);
+
+    if (last) {
+      // Tag
+      fo(false,8,GRAY[0],GRAY[1],GRAY[2]);
+      tx('T'+last.day, COL.tag.x, y+6.5);
+
+      // ICE
+      fo(true,9,MBLUE[0],MBLUE[1],MBLUE[2]);
+      tx(last.ice+'/10', COL.ice.x, y+6.5);
+
+      // ICANS mit farbigem Hintergrund-Rechteck
+      var ic = Math.min(last.icans||0,4);
+      fi(GC[ic][0],GC[ic][1],GC[ic][2]);
+      doc.rect(COL.icans.x-1, y+1, 14, 7, 'F');
+      fo(true,9,255,255,255);
+      tx('G'+ic, COL.icans.x+1, y+6.5);
+
+      // CRS mit farbigem Hintergrund
+      var cr = Math.min(last.crs||0,4);
+      fi(GC[cr][0],GC[cr][1],GC[cr][2]);
+      doc.rect(COL.crs.x-1, y+1, 14, 7, 'F');
+      fo(true,9,255,255,255);
+      tx('G'+cr, COL.crs.x+1, y+6.5);
+
+      // Trend (ASCII)
+      if (prev) {
+        var ti = last.icans>prev.icans?'ICANS(+)':last.icans<prev.icans?'ICANS(-)':'ICANS(=)';
+        var tc = last.crs>prev.crs?'CRS(+)':last.crs<prev.crs?'CRS(-)':'CRS(=)';
+        var tiCol = last.icans>prev.icans?GC[4]:last.icans<prev.icans?GC[0]:MGRAY;
+        var tcCol = last.crs>prev.crs?GC[4]:last.crs<prev.crs?GC[0]:MGRAY;
+        fo(true,7.5,tiCol[0],tiCol[1],tiCol[2]); tx(ti, COL.trend.x, y+5);
+        fo(false,7,tcCol[0],tcCol[1],tcCol[2]); tx(tc, COL.trend.x, y+9);
+      } else {
+        fo(false,7,MGRAY[0],MGRAY[1],MGRAY[2]); tx('erste Mess.', COL.trend.x, y+6.5);
+      }
+
+      // Letzte Messung Zeit
+      var d2 = new Date(last.ts);
+      var dStr = d2.toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit'})+
+                 ' '+d2.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});
+      fo(false,7.5,GRAY[0],GRAY[1],GRAY[2]); tx(dStr, COL.zeit.x, y+6.5);
+
+      // Mini-Verlauf: letzte 5 Messungen als farbige Punkte mit ICE-Zahl
+      var recent = mm.slice(-5);
+      var vx = COL.verlauf.x;
+      var spacing = Math.min(13, (COL.verlauf.w-4) / Math.max(recent.length,1));
+      recent.forEach(function(m,vi) {
+        var px = vx + vi*spacing + 3;
+        var gc = GC[Math.min(m.icans||0,4)];
+        fi(gc[0],gc[1],gc[2]);
+        doc.circle(px, y+4.5, 2.8, 'F');
+        fo(true,6.5,255,255,255);
+        doc.text(String(m.ice), px, y+5.5, {align:'center'});
+        fo(false,5,MGRAY[0],MGRAY[1],MGRAY[2]);
+        doc.text('T'+m.day, px, y+9.5, {align:'center'});
+      });
+
+    } else {
+      fo(false,8,MGRAY[0],MGRAY[1],MGRAY[2]);
+      tx('Keine Messungen vorhanden', COL.tag.x, y+6.5);
+    }
+
+    y += ROW;
+  });
+
+  // Legende
+  y += 5;
+  if (y + 12 > PH-14) { footer(); doc.addPage(); pg++; header(); y=18; }
+  fo(true,8,GRAY[0],GRAY[1],GRAY[2]); tx('Legende:', ML, y+4);
+  var lx = ML+20;
+  [['G0/G1 kein/leicht',GC[0]],['G2 moderat',GC[2]],['G3 schwer',GC[3]],['G4 lebensbedrohlich',GC[4]]].forEach(function(item){
+    fi(item[1][0],item[1][1],item[1][2]);
+    doc.rect(lx,y,3,3,'F');
+    fo(false,7,GRAY[0],GRAY[1],GRAY[2]); tx(item[0], lx+4.5, y+3);
+    lx += 38;
+  });
+  fo(false,7,MGRAY[0],MGRAY[1],MGRAY[2]);
+  tx('Kreis = letzte Messungen (Zahl=ICE-Score, Farbe=ICANS-Grad)  |  (+)=Verschlechterung (-) Verbesserung', ML+155, y+3);
+
+  footer();
+  doc.save('Stationsuebersicht_CAR-T_'+ds.replace(/\./g,'-')+'_'+ts.replace(':','')+'.pdf');
+  auditAdd('Stations-PDF exportiert', total+' Patienten, '+totalM+' Messungen');
+}
+
 
 // ── Visite PDF-Export ─────────────────────────────────────
 function vExportPDF() {
@@ -3113,374 +4305,229 @@ function vQRNext() { vQRIdx = (vQRIdx + 1) % vQRQueue.length; vQRRender(); }
 function vQRSetStatus(msg) {
   var el = document.getElementById('vqr-scan-status');
   if (el) el.innerHTML = msg;
-  console.log('[QR]', msg);
 }
 
-function vQRStartLive() {
-  // Direkt den Live-Scanner starten (ohne extra Modal-Wechsel)
+function vQRReset() {
+  vQRScanActive = false;
+  if (vQRScanRAF) { cancelAnimationFrame(vQRScanRAF); clearTimeout(vQRScanRAF); vQRScanRAF = null; }
+  if (vQRCurrentStream) { try { vQRCurrentStream.getTracks().forEach(function(t){ t.stop(); }); } catch(e){} }
+  vQRCurrentStream = null;
+  var video = document.getElementById('vqr-video');
+  if (video) { try { video.srcObject = null; } catch(e){} }
   var wrap = document.getElementById('vqr-live-wrap');
   var startBtn = document.getElementById('vqr-start-btn');
   var stopBtn  = document.getElementById('vqr-stop-btn');
-  if (wrap) wrap.style.display = 'block';
-  if (startBtn) startBtn.style.display = 'none';
-  if (stopBtn)  stopBtn.style.display  = 'block';
-  vQRSetStatus('Kamera startet…');
-  vQRScanActive    = true;
-  vQRCurrentStream = null;
+  var cd = document.getElementById('vqr-confirm-area');
+  if (wrap)     wrap.style.display = 'none';
+  if (startBtn) { startBtn.style.display = 'block'; startBtn.disabled = false; }
+  if (stopBtn)  stopBtn.style.display = 'none';
+  if (cd)       { cd.style.display = 'none'; cd.innerHTML = ''; }
+  vQRImportData = null;
+  vQRSetStatus('');
+}
 
+function vQRStartScan() {
+  vQRReset();
+  document.getElementById('vqr-scanner-modal').style.display = 'flex';
+  vQRStartLive();
+}
+
+function vQRStartLive() {
+  var cd = document.getElementById('vqr-confirm-area');
+  if (cd) { cd.style.display = 'none'; cd.innerHTML = ''; }
+  var wrap = document.getElementById('vqr-live-wrap');
+  var startBtn = document.getElementById('vqr-start-btn');
+  var stopBtn  = document.getElementById('vqr-stop-btn');
+  if (wrap)     wrap.style.display = 'block';
+  if (startBtn) startBtn.style.display = 'none';
+  if (stopBtn)  stopBtn.style.display = 'block';
+  vQRScanActive = true;
+  vQRSetStatus('Kamera startet…');
   navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } } })
     .then(function(stream) {
       vQRCurrentStream = stream;
       var video = document.getElementById('vqr-video');
-      video.srcObject   = stream;
-      video.playsInline = true;
-      video.muted       = true;
+      video.srcObject = stream; video.playsInline = true; video.muted = true;
       video.onloadedmetadata = function() {
         video.play().then(function() {
           var label = stream.getVideoTracks()[0].label;
           vQRSetStatus('QR-Code in den Rahmen halten…<br><small>' + label.slice(0,35) + '</small>');
-          if (window.BarcodeDetector) {
-            vQRScanNative(video, stream);
-          } else {
-            vQRScanWithJsQR(video, stream);
-          }
+          if (window.BarcodeDetector) { vQRScanNative(video, stream); }
+          else { vQRScanWithJsQR(video, stream); }
         }).catch(function(e) { vQRSetStatus('Fehler: ' + e.message); });
       };
     })
     .catch(function(err) {
-      vQRSetStatus(err.name === 'NotAllowedError'
-        ? 'Kamera-Berechtigung verweigert – bitte in Einstellungen erlauben.'
-        : 'Kamera-Fehler: ' + err.name);
-      if (wrap) wrap.style.display = 'none';
+      vQRSetStatus(err.name === 'NotAllowedError' ? 'Kamera-Berechtigung verweigert.' : 'Kamera-Fehler: ' + err.name);
+      if (wrap)     wrap.style.display = 'none';
       if (startBtn) startBtn.style.display = 'block';
-      if (stopBtn)  stopBtn.style.display  = 'none';
+      if (stopBtn)  stopBtn.style.display = 'none';
     });
 }
 
-function vQRStartScan() {
+function vQRStopScan() {
+  vQRReset();
   var modal = document.getElementById('vqr-scanner-modal');
-  modal.style.display = 'flex';
-
-  var hasJsQR = (typeof jsQR !== 'undefined');
-  var hasBD   = !!window.BarcodeDetector;
-  var hasCamera = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
-
-  console.log('[QR] jsQR:', hasJsQR, '| BarcodeDetector:', hasBD, '| Camera:', hasCamera);
-
-  if ((hasJsQR || hasBD) && hasCamera) {
-    // Live-Kamera-Modus
-    vQRStartCamera();
-  } else {
-    // Fallback: Foto aufnehmen
-    vQRSetStatus('Bitte QR-Code fotografieren:');
-    var fi = document.getElementById('vqr-file-input');
-    if (fi) {
-      fi.value = '';
-      fi.click();
-    } else {
-      vQRSetStatus('Kein Scanner verfügbar. Code manuell eingeben.');
-    }
-  }
-}
-
-function vQRStartCamera() {
-  vQRScanActive    = true;
-  vQRCurrentStream = null;
-  vQRSetStatus('Kamera startet…');
-
-  var constraints = { video: { facingMode: { ideal: 'environment' } } };
-  navigator.mediaDevices.getUserMedia(constraints)
-    .then(function(stream) {
-      vQRCurrentStream = stream;
-      var video = document.getElementById('vqr-video');
-      video.srcObject  = stream;
-      video.playsInline = true;
-      video.muted       = true;
-      video.onloadedmetadata = function() {
-        video.play().then(function() {
-          var label = stream.getVideoTracks()[0].label;
-          vQRSetStatus('QR-Code in den Rahmen halten…<br><small>' + label.slice(0,30) + '</small>');
-          if (window.BarcodeDetector) {
-            vQRScanNative(video, stream);
-          } else {
-            vQRScanWithJsQR(video, stream);
-          }
-        }).catch(function(e) { vQRSetStatus('Video-Fehler: ' + e.message); });
-      };
-    })
-    .catch(function(err) {
-      var msg = err.name === 'NotAllowedError'
-        ? 'Berechtigung verweigert – bitte Kamera erlauben.'
-        : err.name + ': ' + err.message;
-      vQRSetStatus(msg + '<br>Alternativ: <button onclick="vQRTriggerFile()" style="margin-top:6px;padding:8px 16px;background:#1b3a5c;color:white;border:none;border-radius:6px;cursor:pointer">Foto aufnehmen</button>');
-    });
-}
-
-function vQRFromFile(input) {
-  // Foto/Bild einlesen und QR-Code daraus lesen
-  var file = input.files && input.files[0];
-  if (!file) return;
-  vQRSetStatus('Bild wird verarbeitet…');
-
-  var reader = new FileReader();
-  reader.onload = function(e) {
-    var img = new Image();
-    img.onload = function() {
-      var canvas = document.createElement('canvas');
-      canvas.width  = img.width;
-      canvas.height = img.height;
-      var ctx = canvas.getContext('2d');
-      ctx.drawImage(img, 0, 0);
-      var imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-
-      // Methode 1: BarcodeDetector
-      if (window.BarcodeDetector) {
-        var bd = new BarcodeDetector({ formats: ['qr_code'] });
-        bd.detect(img).then(function(codes) {
-          if (codes && codes.length > 0 && codes[0].rawValue) {
-            vQRFoundCode(codes[0].rawValue, null);
-          } else {
-            vQRDecodeCanvas(imgData);
-          }
-        }).catch(function() { vQRDecodeCanvas(imgData); });
-        return;
-      }
-
-      // Methode 2: jsQR
-      vQRDecodeCanvas(imgData);
-    };
-    img.src = e.target.result;
-  };
-  reader.readAsDataURL(file);
-}
-
-function vQRDecodeCanvas(imgData) {
-  if (typeof jsQR === 'undefined') {
-    vQRSetStatus('Scan-Bibliothek nicht verfügbar.<br>Bitte App neu laden.');
-    return;
-  }
-  var code = jsQR(imgData.data, imgData.width, imgData.height, { inversionAttempts: 'attemptBoth' });
-  if (code && code.data) {
-    vQRFoundCode(code.data, null);
-  } else {
-    vQRSetStatus('QR-Code nicht erkannt.<br>Bitte helles Licht und geraden Winkel verwenden.');
-  }
+  if (modal) modal.style.display = 'none';
 }
 
 function vQRScanNative(video, stream) {
   var bd = new BarcodeDetector({ formats: ['qr_code'] });
   var frames = 0, fails = 0;
-
   function tick() {
     if (!vQRScanActive) return;
-    if (video.readyState < 2 || video.videoWidth === 0) {
-      vQRScanRAF = requestAnimationFrame(tick); return;
-    }
+    if (video.readyState < 2 || video.videoWidth === 0) { vQRScanRAF = requestAnimationFrame(tick); return; }
     frames++;
-    if (frames % 30 === 0) vQRSetStatus('QR-Code in den Rahmen halten… (' + frames + ' Frames)');
-
-    // BarcodeDetector direkt auf video-Element (korrekt für Chrome/macOS)
+    if (frames % 30 === 0) vQRSetStatus('QR-Code in den Rahmen halten…<br><small>' + frames + ' Frames</small>');
     bd.detect(video).then(function(codes) {
       if (!vQRScanActive) return;
-      if (codes && codes.length > 0 && codes[0].rawValue) {
-        vQRFoundCode(codes[0].rawValue, stream);
-      } else {
-        vQRScanRAF = requestAnimationFrame(tick);
-      }
+      if (codes && codes.length > 0 && codes[0].rawValue) { vQRFoundCode(codes[0].rawValue, stream); }
+      else { vQRScanRAF = requestAnimationFrame(tick); }
     }).catch(function(e) {
-      fails++;
-      if (fails > 10) {
-        console.log('[QR] BarcodeDetector → jsQR:', e.message);
-        vQRScanWithJsQR(video, stream);
-      } else {
-        vQRScanRAF = requestAnimationFrame(tick);
-      }
+      if (++fails > 10) { vQRScanWithJsQR(video, stream); }
+      else { vQRScanRAF = requestAnimationFrame(tick); }
     });
   }
   tick();
 }
 
 function vQRScanWithJsQR(video, stream) {
-  // Warte bis jsQR geladen ist (Multi-CDN braucht Zeit)
   if (typeof jsQR === 'undefined') {
-    vQRSetStatus('jsQR wird geladen…');
+    vQRSetStatus('jsQR lädt…');
     var waited = 0;
-    var waitTimer = setInterval(function() {
-      waited += 500;
-      if (typeof jsQR !== 'undefined') {
-        clearInterval(waitTimer);
-        vQRSetStatus('QR-Code in den Rahmen halten…');
-        vQRScanWithJsQR(video, stream);
-      } else if (waited > 10000) {
-        clearInterval(waitTimer);
-        vQRSetStatus('jsQR nicht verfügbar.<br>Bitte Foto aufnehmen: <button onclick="vQRTriggerFile()" style="padding:6px 12px;background:#1b3a5c;color:white;border:none;border-radius:6px;cursor:pointer;font-size:12px">Foto</button>');
-      }
+    var t = setInterval(function() {
+      if (typeof jsQR !== 'undefined') { clearInterval(t); vQRScanWithJsQR(video, stream); }
+      else if ((waited += 500) > 10000) { clearInterval(t); vQRSetStatus('Scan-Bibliothek nicht verfügbar.'); }
     }, 500);
     return;
   }
-
-  var canvas = document.createElement('canvas');
-  var ctx    = canvas.getContext('2d');
-  var frames = 0;
-
+  var canvas = document.createElement('canvas'), ctx = canvas.getContext('2d'), frames = 0;
   function tick() {
     if (!vQRScanActive) return;
-    if (video.readyState < 2 || video.videoWidth === 0) {
-      vQRScanRAF = requestAnimationFrame(tick); return;
-    }
-    canvas.width  = video.videoWidth;
-    canvas.height = video.videoHeight;
+    if (video.readyState < 2 || video.videoWidth === 0) { vQRScanRAF = requestAnimationFrame(tick); return; }
+    canvas.width = video.videoWidth; canvas.height = video.videoHeight;
     ctx.drawImage(video, 0, 0);
-    var imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    var code = jsQR(imgData.data, imgData.width, imgData.height, {
-      inversionAttempts: 'attemptBoth'
-    });
-    frames++;
-    if (frames % 30 === 0) {
-      vQRSetStatus('QR-Code in den Rahmen halten…<br><small>' +
-        canvas.width + '×' + canvas.height + ' · ' + frames + ' Frames</small>');
-    }
-    if (code && code.data) {
-      vQRFoundCode(code.data, stream);
-    } else {
-      vQRScanRAF = requestAnimationFrame(tick);
-    }
+    var code = jsQR(ctx.getImageData(0,0,canvas.width,canvas.height).data, canvas.width, canvas.height, { inversionAttempts: 'attemptBoth' });
+    if (++frames % 30 === 0) vQRSetStatus('QR-Code in den Rahmen halten…<br><small>' + canvas.width + '×' + canvas.height + ' · ' + frames + ' Frames</small>');
+    if (code && code.data) { vQRFoundCode(code.data, stream); }
+    else { vQRScanRAF = requestAnimationFrame(tick); }
   }
   tick();
 }
 
-
 function vQRFoundCode(data, stream) {
-  console.log('[QR] Erkannt ('+data.length+' Zeichen):', data.slice(0,80));
-  // Kamera stoppen aber Modal OFFEN lassen für Bestätigung
   vQRScanActive = false;
   if (vQRScanRAF) { cancelAnimationFrame(vQRScanRAF); clearTimeout(vQRScanRAF); vQRScanRAF = null; }
   var s = stream || vQRCurrentStream;
-  if (s && s.getTracks) { s.getTracks().forEach(function(t){ t.stop(); }); }
+  if (s) { try { s.getTracks().forEach(function(t){ t.stop(); }); } catch(e){} }
   vQRCurrentStream = null;
   var video = document.getElementById('vqr-video');
-  if (video) { video.srcObject = null; }
+  if (video) { try { video.srcObject = null; } catch(e){} }
   var wrap = document.getElementById('vqr-live-wrap');
   if (wrap) wrap.style.display = 'none';
-  var startBtn = document.getElementById('vqr-start-btn');
-  var stopBtn  = document.getElementById('vqr-stop-btn');
+  var stopBtn = document.getElementById('vqr-stop-btn');
   if (stopBtn) stopBtn.style.display = 'none';
 
-  // Bestätigung direkt im Scanner-Modal anzeigen
-  vQRShowConfirmInModal(data);
-}
-
-function vQRShowConfirmInModal(data) {
-  // Verarbeite den Code
   var raw = data.trim();
   if (raw.indexOf('#import=') !== -1) raw = raw.split('#import=')[1];
-  raw = raw.trim();
-  console.log('[Import] raw:', raw.slice(0,50));
-
   try {
-    var json, parsed;
-    try { json = decodeURIComponent(raw); parsed = JSON.parse(json); }
-    catch(e1) { parsed = JSON.parse(raw); }
+    var parsed;
+    try { parsed = JSON.parse(decodeURIComponent(raw)); } catch(e) { parsed = JSON.parse(raw); }
     if (!parsed || !parsed.pts) throw new Error('Ungültiges Format');
-
     var pts = Object.values(parsed.pts);
-    var infoHtml = '<div style="font-size:13px;font-weight:600;color:#1b3a5c;margin-bottom:8px">QR erkannt!</div>';
-    infoHtml += '<div style="font-size:12px;color:#444;margin-bottom:12px">';
-    pts.forEach(function(p) {
-      infoHtml += '&#128100; ' + (p.n||'?') + ' &nbsp;(' + (p.m||[]).length + ' Messungen)<br>';
-    });
-    infoHtml += '</div>';
 
-    // Im Scanner-Modal anzeigen
-    var confirmDiv = document.getElementById('vqr-confirm-area');
-    if (!confirmDiv) {
-      confirmDiv = document.createElement('div');
-      confirmDiv.id = 'vqr-confirm-area';
-      confirmDiv.style.cssText = 'background:#f0fff4;border:2px solid #27ae60;border-radius:10px;padding:12px;margin-top:10px';
-      var scannerModal = document.getElementById('vqr-scanner-modal');
-      if (scannerModal) scannerModal.querySelector('div').appendChild(confirmDiv);
+    var cd = document.getElementById('vqr-confirm-area');
+    if (!cd) {
+      cd = document.createElement('div');
+      cd.id = 'vqr-confirm-area';
+      cd.style.cssText = 'border-radius:10px;padding:12px;margin-top:10px';
+      var modal = document.getElementById('vqr-scanner-modal');
+      if (modal) modal.firstElementChild.appendChild(cd);
     }
-    confirmDiv.style.display = 'block';
-    confirmDiv.innerHTML = infoHtml +
-      '<div style="display:flex;gap:8px">' +
-      '<button onclick="vQRConfirmImport()" style="flex:1;padding:10px;background:#27ae60;color:white;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">&#10003; Importieren</button>' +
-      '<button onclick="vQRCancelImport()" style="flex:1;padding:10px;background:#eee;color:#333;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer">Abbrechen</button>' +
+    cd.style.display = 'block';
+    cd.style.background = '#f0fff4';
+    cd.style.border = '2px solid #27ae60';
+    cd.innerHTML =
+      '<div style="font-size:13px;font-weight:700;color:#1b3a5c;margin-bottom:6px">QR erkannt</div>' +
+      '<div style="font-size:12px;color:#444;margin-bottom:10px">' +
+      pts.map(function(p){ return '● ' + (p.n||'?') + ' (' + (p.m||[]).length + ' Messungen)'; }).join('<br>') +
+      '</div><div style="display:flex;gap:8px">' +
+      '<button onclick="vQRConfirmImport()" style="flex:1;padding:10px;background:#27ae60;color:white;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">✓ Importieren</button>' +
+      '<button onclick="vQRStartLive()" style="flex:1;padding:10px;background:#eee;color:#333;border:none;border-radius:8px;font-size:13px;cursor:pointer">Nochmal</button>' +
       '</div>';
-
-    // Daten für Bestätigung speichern
     vQRImportData = parsed;
-
   } catch(e) {
-    console.error('[Import] Fehler:', e.message);
-    vQRSetStatus('<span style="color:#c0392b">&#9888; ' + e.message + '</span>');
-    if (startBtn) startBtn.style.display = 'block';
+    vQRSetStatus('<span style="color:#c0392b">⚠ ' + e.message + '</span>');
+    setTimeout(function(){ vQRStartLive(); }, 2000);
   }
 }
 
 function vQRConfirmImport() {
   if (!vQRImportData || !vQRImportData.pts) return;
   vptLoad();
-  var imported = 0, merged = 0;
+  var imported = 0, merged = 0, names = [];
   Object.keys(vQRImportData.pts).forEach(function(srcId) {
     var src = vQRImportData.pts[srcId];
-    var newMeas = (src.m||[]).map(function(m) {
-      return { id: m.id, ts: m.ts, day: m.d, ice: m.i, icans: m.ia, crs: m.c };
-    });
+    var newMeas = (src.m||[]).map(function(m){ return { id:m.id, ts:m.ts, day:m.d, ice:m.i, icans:m.ia, crs:m.c }; });
     var existId = Object.keys(ptData).find(function(id){ return ptData[id].name === src.n; });
     if (existId) {
       var existIds = ptData[existId].measurements.map(function(m){ return m.id; });
-      ptData[existId].measurements = ptData[existId].measurements.concat(
-        newMeas.filter(function(m){ return existIds.indexOf(m.id) === -1; })
-      );
+      ptData[existId].measurements = ptData[existId].measurements.concat(newMeas.filter(function(m){ return existIds.indexOf(m.id)===-1; }));
       merged++;
     } else {
-      var newId = 'pt_imp_' + Date.now() + '_' + Math.random().toString(36).slice(2,6);
-      ptData[newId] = { name: src.n, measurements: newMeas };
+      ptData['pt_imp_'+Date.now()+'_'+Math.random().toString(36).slice(2,6)] = { name:src.n, measurements:newMeas };
       imported++;
     }
+    names.push(src.n);
   });
   ptSave();
-  auditAdd('QR-Import', imported + ' neu, ' + merged + ' zusammengeführt');
-  // Modal schließen und Patientenliste aktualisieren
-  document.getElementById('vqr-scanner-modal').style.display = 'none';
-  var cd = document.getElementById('vqr-confirm-area');
-  if (cd) { cd.style.display = 'none'; cd.innerHTML = ''; }
+  auditAdd('QR-Import', imported+' neu, '+merged+' aktualisiert');
   vQRImportData = null;
   vptRender();
-  // Erfolgsmeldung
-  alert('Import erfolgreich! ' + imported + ' neu, ' + merged + ' zusammengefuehrt.');
-}
 
-function vQRCancelImport() {
   var cd = document.getElementById('vqr-confirm-area');
-  if (cd) { cd.style.display = 'none'; cd.innerHTML = ''; }
-  vQRImportData = null;
-  document.getElementById('vqr-scanner-modal').style.display = 'none';
+  if (cd) {
+    cd.innerHTML =
+      '<div style="font-size:13px;font-weight:700;color:#27ae60;margin-bottom:6px">✓ Importiert: ' + names.join(', ') + '</div>' +
+      '<div style="font-size:11.5px;color:#555;margin-bottom:10px">' + imported + ' neu' + (merged ? ', '+merged+' aktualisiert' : '') + '</div>' +
+      '<div style="display:flex;gap:8px">' +
+      '<button onclick="vQRStartLive()" style="flex:1;padding:10px;background:#1b3a5c;color:white;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">Weiteren scannen</button>' +
+      '<button onclick="vQRStopScan()" style="flex:1;padding:10px;background:#eee;color:#333;border:none;border-radius:8px;font-size:13px;cursor:pointer">Fertig</button>' +
+      '</div>';
+  }
 }
 
-function vQRStopScan(stream) {
-  vQRScanActive = false;
-  if (vQRScanRAF) {
-    cancelAnimationFrame(vQRScanRAF);
-    clearTimeout(vQRScanRAF);
-    vQRScanRAF = null;
-  }
-  var s = stream || vQRCurrentStream;
-  if (s && s.getTracks) { s.getTracks().forEach(function(t){ t.stop(); }); }
-  vQRCurrentStream = null;
-  var video = document.getElementById('vqr-video');
-  if (video) { video.srcObject = null; }
-  var modal  = document.getElementById('vqr-scanner-modal');
-  if (modal) modal.style.display = 'none';
-  // Live-UI zurücksetzen
-  var wrap    = document.getElementById('vqr-live-wrap');
-  var startBtn = document.getElementById('vqr-start-btn');
-  var stopBtn  = document.getElementById('vqr-stop-btn');
-  if (wrap)    wrap.style.display = 'none';
-  if (startBtn) startBtn.style.display = 'block';
-  if (stopBtn)  stopBtn.style.display  = 'none';
-  vQRSetStatus('');
+function vQRFromFile(input) {
+  var file = input.files && input.files[0];
+  if (!file) return;
+  vQRSetStatus('Bild wird verarbeitet…');
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var img = new Image();
+    img.onload = function() {
+      var canvas = document.createElement('canvas');
+      canvas.width = img.width; canvas.height = img.height;
+      var ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0);
+      var imgData = ctx.getImageData(0,0,canvas.width,canvas.height);
+      if (typeof jsQR !== 'undefined') {
+        var code = jsQR(imgData.data,imgData.width,imgData.height,{inversionAttempts:'attemptBoth'});
+        if (code && code.data) { vQRFoundCode(code.data, null); return; }
+      }
+      if (window.BarcodeDetector) {
+        new BarcodeDetector({formats:['qr_code']}).detect(img)
+          .then(function(codes){ if(codes&&codes.length&&codes[0].rawValue){vQRFoundCode(codes[0].rawValue,null);}else{vQRSetStatus('QR nicht erkannt.');} })
+          .catch(function(){ vQRSetStatus('Fehler.'); });
+      } else { vQRSetStatus('QR nicht erkannt.'); }
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
 }
+
+function vQRTriggerFile() { var fi=document.getElementById('vqr-file-input'); if(fi){fi.value='';fi.click();} }
+function vQRImportFromPaste() { var ta=document.getElementById('vqr-paste-input'); if(ta&&ta.value.trim()) vQRFoundCode(ta.value.trim(),null); }
+
 
 // ── Import aus gescanntem Code ────────────────────────────
 function vQRImportFromCode(code) {
@@ -3670,16 +4717,371 @@ document.addEventListener('DOMContentLoaded', function() {
   }
   // Dosierungen direkt beim Laden anzeigen (GFR=null → Standarddosierung)
   if (typeof renderQuickRef === 'function') renderQuickRef(null);
+
+  // HTTPS-Enforcement
+  if (location.protocol === 'http:' &&
+      location.hostname !== 'localhost' &&
+      location.hostname !== '127.0.0.1' &&
+      !location.hostname.startsWith('192.168.') &&
+      !location.hostname.startsWith('10.')) {
+    var w = document.getElementById('https-warning');
+    if (w) w.style.display = 'block';
+    // Schiebe Inhalt nach unten damit der Banner nicht überlappt
+    document.body.style.paddingTop = '70px';
+    console.warn('[Sicherheit] HTTP-Verbindung erkannt – App sollte über HTTPS laufen!');
+  }
 });
 
+
+
+
+// ════════════════════════════════════════════════════════
+// HLH KURZSCREENING
+// Adaptiert nach HScore (Fardet et al. 2014) für CAR-T-Kontext
+// ════════════════════════════════════════════════════════
+var hlhValues = {};
+
+function hlhOpen() {
+  // Reset
+  hlhValues = {};
+  document.querySelectorAll('.hlh-btn').forEach(function(b){
+    b.style.background = 'white';
+    b.style.color = '#333';
+    b.style.borderColor = '#ddd';
+    b.style.fontWeight = '400';
+  });
+  document.getElementById('hlh-score-val').textContent = '0';
+  document.getElementById('hlh-score-label').textContent = 'Bitte Parameter ausfüllen';
+  document.getElementById('hlh-score-label').style.color = '#888';
+  document.getElementById('hlh-score-box').style.background = '#f5f5f5';
+  document.getElementById('hlh-recommendation').style.display = 'none';
+  document.getElementById('hlh-modal').style.display = 'flex';
+}
+
+function hlhClose() {
+  document.getElementById('hlh-modal').style.display = 'none';
+}
+
+function hlhSet(btn) {
+  var id  = btn.dataset.id;
+  var val = parseInt(btn.dataset.val);
+
+  // Deaktiviere andere Buttons derselben Gruppe
+  document.querySelectorAll('.hlh-btn[data-id="'+id+'"]').forEach(function(b){
+    b.style.background = 'white';
+    b.style.color = '#333';
+    b.style.borderColor = '#ddd';
+    b.style.fontWeight = '400';
+  });
+
+  // Aktiviere gewählten Button
+  btn.style.background = '#1b3a5c';
+  btn.style.color = 'white';
+  btn.style.borderColor = '#1b3a5c';
+  btn.style.fontWeight = '700';
+
+  hlhValues[id] = val;
+  hlhCalc();
+}
+
+function hlhCalc() {
+  var score = 0;
+  var filled = 0;
+  var total = 8; // Anzahl Parameter
+
+  var params = ['ferritin','trig','fibri','cyto','got','fever','spleno','hemo','immuno'];
+  params.forEach(function(p){
+    if (hlhValues[p] !== undefined) {
+      score += hlhValues[p];
+      filled++;
+    }
+  });
+  total = params.length;
+
+  document.getElementById('hlh-score-val').textContent = score;
+
+  var scoreBox  = document.getElementById('hlh-score-box');
+  var scoreLabel = document.getElementById('hlh-score-label');
+  var recBox    = document.getElementById('hlh-recommendation');
+
+  // Score-Interpretation (adaptiert nach HScore: ≥169 Punkte = 93% Sensitivität)
+  // Vereinfachter Score max. ~14 Punkte
+  var pct = '';
+  var color = '', bgColor = '', recommendation = '', urgency = '';
+
+  if (filled < 4) {
+    scoreLabel.textContent = 'Bitte mehr Parameter ausfüllen (' + filled + '/' + total + ')';
+    scoreLabel.style.color = '#888';
+    scoreBox.style.background = '#f5f5f5';
+    recBox.style.display = 'none';
+    return;
+  }
+
+  if (score <= 3) {
+    color = '#27ae60'; bgColor = '#f0fff4';
+    urgency = 'HLH unwahrscheinlich';
+    pct = '< 5%';
+    recommendation = '<b>Wahrscheinlichkeit HLH: &lt; 5%</b><br>Engmaschiges Monitoring fortsetzen. Bei klinischer Verschlechterung oder Ferritin-Anstieg erneut evaluieren.';
+  } else if (score <= 5) {
+    color = '#e67e22'; bgColor = '#fff8f0';
+    urgency = 'HLH möglich – Monitoring';
+    pct = '~30–50%';
+    recommendation = '<b>Wahrscheinlichkeit HLH: ~30–50%</b><br>Hämatologisches Konsil empfohlen. Ferritin-Verlauf täglich, sCD25 (IL-2R) abnehmen. NK-Zell-Aktivität, Knochenmarkpunktion erwägen.';
+  } else if (score <= 8) {
+    color = '#c0392b'; bgColor = '#fff0f0';
+    urgency = 'HLH wahrscheinlich!';
+    pct = '~70–88%';
+    recommendation = '<b>Wahrscheinlichkeit HLH: ~70–88%</b><br><b>Hämatologisches Konsil dringend!</b><br>HLH-2004-Kriterien vollständig prüfen. Knochenmarkpunktion, sCD25, NK-Zell-Aktivität.<br>Therapie-Diskussion: Dexamethason, Etoposid, ggf. Emapalumab (bei primärer HLH).<br>Bei CAR-T-assoziierter HLH: Anakinra und/oder Ruxolitinib in Betracht ziehen.';
+  } else {
+    color = '#8b0000'; bgColor = '#ffe8e8';
+    urgency = 'HLH sehr wahrscheinlich – NOTFALL';
+    pct = '> 93%';
+    recommendation = '<b>Wahrscheinlichkeit HLH: &gt; 93%</b><br><b>&#9888; NOTFALL – Sofortiges hämatologisches Konsil!</b><br>HLH-Therapie unverzüglich einleiten: Dexamethason 10 mg/m² i.v., Etoposid diskutieren.<br>Bei CAR-T-Kontext: Anakinra und Ruxolitinib bevorzugt (geringere Myelosuppression).<br>Emapalumab bei primärer/refraktärer HLH. Intensivstation sichern.';
+  }
+
+  scoreBox.style.background = bgColor;
+  scoreLabel.innerHTML = '<span style="color:'+color+';font-weight:700">'+urgency+'</span><br><span style="color:#888;font-size:10px">HLH-Wahrscheinlichkeit: '+pct+'</span>';
+
+  recBox.style.display = 'block';
+  recBox.style.background = bgColor;
+  recBox.style.border = '1px solid '+color;
+  recBox.innerHTML = '<div style="font-size:12px;color:'+color+';line-height:1.6">'+recommendation+'</div>';
+}
+
+function hlhAuditLog() {
+  var score = parseInt(document.getElementById('hlh-score-val').textContent)||0;
+  var label = document.getElementById('hlh-score-label').textContent||'';
+  auditAdd('HLH-Screening', 'Score: '+score+' – '+label.replace(/<[^>]+>/g,''));
+  var btn = document.querySelector('#hlh-modal button[onclick="hlhAuditLog()"]');
+  if (btn) {
+    var old = btn.innerHTML;
+    btn.innerHTML = '&#10003; Eingetragen';
+    btn.style.background = '#27ae60';
+    setTimeout(function(){ btn.innerHTML=old; btn.style.background='#1b3a5c'; }, 2000);
+  }
+}
+
+
+// ════════════════════════════════════════════════════════
+// LUMBALPUNKTION CHECKLISTE
+// ════════════════════════════════════════════════════════
+function lpModalOpen() {
+  // Checkboxen zurücksetzen
+  document.querySelectorAll('#lp-modal input[type=checkbox]').forEach(function(cb){
+    cb.checked = false;
+  });
+  document.getElementById('lp-ki-warn').style.display = 'none';
+  document.getElementById('lp-modal').style.display = 'flex';
+}
+
+function lpModalClose() {
+  document.getElementById('lp-modal').style.display = 'none';
+}
+
+function lpKIUpdate() {
+  var any = document.querySelectorAll('#lp-modal input[id^="lp_ki"]:checked').length > 0;
+  document.getElementById('lp-ki-warn').style.display = any ? 'block' : 'none';
+}
+
+// ════════════════════════════════════════════════════════
+// KONTRAINDIKATIONS-SCREENING
+// ════════════════════════════════════════════════════════
+var _kontraCallback = null; // Funktion die nach OK aufgerufen wird
+
+var KONTRA_DATA = {
+  tocilizumab: {
+    name: 'Tocilizumab (IL-6-Rezeptor-Antagonist)',
+    color: '#2E75B6',
+    items: [
+      { id: 'toci_hepb',    label: 'Aktive Hepatitis B (HBsAg positiv oder HBcAb pos. mit reaktiver Viruslast)' },
+      { id: 'toci_tb',      label: 'Aktive Tuberkulose (unbehandelt)' },
+      { id: 'toci_neutro',  label: 'Schwere Neutropenie (ANC < 0,5 × 10⁹/L)' },
+      { id: 'toci_thrombo', label: 'Schwere Thrombozytopenie (Thrombozyten < 50 × 10⁹/L)' },
+      { id: 'toci_perf',    label: 'Anamnese gastrointestinale Perforation' }
+    ]
+  },
+  dexamethason: {
+    name: 'Dexamethason / Methylprednisolon (Kortikosteroide)',
+    color: '#8E44AD',
+    items: [
+      { id: 'dexa_fung',    label: 'Systemische Pilzinfektion (unbehandelt)' },
+      { id: 'dexa_vacc',    label: 'Lebendimpfung in den letzten 4 Wochen' },
+      { id: 'dexa_psych',   label: 'Schwere Psychose oder steroidinduzierte Psychose in der Vorgeschichte' }
+    ]
+  },
+  anakinra: {
+    name: 'Anakinra (IL-1-Rezeptor-Antagonist)',
+    color: '#E67E22',
+    items: [
+      { id: 'ana_hyp',      label: 'Bekannte Überempfindlichkeit gegen Anakinra oder E. coli-abgeleitete Proteine' },
+      { id: 'ana_inf',      label: 'Aktive schwere Infektion (außer im Rahmen CRS / HLH-Bild)' },
+      { id: 'ana_gfr',      label: 'GFR < 30 ml/min – Dosisreduktion / engmaschige Kontrolle erforderlich' },
+      { id: 'ana_tnf',      label: 'Gleichzeitige Anti-TNF-Therapie (stark erhöhtes Infektionsrisiko)' },
+      { id: 'ana_vacc',     label: 'Lebendimpfung in den letzten 4 Wochen' }
+    ]
+  },
+  siltuximab: {
+    name: 'Siltuximab (Anti-IL-6, Alternative zu Tocilizumab)',
+    color: '#16A085',
+    items: [
+      { id: 'silt_hyp',     label: 'Bekannte Überempfindlichkeit gegen Siltuximab' },
+      { id: 'silt_inf',     label: 'Aktive schwere Infektion' },
+      { id: 'silt_vacc',    label: 'Lebendimpfung in den letzten 4 Wochen' }
+    ]
+  }
+};
+
+function kontraToggleLine(lineId, drugKey) {
+  // Speichere lineId global damit kontraConfirm die Markierung setzen kann
+  _kontraLineId  = lineId;
+  _kontraDrugKey = drugKey;
+  kontraShow([drugKey], null);
+}
+
+var _kontraLineId  = null;
+var _kontraDrugKey = null;
+
+function kontraApplyLineMarking(anyChecked) {
+  if (!_kontraLineId) return;
+  var line = document.getElementById(_kontraLineId);
+  var btn  = document.getElementById('kibtn_' + _kontraLineId);
+  if (anyChecked && line) {
+    line.style.background   = '#fde8e8';
+    line.style.borderRadius = '6px';
+    line.style.padding      = '4px 8px';
+    line.style.borderLeft   = '4px solid #c0392b';
+    if (btn) { btn.style.background = '#8e1a0e'; btn.title = 'KI vorhanden – erneut prüfen'; }
+  } else if (line) {
+    line.style.background = '';
+    line.style.borderLeft = '';
+    line.style.padding    = '';
+    if (btn) { btn.style.background = '#c0392b'; btn.title = 'Kontraindikationen prüfen'; }
+  }
+  _kontraLineId  = null;
+  _kontraDrugKey = null;
+}
+
+function kontraShow(drugs, callback) {
+  // drugs: Array mit Schlüsseln aus KONTRA_DATA z.B. ['tocilizumab', 'anakinra']
+  _kontraCallback = callback;
+  var html = '';
+  var drugsToCheck = drugs.filter(function(d){ return KONTRA_DATA[d]; });
+
+  if (drugsToCheck.length === 0) {
+    // Keine KI-Daten → direkt Callback
+    if (callback) callback();
+    return;
+  }
+
+  html += '<div style="font-size:12px;color:#555;margin-bottom:12px;line-height:1.5;">' +
+    'Bitte prüfen Sie, ob eine der folgenden Kontraindikationen beim Patienten vorliegt.<br>' +
+    '<strong>Haken setzen = Kontraindikation vorhanden</strong>' +
+    '</div>';
+
+  drugsToCheck.forEach(function(drug) {
+    var d = KONTRA_DATA[drug];
+    html += '<div style="margin-bottom:14px">';
+    html += '<div style="font-size:12px;font-weight:700;color:' + d.color + ';margin-bottom:6px;' +
+            'padding:4px 8px;background:' + d.color + '18;border-radius:6px;border-left:3px solid ' + d.color + '">' +
+            d.name + '</div>';
+    d.items.forEach(function(item) {
+      html += '<label style="display:flex;align-items:flex-start;gap:8px;padding:5px 4px;cursor:pointer;' +
+              'border-radius:6px;margin-bottom:2px">' +
+              '<input type="checkbox" id="' + item.id + '" style="margin-top:2px;width:16px;height:16px;' +
+              'accent-color:#c0392b;cursor:pointer;flex-shrink:0" onchange="kontraUpdate()">' +
+              '<span style="font-size:12px;color:#333;line-height:1.4">' + item.label + '</span>' +
+              '</label>';
+    });
+    html += '</div>';
+  });
+
+  html += '<div id="kontra-warning" style="display:none;background:#fef0f0;border:1px solid #e74c3c;' +
+          'border-radius:8px;padding:10px;font-size:12px;color:#c0392b;margin-top:4px;line-height:1.5">' +
+          '<strong>&#9888; Kontraindikation markiert!</strong><br>' +
+          'Bitte rücksprache mit Fachkollegen und Fachinformation beachten.<br>' +
+          'Die Empfehlung kann trotzdem angezeigt werden, aber die KI muss klinisch gewichtet werden.' +
+          '</div>';
+
+  document.getElementById('kontra-content').innerHTML = html;
+  kontraUpdate();
+  document.getElementById('kontra-modal').style.display = 'flex';
+}
+
+function kontraUpdate() {
+  var anyChecked = document.querySelectorAll('#kontra-content input[type=checkbox]:checked').length > 0;
+  var warn = document.getElementById('kontra-warning');
+  var btn  = document.getElementById('kontra-confirm-btn');
+  if (warn) warn.style.display = anyChecked ? 'block' : 'none';
+  if (btn) {
+    if (anyChecked) {
+      btn.style.background = '#e67e22';
+      btn.textContent = '⚠ Trotzdem anzeigen (KI vorhanden)';
+    } else {
+      btn.style.background = '#27ae60';
+      btn.textContent = '✓ Keine KI – Empfehlung anzeigen';
+    }
+  }
+}
+
+function kontraConfirm() {
+  var checkedEls = Array.from(document.querySelectorAll('#kontra-content input[type=checkbox]:checked'));
+  var checked = checkedEls.map(function(el){ return el.id; });
+  var anyChecked = checked.length > 0;
+  if (anyChecked) {
+    auditAdd('KI-Screening: Kontraindikation vorhanden', checked.join(', '));
+  }
+  // Markierung VOR dem Schließen anwenden (Checkboxen noch im DOM)
+  if (typeof kontraApplyLineMarking === 'function') kontraApplyLineMarking(anyChecked);
+  document.getElementById('kontra-modal').style.display = 'none';
+  if (_kontraCallback) { _kontraCallback(); _kontraCallback = null; }
+}
+
+
 // ── Init ───────────────────────────────────────────────
+// ── HTTPS-Enforcement ────────────────────────────────────
+(function() {
+  var proto = window.location.protocol;
+  var host  = window.location.hostname;
+  var isLocal = (host === 'localhost' || host === '127.0.0.1' || host === '');
+  if (proto !== 'https:' && !isLocal) {
+    // Overlay anzeigen
+    var overlay = document.createElement('div');
+    overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:#1b3a5c;z-index:99999;display:flex;align-items:center;justify-content:center;padding:24px;box-sizing:border-box';
+    overlay.innerHTML =
+      '<div style="background:white;border-radius:16px;padding:24px;max-width:340px;text-align:center">' +
+      '<div style="font-size:40px;margin-bottom:12px">⚠️</div>' +
+      '<div style="font-size:16px;font-weight:700;color:#c0392b;margin-bottom:10px">Unsichere Verbindung</div>' +
+      '<div style="font-size:13px;color:#444;line-height:1.6;margin-bottom:16px">' +
+      'Diese App überträgt klinische Daten und benötigt eine verschlüsselte HTTPS-Verbindung.<br><br>' +
+      'Aktuell wird die App über <strong>HTTP</strong> aufgerufen (' + window.location.href + ').<br><br>' +
+      'Bitte wenden Sie sich an Ihre IT-Abteilung um die App über HTTPS zu betreiben.' +
+      '</div>' +
+      '<div style="font-size:11px;color:#888">Aus Sicherheitsgründen wurde die App gesperrt.<br>MDR-konforme Nutzung erfordert HTTPS.</div>' +
+      '</div>';
+    document.body.appendChild(overlay);
+    console.error('[Security] App über HTTP aufgerufen – gesperrt.');
+  }
+})();
+
 updateCRS();
 ptInit();
 
 if ('serviceWorker' in navigator) {
   // SW registrieren mit Cache-Bust-Parameter (= App-Version)
-  var SW_VER = '2.3';
-  navigator.serviceWorker.register('./sw.js?v=' + SW_VER)
+  var SW_VER = '5.5';
+  navigator.serviceWorker.register('./sw.js?v=' + SW_VER + '&t=' + Date.now())
+    .then(function(reg) {
+      reg.addEventListener('updatefound', function() {
+        var newW = reg.installing;
+        newW.addEventListener('statechange', function() {
+          if (newW.state === 'installed') {
+            // Zeige Update-Banner
+            var banner = document.getElementById('app-update-banner');
+            if (banner) banner.style.display = 'block';
+          }
+        });
+      });
+    })
     .then(function(reg) {
       // Sofort nach Update suchen
       reg.update();
